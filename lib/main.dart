@@ -8,6 +8,11 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart'; //intlインポートする
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'; //desktop上に実行する時必要
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+// 
+
+
 void main() async {
   /*  変更禁止部分  */
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +25,10 @@ void main() async {
 
   await DBHelper.instance.database;
   /*  ⇧⇧⇧⇧⇧⇧ 変更禁止部分　　*/
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
 
   // runApp(const MyApp());
   //カレンダーの言語を変えるために下記のように変更した
