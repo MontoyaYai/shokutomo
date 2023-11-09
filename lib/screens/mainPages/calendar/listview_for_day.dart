@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shokutomo/database/delete_activity.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/database/update_activity.dart';
-import 'package:shokutomo/information_format/shop_list.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/mainPages/calendar/data/fetch_myproducts.dart';
 import 'package:shokutomo/screens/mainPages/calendar/edit_dialog.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 class ListViewForDay extends StatefulWidget {
-  final List<MyProductWithNameAndImage> getProductsForDay;
+  final List<MyProducts> getProductsForDay;
   final DateTime selectedDay;
-  final Function(int, DateTime) onDelete;
+  final Function(String, DateTime) onDelete;
   final Function() onUpdateCalendar;
   final Function() onUpdateProduct;
 
@@ -25,19 +23,20 @@ class ListViewForDay extends StatefulWidget {
       : super(key: key);
 
   @override
+  // ignore: no_logic_in_create_state
   ListViewForDayState createState() => ListViewForDayState(
       getProductsForDay: getProductsForDay, selectedDay: selectedDay);
 }
 
 class ListViewForDayState extends State<ListViewForDay> {
-  List<MyProductWithNameAndImage> getProductsForDay;
+  List<MyProducts> getProductsForDay;
   final DateTime selectedDay;
 
   ListViewForDayState(
       {Key? key, required this.getProductsForDay, required this.selectedDay});
 
   void updateProductsAndCalendar(DateTime selectedDate) {
-    Map<DateTime, List<MyProductWithNameAndImage>> products =
+    Map<DateTime, List<MyProducts>> products =
         FetchMyProductsFromDatabase().getProducts();
     setState(() {
       getProductsForDay = products[DateTime(
@@ -55,19 +54,19 @@ class ListViewForDayState extends State<ListViewForDay> {
     if (quantity != 0 && gram != 0) {
       num avrGram = gram / quantity;
       //quantityは1が増える, Gramは平均Gramが増える
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           ++quantity,
           gram += avrGram.toInt());
     } else if (quantity != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           ++quantity,
           0);
     } else if (gram != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           0,
@@ -87,19 +86,19 @@ class ListViewForDayState extends State<ListViewForDay> {
     if (quantity != 0 && gram != 0) {
       num avrGram = gram / quantity;
       //quantityは1が増える, Gramは平均Gramが増える
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           --quantity,
           gram -= avrGram.toInt());
     } else if (quantity != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           --quantity,
           0);
     } else if (gram != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           getProductsForDay[index].no,
           getProductsForDay[index].expiredDate,
           0,
@@ -135,7 +134,7 @@ class ListViewForDayState extends State<ListViewForDay> {
                     ActionPane(motion: const StretchMotion(), children: [
                   SlidableAction(
                     onPressed: (BuildContext context) async {
-                      await DeleteActivity().deleteMyProduct(no, expiredDate);
+                      await FirebaseServices().deleteMyProduct(no, expiredDate);
                       widget.onUpdateCalendar();
                     },
                     backgroundColor: Colors.red,
@@ -148,8 +147,10 @@ class ListViewForDayState extends State<ListViewForDay> {
                   SlidableAction(
                     onPressed: (BuildContext context) async {
                       // Make a copy of the item in the shoplist database
-                      await InsertActivity().insertOrUpdateIntoShopList(
+                      await FirebaseServices().insertOrUpdateIntoShopList(
                         ShopList(
+                            name: getProductsForDay[index].name,
+                            image: getProductsForDay[index].image,
                             productNo: getProductsForDay[index].no,
                             quantity: getProductsForDay[index].quantity,
                             gram: getProductsForDay[index].gram,
@@ -193,7 +194,7 @@ class ListViewForDayState extends State<ListViewForDay> {
                       )
                     ],
                   ),
-                  leading: Image.asset(image),
+                  leading: Image.asset("assets/img/$image"),
                   onTap: () {
                     showDialog(
                       context: context,

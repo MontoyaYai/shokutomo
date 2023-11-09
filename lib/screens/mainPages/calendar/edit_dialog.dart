@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shokutomo/database/update_activity.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 class EditDialog extends StatefulWidget {
-  final MyProductWithNameAndImage product;
+  final MyProducts product;
   final Function(DateTime) onUpdate;
 
   const EditDialog({super.key, required this.product, required this.onUpdate});
 
   @override
   EditDialogState createState() =>
+      // ignore: no_logic_in_create_state
       EditDialogState(product: product, onUpdate: onUpdate);
 }
 
 class EditDialogState extends State<EditDialog> {
-  final MyProductWithNameAndImage product;
+  final MyProducts product;
   final Function(DateTime) onUpdate;
   DateTime? initialExpiredDate;
   bool isChangeableExpiredDate = true;
@@ -39,7 +40,7 @@ class EditDialogState extends State<EditDialog> {
                 height: 200,
                 width: 200,
                 child: Image.asset(
-                  product.image,
+                "assets/img/${product.image}",
                   fit: BoxFit.contain,
                 ),
               ),
@@ -294,7 +295,7 @@ class EditDialogState extends State<EditDialog> {
 
   //update MyProduct 実行する非同期メソッド
   void callUpdate(
-      MyProductWithNameAndImage product, DateTime oldExpiredDate) async {
-    await UpdateActivity().updateRecord(product, oldExpiredDate);
+      MyProducts product, DateTime oldExpiredDate) async {
+    await FirebaseServices().updateRecordMyProduct(product, oldExpiredDate);
   }
 }

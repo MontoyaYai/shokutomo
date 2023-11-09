@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/information_format/product_table.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'dart:math';
 import 'chat_page.dart';
 import 'chat_screen.dart';
@@ -14,9 +14,9 @@ class SearchRecipe extends StatefulWidget {
 }
 
 class _SearchRecipeState extends State<SearchRecipe> {
-  Future<List<MyProductWithNameAndImage>>? myProductsFuture;
-  Future<List<Products>>? productsFuture;
-  List<MyProductWithNameAndImage> selectedItems = [];
+  Future<List<MyProducts>>? myProductsFuture;
+  Future<List<Product>>? productsFuture;
+  List<MyProducts> selectedItems = [];
 
   @override
   void initState() {
@@ -25,13 +25,13 @@ class _SearchRecipeState extends State<SearchRecipe> {
     productsFuture = fetchProducts();
   }
 
-  Future<List<MyProductWithNameAndImage>> fetchMyProducts() async {
-    return GetActivity().getMyProducts();
+  Future<List<MyProducts>> fetchMyProducts() async {
+    return FirebaseServices().getFirebaseMyProducts();
   }
 
-  Future<List<Products>> fetchProducts() async {
+  Future<List<Product>> fetchProducts() async {
     // final dbHelper = DBHelper.instance;
-    return GetActivity().getAllProducts();
+    return FirebaseServices().getFirebaseProducts();
   }
 
   @override
@@ -45,7 +45,7 @@ class _SearchRecipeState extends State<SearchRecipe> {
         ),
       ),
       body: Center(
-        child: FutureBuilder<List<Products>>(
+        child: FutureBuilder<List<Product>>(
           future: productsFuture,
           builder: (context, productsSnapshot) {
             if (productsSnapshot.connectionState == ConnectionState.waiting) {
@@ -54,7 +54,7 @@ class _SearchRecipeState extends State<SearchRecipe> {
               return Text('Error: ${productsSnapshot.error}');
             } else {
               return Center(
-                child: FutureBuilder<List<MyProductWithNameAndImage>>(
+                child: FutureBuilder<List<MyProducts>>(
                   future: myProductsFuture,
                   builder: (context, myProductsSnapshot) {
                     if (myProductsSnapshot.connectionState ==
@@ -84,8 +84,8 @@ class _SearchRecipeState extends State<SearchRecipe> {
 }
 
 class ButtonGrid extends StatelessWidget {
-  final List<MyProductWithNameAndImage> myProducts;
-  final List<Products> products;
+  final List<MyProducts> myProducts;
+  final List<Product> products;
 
   const ButtonGrid({Key? key, required this.myProducts, required this.products})
       : super(key: key);
@@ -223,7 +223,7 @@ class ButtonGrid extends StatelessWidget {
   }
 
   void _showDialogBox(
-      BuildContext context, List<MyProductWithNameAndImage>? myProducts) {
+      BuildContext context, List<MyProducts>? myProducts) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -265,7 +265,7 @@ class ButtonGrid extends StatelessWidget {
     );
   }
 
-  void _showProductsDialogBox(BuildContext context, List<Products>? products) {
+  void _showProductsDialogBox(BuildContext context, List<Product>? products) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -281,12 +281,12 @@ class ButtonGrid extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: Image.asset(products[index].image),
-                        title: Text(products[index].name),
+                        title: Text(products[index].productName),
                         onTap: () {
                           Navigator.of(context).pop();
                           _navigateToChatScreen(
                             context,
-                            '${products[index].name} がはいっているレシピ教えてください。',
+                            '${products[index].productName} がはいっているレシピ教えてください。',
                           );
                         },
                       );
@@ -312,7 +312,7 @@ class ButtonGrid extends StatelessWidget {
   //   return products[Random().nextInt(products.length)];
   // }
 
-  Products getRandomProductFromMyProducts(List<Products> products) {
+  Product getRandomProductFromMyProducts(List<Product> products) {
     if (products.isEmpty) {
       throw Exception("The list of myProducts is empty.");
     }

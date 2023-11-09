@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shokutomo/database/delete_activity.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/database/update_activity.dart';
-import 'package:shokutomo/information_format/product_table.dart';
-import 'package:shokutomo/information_format/shop_list.dart';
-import 'package:shokutomo/information_format/product_for_search.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
+import 'package:shokutomo/firebase/productforsearch_json_map.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/add_shop_list_item.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/confirm_dialog.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/edit_dialog.dart';
@@ -20,7 +18,7 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingListPageState extends State<ShoppingList> {
   List<ShopList> shopListProducts = [];
-  List<Products> product = [];
+  List<Product> product = [];
   int selectedEntryIndex = -1;
 
   @override
@@ -30,30 +28,30 @@ class _ShoppingListPageState extends State<ShoppingList> {
   }
 
   Future<void> fetchShopList() async {
-    product = await GetActivity().getAllProducts();
-    shopListProducts = await GetActivity().getAllShoppingList();
+    product = await FirebaseServices().getFirebaseProducts();
+    shopListProducts = await FirebaseServices().getAllShoppingList();
     setState(() {});
   }
 
-  String getProductName(int productNo) {
+  String getProductName(String productNo) {
     final shopListProduct = shopListProducts.firstWhere(
       (product) => product.productNo == productNo,
     );
     return product
-        .firstWhere((product) => product.no == shopListProduct.productNo)
-        .name;
+        .firstWhere((product) => product.productNo == shopListProduct.productNo)
+        .productName;
   }
 
-  String getProductImage(int productNo) {
+  String getProductImage(String productNo) {
     final shopListProduct = shopListProducts.firstWhere(
       (product) => product.productNo == productNo,
     );
     return product
-        .firstWhere((product) => product.no == shopListProduct.productNo)
+        .firstWhere((product) => product.productNo == shopListProduct.productNo)
         .image;
   }
 
-  int getProductNo(int productNo) {
+  String getProductNo(String productNo) {
     final product = shopListProducts.firstWhere(
       (product) => product.productNo == productNo,
     );
@@ -61,7 +59,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
   }
 
   void _deleteProduct(ShopList product) async {
-    await DeleteActivity().deleteShopListProduct(product.productNo);
+    await FirebaseServices().deleteShopListProduct(product.productNo);
     fetchShopList();
   }
 
@@ -132,7 +130,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
                             searchProvider._searchResults[index];
                         return ListTile(
                             title: Text(result.productName),
-                            leading: Image.asset(result.productImage),
+                            leading: Image.asset("assets/img/${result.productImage}"),
                             onTap: () {
                               showDialog(
                                   context: context,
@@ -236,8 +234,8 @@ class _ShoppingListPageState extends State<ShoppingList> {
                                   selectedEntryIndex = index;
                                 });
                               },
-                              leading: Image.asset(
-                                getProductImage(product.productNo),
+                              leading: Image.asset('assets/img/${getProductImage(product.productNo)}'
+                                ,
                                 width: 30,
                                 height: 30,
                               ),
@@ -299,11 +297,11 @@ class _ShoppingListPageState extends State<ShoppingList> {
   }
 
   Future<List<ProductsForSearch>> getSearchResults(String searchText) {
-    return GetActivity().getSearchResults(searchText, 0);
+    return FirebaseServices().getSearchResults(searchText, 0);
   }
 
-  void updateProductStatus(int productNo) async {
-    await UpdateActivity().updateStatusOfShopList(productNo);
+  void updateProductStatus(String productNo) async {
+    await FirebaseServices().updateStatusOfShopList(productNo);
   }
 }
 

@@ -1,18 +1,18 @@
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 class FetchMyProductsFromDatabase {
-  Map<DateTime, List<MyProductWithNameAndImage>> products = {};
+  Map<DateTime, List<MyProducts>> products = {};
 
   FetchMyProductsFromDatabase() {
     fetchDataFromDatabase();
   }
 
   Future<void> fetchDataFromDatabase() async {
-    List<MyProductWithNameAndImage> myProducts =
-        await GetActivity().getMyProducts();
+    List<MyProducts> myProducts =
+        await FirebaseServices().getFirebaseMyProducts();
     //DateTimeごとに商品を分ける
-    for (MyProductWithNameAndImage product in myProducts) {
+    for (MyProducts product in myProducts) {
       DateTime expiredDate = product.expiredDate;
       if (products.containsKey(expiredDate)) {
         products[expiredDate]!.add(product);
@@ -22,7 +22,7 @@ class FetchMyProductsFromDatabase {
     }
   }
 
-  Map<DateTime, List<MyProductWithNameAndImage>> getProducts() {
+  Map<DateTime, List<MyProducts>> getProducts() {
     return products;
   }
 }

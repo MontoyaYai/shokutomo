@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:shokutomo/database/delete_activity.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/screens/mainPages/calendar/calendar_widget.dart';
 import 'package:shokutomo/screens/mainPages/calendar/data/fetch_myproducts.dart';
 import 'package:shokutomo/screens/mainPages/calendar/listview_for_day.dart';
@@ -23,8 +23,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   //賞味期限切れのitemsリストを生成
   // DateTime はキーとして、valuesは 商品名、イラスト、個数（重量）
-  Map<DateTime, List<MyProductWithNameAndImage>> _products = {};
-  List<MyProductWithNameAndImage> _getProductsForDay = [];
+  Map<DateTime, List<MyProducts>> _products = {};
+  List<MyProducts> _getProductsForDay = [];
 
   @override
   void initState() {
@@ -33,8 +33,8 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   //ListView の各アイテムのdeleteボタンをクリックした時、deleteRecordメソッドが呼ばれる
-  Future<void> deleteRecord(int productNo, DateTime expiredDate) async {
-    int count = await DeleteActivity().deleteMyProduct(productNo, expiredDate);
+  Future<void> deleteRecord(String productNo, DateTime expiredDate) async {
+    int count = await FirebaseServices().deleteMyProduct(productNo, expiredDate);
     if (count > 0) {
       //delete成功、ListView再読み込み
       _products = FetchMyProductsFromDatabase().getProducts();

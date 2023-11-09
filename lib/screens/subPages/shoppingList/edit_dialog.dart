@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shokutomo/database/update_activity.dart';
-import 'package:shokutomo/information_format/shop_list.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
+
 
 class ShopListEditDialog extends StatelessWidget {
   final ShopList selectedProduct;
@@ -30,7 +31,7 @@ class ShopListEditDialog extends StatelessWidget {
                 SizedBox(
                   height: 50,
                   width: 50,
-                  child: Image.asset(productImage),
+                  child: Image.asset('assets/img/$productImage'),
                 ),
                 Text(
                   productName,
@@ -96,6 +97,6 @@ class ShopListEditDialog extends StatelessWidget {
   }
 
   void updateProduct(ShopList product) async {
-    await UpdateActivity().updateProductOfShopList(product);
+    await FirebaseServices().updateProductOfShopList(product);
   }
 }

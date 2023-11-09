@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 class CalendarWidget extends StatelessWidget {
   final CalendarFormat calendarFormat;
   final DateTime focusedDay;
   final DateTime selectedDay;
-  final Map<DateTime, List<MyProductWithNameAndImage>> products;
+  final Map<DateTime, List<MyProducts>> products;
   final Function(DateTime, DateTime) onDaySelected;
   final List<dynamic> Function(DateTime)? eventLoader;
   final Function(BuildContext, DateTime)? dowBuilder;

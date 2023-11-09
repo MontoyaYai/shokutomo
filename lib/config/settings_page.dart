@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shokutomo/database/update_activity.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'theme/app_theme.dart';
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -123,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
       onChanged: (value) async {
         final appTheme = Provider.of<AppTheme>(context, listen: false);
         appTheme.selectedColor = value!;
-        await UpdateActivity().updateThemeColor(value);
+        await FirebaseServices().updateThemeColor(value);
       },
     );
   }

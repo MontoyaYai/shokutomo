@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/get_activity.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+// import 'package:shokutomo/database/firebase_services.dart';
+// import 'package:shokutomo/database/get_activity.dart';
 import 'package:shokutomo/screens/initial_page.dart';
 import 'config/settings_page.dart';
 import 'config/theme/app_theme.dart';
-import 'database/database_helper.dart';
+// import 'database/database_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart'; //intlインポートする
-import 'package:sqflite_common_ffi/sqflite_ffi.dart'; //desktop上に実行する時必要
+
+//Firebase Import
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+//
 
 void main() async {
   /*  変更禁止部分  */
@@ -18,8 +24,19 @@ void main() async {
   // sqfliteFfiInit();
   //↑↑↑↑iOS＆androidに実行する時　COMMENTする↑↑↑↑
 
-  await DBHelper.instance.database;
+  // await DBHelper.instance.database;
   /*  ⇧⇧⇧⇧⇧⇧ 変更禁止部分　　*/
+  
+  //Firebase Init
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+    // Llama a la función getTest() para obtener la lista de datos
+  // List test = await getTest();
+  print('yai');
+  // Imprime los datos de la lista test
+  // print(test);
 
   // runApp(const MyApp());
   //カレンダーの言語を変えるために下記のように変更した
@@ -32,7 +49,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<int>(
-      future: GetActivity().getThemeColor(),
+      future: FirebaseServices().getThemeColor() ,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {

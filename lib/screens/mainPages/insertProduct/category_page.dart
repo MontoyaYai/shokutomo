@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/get_activity.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/create_record.dart';
-import 'package:shokutomo/information_format/product_for_search.dart';
+import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/select_category.dart';
 import '../../../widgets/app_bar_swipe.dart';
 import 'package:provider/provider.dart';
@@ -142,7 +142,7 @@ class CategoryPage extends StatelessWidget {
   }
 
   Future<List<ProductsForSearch>> getSearchResults(String searchText) {
-    return GetActivity().getSearchResults(searchText, 0);
+    return FirebaseServices().getSearchResults(searchText, 0);
   }
 }
 

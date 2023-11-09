@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "917672187801",
+    "firebase_url": "https://shokutomo-1d684-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "shokutomo-1d684",
+    "storage_bucket": "shokutomo-1d684.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917672187801:android:2de0535a6a99d4866f6508",
+        "android_client_info": {
+          "package_name": "com.example.add_data"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4XAn90RSC6lRlm3rooYF9pyJHZ11Aud8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917672187801:android:8cee45d4d991bc0b6f6508",
+        "android_client_info": {
+          "package_name": "com.example.shokutomo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4XAn90RSC6lRlm3rooYF9pyJHZ11Aud8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

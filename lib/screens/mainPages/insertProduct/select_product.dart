@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/sql.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'create_record.dart';
 
 class SelectProduct extends StatelessWidget {
-  final List<Map<String, dynamic>> products;
+  final List<Product> products;
 
   const SelectProduct({Key? key, required this.products}) : super(key: key);
 
@@ -18,6 +18,8 @@ class SelectProduct extends StatelessWidget {
         ),
         itemCount: products.length,
         itemBuilder: (BuildContext context, int index) {
+          String productImage = products[index].image;
+
           return ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.zero,
@@ -33,7 +35,7 @@ class SelectProduct extends StatelessWidget {
                       padding: const EdgeInsets.only(
                           top: 3.0, left: 3.0, right: 3.0),
                       child: Image.asset(
-                        products[index][SQL.columnProductImage],
+                        'assets/img/$productImage', 
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -42,7 +44,7 @@ class SelectProduct extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5.0),
                     child: Text(
-                      products[index][SQL.columnProductName],
+                      products[index].productName, 
                       style: const TextStyle(
                         fontSize: 8.0,
                         fontWeight: FontWeight.bold,
@@ -57,7 +59,7 @@ class SelectProduct extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return CreateRecordDialog(
-                      productName: products[index][SQL.columnProductName]);
+                      productName: products[index].productName); 
                 },
               );
             },

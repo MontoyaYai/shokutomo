@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/information_format/shop_list.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
+
 
 class AddShopListDialog extends StatelessWidget {
-  final int productNo;
+  final String productNo;
   final String productName;
   final String productImage;
   final Function() onUpdate;
@@ -92,10 +93,10 @@ class AddShopListDialog extends StatelessWidget {
     );
   }
 
-  void insertShopList(int productNo, int quantity, int grams) async {
+  void insertShopList(String productNo, int quantity, int grams) async {
     ShopList shoplist = ShopList(
-          productNo: productNo, quantity: quantity, gram: grams, status: 0);
-    await InsertActivity().insertOrUpdateIntoShopList(shoplist);
+          productNo: productNo, name: productName, image: productImage, quantity: quantity, gram: grams, status: 0);
+    await FirebaseServices().insertOrUpdateIntoShopList(shoplist);
     //ShopList画面上にあるShopListのデータを表示するListViewをリセット
     onUpdate();
   }

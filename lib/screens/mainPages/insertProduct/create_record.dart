@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/information_format/my_products.dart';
-import 'package:shokutomo/information_format/product_table.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 
 class CreateRecordDialog extends StatefulWidget {
   final String productName;
@@ -21,11 +20,6 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
   late DateTime selectedUseByDate; // Initialize the variable
   bool isChangeableExpiredDate = true;
 
-  Future<List<Products>> getProduct() async {
-    List<Products> products = await GetActivity().getAllProducts();
-    return products;
-  }
-
   late int grams = 0;
   late String name;
   late int quantity = 0;
@@ -37,31 +31,33 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
   }
 
   void initializeDates() async {
-    List<Products> products = await getProduct();
-    Products selectedProduct = products.firstWhere(
-      (product) => product.name == widget.productName,
+    List<Product> products = await FirebaseServices().getFirebaseProducts();
+    Product selectedProduct = products.firstWhere(
+      (product) => product.productName == widget.productName,
     );
     setState(() {
-      useByDate = DateTime.now().add(Duration(days: selectedProduct.useBy));
+      useByDate =
+          DateTime.now().add(Duration(days: selectedProduct.categoryUseBy));
       selectedUseByDate = useByDate;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Products>>(
-      future: getProduct(),
+    return FutureBuilder<List<Product>>(
+      future: FirebaseServices().getFirebaseProducts(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<Products> products = snapshot.data!;
-          Products selectedProduct = products.firstWhere(
-            (product) => product.name == widget.productName,
+          List<Product> products = snapshot.data!.cast<Product>();
+          Product selectedProduct = products.firstWhere(
+            (product) => product.productName == widget.productName,
           );
 
-          useByDate = DateTime.now().add(Duration(days: selectedProduct.useBy));
+          useByDate =
+              DateTime.now().add(Duration(days: selectedProduct.categoryUseBy));
 
           return AlertDialog(
-            title: Text(selectedProduct.name),
+            title: Text(selectedProduct.productName),
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +67,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                       height: 200,
                       width: 200,
                       child: Image.asset(
-                        selectedProduct.image,
+                        "assets/img/${selectedProduct.image}",
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -345,7 +341,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                 child: const Text('キャンセル'),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   DateTime purchaseDate = DateTime(
                     selectedDate.year,
                     selectedDate.month,
@@ -356,13 +352,24 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                     selectedUseByDate.month,
                     selectedUseByDate.day,
                   );
-                  // Perform submit action here
-                  InsertActivity().insertOrUpdateProducts(MyProducts(
-                      productNo: selectedProduct.no,
-                      quantity: quantity,
-                      gram: grams,
-                      purchasedDate: purchaseDate.toString(),
-                      expiredDate: expiredDay.toString()));
+                  //!!
+                  Product selectedProduct = products.firstWhere(
+                  (product) => product.productName == widget.productName,
+                  );
+                  print(selectedProduct);
+                  final myProduct = MyProducts(
+                    no: selectedProduct.productNo,
+                    name: selectedProduct.productName,
+                    image: selectedProduct.image,
+                    quantity: quantity,
+                    gram: grams,
+                    purchasedDate: purchaseDate ,
+                    expiredDate: expiredDay,
+                  );
+
+                  // Utiliza el nuevo método para agregar o actualizar el producto en Firebase
+                  await FirebaseServices().addOrUpdateFirebaseMyProduct(myProduct);
+                  
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: const Text('保存'),

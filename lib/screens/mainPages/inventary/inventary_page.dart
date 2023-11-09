@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:shokutomo/database/delete_activity.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/database/update_activity.dart';
-import 'package:shokutomo/information_format/shop_list.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/mainPages/calendar/edit_dialog.dart';
 
 class InventoryPage extends StatefulWidget {
@@ -16,7 +13,7 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  List<MyProductWithNameAndImage> myProducts = [];
+  List<MyProducts> myProducts = [];
   int? selectedEntryIndex;
 
   int? selectedYear;
@@ -30,18 +27,18 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   void fetchMyProducts() async {
-    myProducts = await GetActivity().getMyProducts();
+    myProducts = await FirebaseServices().getFirebaseMyProducts();
     setState(() {});
   }
 
-  void insertIntoShopList(int no, int quantity, int gram) async {
-    await InsertActivity().insertOrUpdateIntoShopList(
-      ShopList(productNo: no, quantity: quantity, gram: gram, status: 0),
+  void insertIntoShopList(String no, int quantity, int gram, String name, String image, ) async {
+    await FirebaseServices().insertOrUpdateIntoShopList(
+      ShopList(productNo: no, name: name, image: image, quantity: quantity, gram: gram, status: 0),
     );
   }
 
-  void _deleteProduct(MyProductWithNameAndImage product) async {
-    await DeleteActivity().deleteMyProduct(product.no, product.expiredDate);
+  void _deleteProduct(MyProducts product) async {
+    await FirebaseServices().deleteMyProduct(product.no, product.expiredDate);
     fetchMyProducts();
   }
 
@@ -57,16 +54,16 @@ class _InventoryPageState extends State<InventoryPage> {
     if (quantity != 0 && gram != 0) {
       num avrGram = gram / quantity;
       //quantityは1が増える, Gramは平均Gramが増える
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no,
           myProducts[index].expiredDate,
           quantity + 1,
           gram + avrGram);
     } else if (quantity != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no, myProducts[index].expiredDate, quantity + 1, 0);
     } else if (gram != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no, myProducts[index].expiredDate, 0, gram + 10);
     }
     fetchMyProducts();
@@ -80,16 +77,16 @@ class _InventoryPageState extends State<InventoryPage> {
     if (quantity != 0 && gram != 0) {
       num avrGram = gram / quantity;
       //quantityは1が増える, Gramは平均Gramが増える
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no,
           myProducts[index].expiredDate,
           quantity - 1,
           gram - avrGram);
     } else if (quantity != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no, myProducts[index].expiredDate, quantity - 1, 0);
     } else if (gram != 0) {
-      await UpdateActivity().UpdateQuantityAndGramOfMyProduct(
+      await FirebaseServices().updateQuantityAndGramOfMyProduct(
           myProducts[index].no, myProducts[index].expiredDate, 0, gram - 10);
     }
     fetchMyProducts();
@@ -159,7 +156,7 @@ class _InventoryPageState extends State<InventoryPage> {
                             onPressed: (BuildContext context) {
                               // Make a copy of the item in the shoplist database
                               insertIntoShopList(
-                                  product.no, product.quantity, product.gram);
+                                  product.no, product.quantity, product.gram, product.name, product.image);
                               // Delete the item from the "product" list
                               _deleteProduct(product);
                               Navigator.of(context)
@@ -187,7 +184,7 @@ class _InventoryPageState extends State<InventoryPage> {
                             });
                           },
                           leading: Image.asset(
-                            product.image,
+                            "assets/img/${product.image}",
                             width: 30,
                             height: 30,
                           ),

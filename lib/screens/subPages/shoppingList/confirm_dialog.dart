@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/information_format/information_for_shop_list.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/shoplist_json_map.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/edit_info_of_items_will_insert.dart';
 
 class InsertItemsConfirm extends StatefulWidget {
@@ -16,18 +15,18 @@ class InsertItemsConfirm extends StatefulWidget {
 
 class InsertItemsConfirmState extends State<InsertItemsConfirm> {
   InsertItemsConfirmState({Key? key});
-  List<MyProductWithNameAndImage> insertProducts = [];
+  List<MyProducts> insertProducts = [];
 
   Future fetchPurchasedProducts() async {
-    List<InformationForShopList> purchasedProducts =
-        await GetActivity().getBoughtProduct();
+    List<ShopList> purchasedProducts =
+        await FirebaseServices().getBoughtProduct();
     insertProducts = [];
     for (var product in purchasedProducts) {
-      int useBy = await GetActivity().getUseByOrBestBy(product.no);
+      int useBy = await FirebaseServices().getUseByOrBestBy(product.productNo);
       DateTime now = DateTime.now();
       DateTime expired = now.add(Duration(days: useBy));
-      insertProducts.add(MyProductWithNameAndImage(
-          no: product.no,
+      insertProducts.add(MyProducts(
+          no: product.productNo,
           name: product.name,
           quantity: product.quantity,
           gram: product.gram,
@@ -147,7 +146,7 @@ class InsertItemsConfirmState extends State<InsertItemsConfirm> {
   }
 
   void insertIntoMyProduct() async {
-    await InsertActivity().insertMyProductFromShopList();
+    await FirebaseServices().insertMyProductFromShopList();
     widget.onUpdate();
   }
 }

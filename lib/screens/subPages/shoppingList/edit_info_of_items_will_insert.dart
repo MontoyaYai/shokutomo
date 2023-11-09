@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shokutomo/database/delete_activity.dart';
-import 'package:shokutomo/database/insert_activity.dart';
-import 'package:shokutomo/information_format/my_product_with_name_and_image.dart';
-import 'package:shokutomo/information_format/my_products.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
+
 
 class EditInsertInfoDialog extends StatefulWidget {
-  final MyProductWithNameAndImage product;
+  final MyProducts product;
   final Function() onUpdate;
 
   const EditInsertInfoDialog(
@@ -18,7 +17,7 @@ class EditInsertInfoDialog extends StatefulWidget {
 }
 
 class EditInsertInfoDialogState extends State<EditInsertInfoDialog> {
-  final MyProductWithNameAndImage product;
+  final MyProducts product;
   bool isChangeableExpiredDate = true;
 
   EditInsertInfoDialogState({Key? key, required this.product});
@@ -278,13 +277,15 @@ class EditInsertInfoDialogState extends State<EditInsertInfoDialog> {
         //この商品のみ保存する
         TextButton(
             onPressed: () {
-              InsertActivity().insertOrUpdateProducts(MyProducts(
-                  productNo: product.no,
+              FirebaseServices().addOrUpdateFirebaseMyProduct(MyProducts(
+                  no: product.no,
+                  name: product.name,
+                  image: product.image,
                   quantity: product.quantity,
                   gram: product.gram,
-                  purchasedDate: product.purchasedDate.toString(),
-                  expiredDate: product.expiredDate.toString()));
-              DeleteActivity().deleteShopListProduct(product.no);
+                  purchasedDate: product.purchasedDate,
+                  expiredDate: product.expiredDate));
+              FirebaseServices().deleteShopListProduct(product.no);
               Navigator.pop(context);
               widget.onUpdate();
             },

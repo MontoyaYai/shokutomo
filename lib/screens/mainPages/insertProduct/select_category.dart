@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/database/get_activity.dart';
-import 'package:shokutomo/information_format/categories.dart';
-import 'package:shokutomo/information_format/product_table.dart';
+import 'package:shokutomo/firebase/categories_json_map.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/product_page.dart';
-import 'select_product.dart';
+import 'package:shokutomo/screens/mainPages/insertProduct/select_product.dart'; // Importa la clase FirebaseServices
 
 class SelectCategory extends StatelessWidget {
   const SelectCategory({super.key});
@@ -11,10 +11,13 @@ class SelectCategory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Categories>>(
-      future: GetActivity().getCategories(),
+
+      future: FirebaseServices()
+          .getUniqueCategories(), 
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Categories> categories = snapshot.data!;
+
           return GridView.builder(
             padding: const EdgeInsets.all(15.0),
             itemCount: categories.length,
@@ -26,46 +29,39 @@ class SelectCategory extends StatelessWidget {
               mainAxisSpacing: 15.0,
             ),
             itemBuilder: (context, index) {
-              String categoryName = categories[index].name;
-              String categoryImage = categories[index].image;
+              String categoryName = categories[index]
+                  .name;
+              String categoryImage =
+                  categories[index].image; 
 
+           
               return Opacity(
                 opacity: 0.8,
                 child: ElevatedButton(
                   onPressed: () async {
-                    int categoryNo = categories[index].no;
-
-                    List<Products> products = await GetActivity().getAllProducts();
-
-                    // Filter the products based on the selected category
-                    List<Products> filteredProducts = products
-                        .where((product) => product.categoryNo == categoryNo)
-                        .toList();
-
-                    // Convert the filtered products to a list of maps
-                    List<Map<String, dynamic>> filteredProductsMap =
-                        filteredProducts
-                            .map((product) => product.toMap())
-                            .toList();
-
+                    List<Product> allProducts =
+                        await FirebaseServices().getFirebaseProducts();
+                    int selectedCategoryNo = categories[index].no;
+                    List<Product> filteredProductsMap =
+                        allProducts.where((product) {
+                      int productCategoryNo = product.categoryNo;
+                      return productCategoryNo == selectedCategoryNo;
+                    }).toList();
                     // ignore: unused_label
                     child:
                     // ignore: use_build_context_synchronously
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                          // ignore: sized_box_for_whitespace
-                          content: Container(
-                        width: MediaQuery.of(context).size.width *
-                            0.9, // Adjust the width as needed
-                        child: ProductPage(
-                          selectProduct:
-                              SelectProduct(products: filteredProductsMap),
-                              categoryNo :categoryNo,
+                        content: Container(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: ProductPage(
+                            selectProduct:
+                                SelectProduct(products: filteredProductsMap),
+                            categoryNo: categories[index].no,
+                          ),
                         ),
-                      )),
-
-                      // ignore: use_build_context_synchronously
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -78,7 +74,7 @@ class SelectCategory extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Image.asset(
-                        categoryImage,
+                        'assets/img/$categoryImage',
                         width: 40.0,
                         height: 40.0,
                       ),
