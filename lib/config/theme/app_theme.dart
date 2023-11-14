@@ -40,6 +40,7 @@ const List<String> colorNames = [
 
 
 class AppTheme with ChangeNotifier {
+  
   int _selectedColor;
 
   AppTheme({int selectedColor = 0}) : _selectedColor = selectedColor;
@@ -68,6 +69,7 @@ class AppTheme with ChangeNotifier {
     });
 
     return ThemeData(
+      // useMaterial3: true,
       primarySwatch: primarySwatch,
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: primarySwatch,

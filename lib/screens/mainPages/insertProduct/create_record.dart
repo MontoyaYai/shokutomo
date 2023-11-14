@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 
@@ -31,7 +32,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
   }
 
   void initializeDates() async {
-    List<Product> products = await FirebaseServices().getFirebaseProducts();
+    List<Product> products = await GetFirebaseDataToArray().productsArray();
     Product selectedProduct = products.firstWhere(
       (product) => product.productName == widget.productName,
     );
@@ -45,7 +46,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Product>>(
-      future: FirebaseServices().getFirebaseProducts(),
+      future: GetFirebaseDataToArray().productsArray(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Product> products = snapshot.data!.cast<Product>();

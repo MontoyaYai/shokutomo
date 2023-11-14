@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shokutomo/firebase/categories_json_map.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
-// import 'package:shokutomo/database/firebase_services.dart';
-// import 'package:shokutomo/database/get_activity.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/screens/initial_page.dart';
 import 'config/settings_page.dart';
 import 'config/theme/app_theme.dart';
-// import 'database/database_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart'; //intlインポートする
 
@@ -17,29 +16,15 @@ import 'firebase_options.dart';
 void main() async {
   /*  変更禁止部分  */
   WidgetsFlutterBinding.ensureInitialized();
-
-  //Conflicts with IOS and Android
-  //↓↓↓↓iOS＆androidに実行する時　COMMENTする↓↓↓↓
-  // databaseFactory = databaseFactoryFfi;
-  // sqfliteFfiInit();
-  //↑↑↑↑iOS＆androidに実行する時　COMMENTする↑↑↑↑
-
-  // await DBHelper.instance.database;
-  /*  ⇧⇧⇧⇧⇧⇧ 変更禁止部分　　*/
-  
   //Firebase Init
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-    // Llama a la función getTest() para obtener la lista de datos
-  // List test = await getTest();
-  print('yai');
-  // Imprime los datos de la lista test
-  // print(test);
+  GetFirebaseDataToArray getFirebaseDataToArray = GetFirebaseDataToArray();
+   await getFirebaseDataToArray.getFirebase();
+   print(getFirebaseDataToArray.categories);
 
-  // runApp(const MyApp());
-  //カレンダーの言語を変えるために下記のように変更した
   initializeDateFormatting("ja").then((value) => runApp(const MyApp()));
 }
 

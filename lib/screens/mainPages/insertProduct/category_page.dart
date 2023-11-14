@@ -55,15 +55,12 @@ class CategoryPage extends StatelessWidget {
                             left: 20, bottom: 8.0, right: 20),
                         child: TextField(
                           controller: searchController,
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             searchProvider._searchText = value;
                             searchProvider.showSearchResults = true;
-                            Future<List<ProductsForSearch>> searchResults =
-                                getSearchResults(searchProvider.searchText);
-                            searchResults
-                                .then((List<ProductsForSearch> results) {
-                              searchProvider.setSearchResults(results);
-                            });
+                            List<ProductsForSearch> searchResults =
+                               await getSearchResults(searchProvider.searchText);
+                             searchProvider.setSearchResults(searchResults);
                           },
                           decoration: const InputDecoration(
                             hintText: '検索',

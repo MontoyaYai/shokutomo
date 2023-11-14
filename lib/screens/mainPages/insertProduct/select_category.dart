@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/categories_json_map.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/product_page.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/select_product.dart'; // Importa la clase FirebaseServices
@@ -10,10 +10,11 @@ class SelectCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  
     return FutureBuilder<List<Categories>>(
 
-      future: FirebaseServices()
-          .getUniqueCategories(), 
+      future: GetFirebaseDataToArray().categories, 
+          
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Categories> categories = snapshot.data!;
@@ -40,7 +41,7 @@ class SelectCategory extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     List<Product> allProducts =
-                        await FirebaseServices().getFirebaseProducts();
+                        await GetFirebaseDataToArray().productsArray();
                     int selectedCategoryNo = categories[index].no;
                     List<Product> filteredProductsMap =
                         allProducts.where((product) {

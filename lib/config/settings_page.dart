@@ -3,19 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'theme/app_theme.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
+
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    bool isLoggedIn = false;
     final appTheme = Provider.of<AppTheme>(context);
     final selectedColor = appTheme.selectedColor;
     return Scaffold(
       appBar: AppBar(
-      elevation: 0,
+        elevation: 0,
         title: const Text(
           '設定',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -28,84 +31,20 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildSectionTitle('テーマ（色選択）'),
           const SizedBox(height: 5),
           _buildThemeColorDropdown(selectedColor),
-          /*
-          ここに外観モード設定widgetを入れる
-          const SizedBox(height: 25),
-          _buildSectionTitle('外観モード'),
-          */
+
           const SizedBox(height: 25),
           _buildSectionTitle('プロファイル'),
           const SizedBox(height: 5.0),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'ユーザーネーム',
-            ),
-            onChanged: (value) {
-              setState(() {
-                //Username Textfield
-              });
-            },
-          ),
-          const SizedBox(height: 5.0),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'アレルゲン',
-            ),
-            onChanged: (value) {
-              setState(() {
-                //Username Textfield
-              });
-            },
-          ),
-          const SizedBox(height: 5.0),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: '家族人数',
-            ),
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            onChanged: (value) {
-              setState(() {
-                //Username Textfield
-              });
-            },
-          ),
-          const SizedBox(height: 25),
-          _buildSectionTitle('アカウント'),
+          if(isLoggedIn == false ) ElevatedButton(onPressed: (
+          
+          ){
+          }, child: const Text('アカウント作成'))
 
-          TextButton(
-              onPressed: () {},
-              child: const Text(
-                'Eメール変更',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              )),
-          TextButton(
-              onPressed: () {},
-              child: const Text(
-                'パスワード変更',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              )),
-          TextButton(
-              onPressed: () {},
-              child: const Text(
-                'アカウント削除',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              )),
-          TextButton(
-              onPressed: () {},
-              child: const Text(
-                'アプリの使い方',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold),
-              )),
-          // Add more settings options here
         ],
       ),
     );
   }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -115,6 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+
   Widget _buildThemeColorDropdown(int selectedColor) {
     return DropdownButton<int>(
       value: selectedColor,
@@ -127,6 +67,7 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     );
   }
+
   List<DropdownMenuItem<int>> _buildDropdownItems() {
     return List<DropdownMenuItem<int>>.generate(
       colorThemes.length,
