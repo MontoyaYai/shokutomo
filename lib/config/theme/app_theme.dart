@@ -4,35 +4,32 @@ import 'package:flutter/material.dart';
 const Color _shokutomoColor = Color.fromARGB(255, 135, 198, 250);
 
 const List<Color> colorThemes = [
-  _shokutomoColor,
-  Color.fromARGB(255, 243, 227, 55),
-  Color.fromARGB(255, 190, 53, 211),
-  Color.fromARGB(255, 111, 49, 121),
-  Color.fromARGB(255, 235, 102, 146),
-  Color.fromARGB(255, 239, 198, 219),
-  Color.fromARGB(255, 252, 154, 94),
-  Color.fromARGB(255, 1, 86, 155),
-  Color.fromARGB(255, 149, 221, 151), 
-  Color.fromARGB(255, 253, 211, 172),
-  Color.fromARGB(255, 170, 46, 87),
-  Color.fromARGB(255, 197, 197, 197),
-  Color.fromARGB(255, 32, 31, 31),
- 
-  
+  Colors.lightBlue,
+  Colors.lightBlue,
+  Colors.red,
+  Colors.yellow,
+  Colors.purple,
+  Colors.pinkAccent,
+  Colors.pink,
+  Colors.orange,
+  Colors.green,
+  Colors.grey,
+  Colors.lime,
+  Colors.black
+
 ];
 const List<String> colorNames = [
   'Shokutomo Color',
+  'lightBlue',
+  'Red'
   'Yellow',
   'Purple',
-  'Dark Purple',
+  'PinkAccent',
   'Pink',
-  'Pastel Pink',
   'Orange',
-  'Dark Blue',
-  'Matcha',
-  'Beige',
-  'Wine',
+  'Green',
   'Grey',
+  'Lime',
   'Black',
   
 ];
@@ -55,6 +52,7 @@ class AppTheme with ChangeNotifier {
   ThemeData theme() {
   
     final primaryColor = colorThemes[selectedColor];
+    
     final primarySwatch = MaterialColor(primaryColor.value, {
       50: primaryColor.withOpacity(0.1),
       100: primaryColor.withOpacity(0.2),
@@ -69,14 +67,10 @@ class AppTheme with ChangeNotifier {
     });
 
     return ThemeData(
-      // useMaterial3: true,
-      primarySwatch: primarySwatch,
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: primarySwatch,
-        // primaryColorDark: primaryColor.withOpacity(0.8),
-        accentColor: primaryColor,
-        brightness: Brightness.light,
-      ),
+      useMaterial3: true,
+      // primarySwatch: primarySwatch,
+      // primaryColor: colorThemes[selectedColor],
+      colorSchemeSeed: primaryColor,
     
     );
   }

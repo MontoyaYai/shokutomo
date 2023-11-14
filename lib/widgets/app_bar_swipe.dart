@@ -39,7 +39,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
-                decoration: BoxDecoration(color: primaryColor),
+                decoration: BoxDecoration(color: primaryColor.withOpacity(0.1)),
                 child:  Center(
                   child: Text(
                     'メニュー',

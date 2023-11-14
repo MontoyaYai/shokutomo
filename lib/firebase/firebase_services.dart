@@ -44,31 +44,34 @@ class FirebaseServices {
   }
 
 // Get searchproduct from PRODUCT
-Future<List<ProductsForSearch>> getSearchResults(String searchText, int productNo) async {
-  final productsCollection = database.collection('products');
+  Future<List<ProductsForSearch>> getSearchResults(
+      String searchText, int productNo) async {
+    final productsCollection = database.collection('products');
 
-  QuerySnapshot querySnapshot;
+    QuerySnapshot querySnapshot;
 
-  if (productNo != 0) {
-    querySnapshot = await productsCollection
-        .where('product_no', isEqualTo: productNo)
-        .where('product_name', isGreaterThanOrEqualTo: searchText)
-        .where('product_name', isLessThanOrEqualTo: searchText + '\uf8ff')
-        .get();
-  } else {
-    querySnapshot = await productsCollection
-        .where('product_name', isGreaterThanOrEqualTo: searchText.toLowerCase())
-        .where('product_name', isLessThanOrEqualTo: searchText.toLowerCase() + '\uf8ff')
-        .get();
+    if (productNo != 0) {
+      querySnapshot = await productsCollection
+          .where('product_no', isEqualTo: productNo)
+          .where('product_name', isGreaterThanOrEqualTo: searchText)
+          .where('product_name', isLessThanOrEqualTo: searchText + '\uf8ff')
+          .get();
+    } else {
+      querySnapshot = await productsCollection
+          .where('product_name',
+              isGreaterThanOrEqualTo: searchText.toLowerCase())
+          .where('product_name',
+              isLessThanOrEqualTo: searchText.toLowerCase() + '\uf8ff')
+          .get();
+    }
+
+    final productsList = querySnapshot.docs
+        .map((document) =>
+            ProductsForSearch.fromMap(document.data() as Map<String, dynamic>))
+        .toList();
+
+    return productsList;
   }
-
-  final productsList = querySnapshot.docs
-      .map((document) =>
-          ProductsForSearch.fromMap(document.data() as Map<String, dynamic>))
-      .toList();
-
-  return productsList;
-}
 
 // Get Unique CATEGORIES
   Future<List<Categories>> getUniqueCategories() async {
@@ -234,21 +237,46 @@ Future<List<ProductsForSearch>> getSearchResults(String searchText, int productN
 //!! CHECK PRODUCT EXISTENCE !!\\
 
 // CHECK product exist in MYPRODUCT
-  Future<bool> isProductAlreadyExistInMyProduct(MyProducts product) async {
-    final productNo = product.no;
-    final expiredDate = product.expiredDate
-        .toUtc(); // Asegúrate de que la fecha esté en formato UTC
+Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
+  final productNo = product.no;
+  final expiredDate = product.expiredDate.toUtc();
 
-    final myProductCollection = database.collection('users/mecha/myproducts');
+  final myProductCollection = database.collection('users/mecha/myproducts/');
 
-    final querySnapshot = await myProductCollection
-        .where('productNo', isEqualTo: productNo)
-        .where('expiredDate', isEqualTo: expiredDate)
-        .limit(1)
-        .get();
+  final productNoQuery = await myProductCollection
+      .where('productNo', isEqualTo: productNo)
+      .get();
 
-    return querySnapshot.docs.isNotEmpty;
+  final expiredDateQuery = await myProductCollection
+      .where('expiredDate', isEqualTo: expiredDate)
+      .get();
+
+  if (productNoQuery.docs.isNotEmpty || expiredDateQuery.docs.isNotEmpty) {
+    // Existen productos con el mismo productNo o la misma expiredDate, actualiza
+    await Future.forEach(productNoQuery.docs, (existingProductDoc) async {
+      final existingQuantity = existingProductDoc['quantity'] ?? 0;
+      final existingGram = existingProductDoc['gram'] ?? 0;
+
+      await existingProductDoc.reference.update({
+        'quantity': existingQuantity + product.quantity,
+        'gram': existingGram + product.gram,
+      });
+    });
+
+    await Future.forEach(expiredDateQuery.docs, (existingProductDoc) async {
+      final existingQuantity = existingProductDoc['quantity'] ?? 0;
+      final existingGram = existingProductDoc['gram'] ?? 0;
+
+      await existingProductDoc.reference.update({
+        'quantity': existingQuantity + product.quantity,
+        'gram': existingGram + product.gram,
+      });
+    });
+  } else {
+    // El producto no existe, agrégalo como un nuevo documento
+    await myProductCollection.add(product.toMap());
   }
+}
 
 // CHECK product exist in SHOPLIST
   Future<bool> isProductAlreadyExistInShopList(ShopList product) async {
@@ -321,59 +349,63 @@ Future<List<ProductsForSearch>> getSearchResults(String searchText, int productN
   Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
     final userDocRef = database.doc('users/mecha/myproducts');
 
-    final QuerySnapshot productSnapshot = await userDocRef.collection('products').where(
-      'productNo',
-      isEqualTo: productNo,
-    ).where(
-      'expiredDate',
-      isEqualTo: Timestamp.fromDate(expiredDate),
-    ).get();
+    final QuerySnapshot productSnapshot = await userDocRef
+        .collection('products')
+        .where(
+          'productNo',
+          isEqualTo: productNo,
+        )
+        .where(
+          'expiredDate',
+          isEqualTo: Timestamp.fromDate(expiredDate),
+        )
+        .get();
 
     final List<DocumentSnapshot> products = productSnapshot.docs;
 
     if (products.isNotEmpty) {
       final productToDelete = products.first;
       await productToDelete.reference.delete();
-      return 1; 
+      return 1;
     } else {
-      return 0; 
+      return 0;
     }
   }
 
 //!! UPDATE METHOD's !!\\
 
 // Update MYPRODUCT
-  Future<void> updateMyProduct(Map<String, dynamic> updatedProduct) async {
-    final int productNo = updatedProduct['productNo'];
-    final String expiredDate = updatedProduct['expiredDay'];
+  // Future<void> updateMyProduct(Map<String, dynamic> updatedProduct) async {
+  //   final int productNo = updatedProduct['productNo'];
+  //   final String expiredDate = updatedProduct['expiredDay'];
 
-    final QuerySnapshot productSnapshot = await database
-        .collection('users/mecha/myproducts')
-        .where('productNo', isEqualTo: productNo)
-        .where('expiredDay', isEqualTo: expiredDate)
-        .get();
+  //   final QuerySnapshot productSnapshot = await database
+  //       .collection('users/mecha/myproducts')
+  //       .where('productNo', isEqualTo: productNo)
+  //       .where('expiredDay', isEqualTo: expiredDate)
+  //       .get();
 
-    if (productSnapshot.docs.isNotEmpty) {
-      final existingProduct =
-          productSnapshot.docs.first.data() as Map<String, dynamic>;
+  //   if (productSnapshot.docs.isNotEmpty) {
+  //     final existingProduct =
+  //         productSnapshot.docs.first.data() as Map<String, dynamic>;
 
-      final int existingQuantity = existingProduct['quantity'] ?? 0;
-      final int existingGram = existingProduct['gram'] ?? 0;
-      final int updatedQuantity = updatedProduct['quantity'] ?? 0;
-      final int updatedGram = updatedProduct['gram'] ?? 0;
+  //     final int existingQuantity = existingProduct['quantity'] ?? 0;
+  //     final int existingGram = existingProduct['gram'] ?? 0;
+  //     final int updatedQuantity = updatedProduct['quantity'] ?? 0;
+  //     final int updatedGram = updatedProduct['gram'] ?? 0;
 
-      final int newQuantity = existingQuantity + updatedQuantity;
-      final int newGram = existingGram + updatedGram;
+  //     final int newQuantity = existingQuantity + updatedQuantity;
+  //     final int newGram = existingGram + updatedGram;
 
-      await database
-          .collection('products')
-          .doc(productSnapshot.docs.first.id)
-          .update({
-        'quantity': newQuantity,
-        'gram': newGram,
-      });
-    }
-  }
+  //     await database
+  //         .collection('products')
+  //         .doc(productSnapshot.docs.first.id)
+  //         .update({
+  //       'quantity': newQuantity,
+  //       'gram': newGram,
+  //     });
+  //   }
+  // }
 
 // Update Quantity and grams from MYPRODUCT
   Future<void> updateQuantityAndGramOfMyProduct(
@@ -509,20 +541,20 @@ Future<List<ProductsForSearch>> getSearchResults(String searchText, int productN
 //!! INSERT METHOD's !!\\
 
 // Insert MYPRODUCT
-  Future<void> insertMyProduct(Map<String, dynamic> productMap) async {
-    CollectionReference collectionReferenceProduct =
-        database.collection('users/mecha/myproducts');
-    await collectionReferenceProduct.add(productMap);
-  }
+  // Future<void> insertMyProduct(Map<String, dynamic> productMap) async {
+  //   CollectionReference collectionReferenceProduct =
+  //       database.collection('users/mecha/myproducts');
+  //   await collectionReferenceProduct.add(productMap);
+  // }
 
 // Insert or Update MYPRODUCT
-  Future<void> insertOrUpdateMyProducts(MyProducts product) async {
-    if (await isProductAlreadyExistInMyProduct(product)) {
-      await updateMyProduct(product.toMap());
-    } else {
-      await insertMyProduct(product.toMap());
-    }
-  }
+  // Future<void> insertOrUpdateMyProducts(MyProducts product) async {
+  //   if (await isProductAlreadyExistInMyProduct(product)) {
+  //     await updateMyProduct(product.toMap());
+  //   } else {
+  //     await insertMyProduct(product.toMap());
+  //   }
+  // }
 
 // Insert MYPRODUCT FROM SHOPLIST
   Future<void> insertMyProductFromShopList() async {
@@ -581,3 +613,4 @@ Future<List<ProductsForSearch>> getSearchResults(String searchText, int productN
     }
   }
 }
+

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/mainPages/calendar/edit_dialog.dart';
@@ -27,7 +28,7 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   void fetchMyProducts() async {
-    myProducts = await FirebaseServices().getFirebaseMyProducts();
+    myProducts = await GetFirebaseDataToArray().myProductsArray();
     setState(() {});
   }
 

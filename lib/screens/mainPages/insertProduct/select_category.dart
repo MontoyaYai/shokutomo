@@ -66,9 +66,9 @@ class SelectCategory extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
+                    // shape: RoundedRectangleBorder(
+                    //   borderRadius: BorderRadius.circular(20.0),
+                    // ),
                     padding: const EdgeInsets.all(10.0),
                   ),
                   child: Row(

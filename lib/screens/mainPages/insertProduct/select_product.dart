@@ -10,9 +10,10 @@ class SelectProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
+          crossAxisCount: 3,
           crossAxisSpacing: 10.0,
           mainAxisSpacing: 10.0,
         ),
@@ -22,10 +23,14 @@ class SelectProduct extends StatelessWidget {
 
           return ElevatedButton(
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
               padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0), // Ajusta según tus preferencias
+    ),
             ),
             child: Container(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.center,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -44,11 +49,13 @@ class SelectProduct extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5.0),
                     child: Text(
+                      
                       products[index].productName, 
                       style: const TextStyle(
                         fontSize: 8.0,
                         fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],

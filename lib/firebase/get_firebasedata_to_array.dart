@@ -32,9 +32,8 @@ class GetFirebaseDataToArray {
 
   
   Future<List<Product>> productsArray() => products;
-
   Future<List<MyProducts>> myProductsArray() => myProducts;
-
   Future<List<Categories>> categoriesArray() => categories;
+  Future<List<ShopList>>  shoppingListArray() => shoppingList;
 
 }
