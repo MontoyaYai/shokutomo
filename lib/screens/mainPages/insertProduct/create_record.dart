@@ -354,7 +354,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                   );
                   //!!
                   Product selectedProduct = products.firstWhere(
-                  (product) => product.productName == widget.productName,
+                    (product) => product.productName == widget.productName,
                   );
                   print(selectedProduct);
                   final myProduct = MyProducts(
@@ -363,13 +363,14 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                     image: selectedProduct.image,
                     quantity: quantity,
                     gram: grams,
-                    purchasedDate: purchaseDate ,
+                    purchasedDate: purchaseDate,
                     expiredDate: expiredDay,
                   );
 
                   // Utiliza el nuevo método para agregar o actualizar el producto en Firebase
-                  await FirebaseServices().addOrUpdateFirebaseMyProduct(myProduct);
-                  
+                  await FirebaseServices()
+                      .addOrUpdateFirebaseMyProduct(myProduct);
+
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: const Text('保存'),

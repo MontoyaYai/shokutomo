@@ -11,12 +11,15 @@ import 'package:shokutomo/screens/subPages/myRecipe/recipeBook/my_recipe.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/search_recipe.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/list_shopping.dart';
 
+import '../text_recognition/vision_detector_views/text_detector_view.dart';
+
 class AppBarSwipe extends StatefulWidget {
   const AppBarSwipe({Key? key}) : super(key: key);
 
   @override
   _AppBarSwipeState createState() => _AppBarSwipeState();
 }
+
 class _AppBarSwipeState extends State<AppBarSwipe> {
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
@@ -33,14 +36,14 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
     return Scaffold(
       key: scaffoldKey,
       drawer: Align(
-      alignment: Alignment.centerRight,
+        alignment: Alignment.centerRight,
         child: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
                 decoration: BoxDecoration(color: primaryColor),
-                child:  Center(
+                child: Center(
                   child: Text(
                     'メニュー',
                     style: TextStyle(
@@ -141,6 +144,21 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   );
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text(
+                  'レシート読み取り',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pageController.animateToPage(
+                    8,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              )
             ],
           ),
         ),
@@ -157,6 +175,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           MyFridge(),
           SettingsPage(),
           // ProductPage(),
+          TextRecognizerView(),
         ],
         onPageChanged: (index) {
           setState(() {

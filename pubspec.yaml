@@ -45,6 +45,25 @@ dependencies:
   velocity_x: ^4.1.1
   cloud_firestore: ^4.12.2
 
+  #google_mlkit
+  image_picker: ^1.0.1
+  camera: ^0.10.5+2
+  path: ^1.8.3
+
+  google_mlkit_commons:
+#    path: ./packages/google_mlkit_commons
+  google_mlkit_text_recognition:
+    path: ./packages/google_mlkit_text_recognition
+
+  google_mlkit_entity_extraction:
+    path: ./packages/google_mlkit_entity_extraction
+  google_mlkit_language_id:
+    path: ./packages/google_mlkit_language_id
+  google_mlkit_translation:
+    path: ./packages/google_mlkit_translation
+  google_mlkit_smart_reply:
+    path: ./packages/google_mlkit_smart_reply
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
