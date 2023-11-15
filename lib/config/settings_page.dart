@@ -5,16 +5,17 @@ import 'theme/app_theme.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
+
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    bool isLoggedIn = false;
     final appTheme = Provider.of<AppTheme>(context);
     final selectedColor = appTheme.selectedColor;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -23,23 +24,57 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 24.0),
-        children: [
-          const SizedBox(height: 25),
-          _buildSectionTitle('テーマ（色選択）'),
-          const SizedBox(height: 5),
-          _buildThemeColorDropdown(selectedColor),
-
-          const SizedBox(height: 25),
-          _buildSectionTitle('プロファイル'),
-          const SizedBox(height: 5.0),
-          if(isLoggedIn == false ) ElevatedButton(onPressed: (
-          
-          ){
-          }, child: const Text('アカウント作成'))
-
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 15),
+            _buildSectionTitle('アカウント'),
+            const SizedBox(height: 5),
+            _buildSettingItem(
+              icon: Icons.account_circle,
+              label: 'アカウント設定',
+              onTap: () {
+                // Navigate to account settings page
+              },
+            ),
+            const SizedBox(height: 15),
+            _buildSectionTitle('Theme'),
+            const SizedBox(height: 5),
+            _buildThemeColorDropdown(selectedColor),
+            const SizedBox(height: 15),
+            _buildSectionTitle('Notifications'),
+            const SizedBox(height: 5),
+            _buildSettingItem(
+              icon: Icons.notifications,
+              label: 'Notification Settings',
+              onTap: () {
+                // Navigate to notification settings page
+              },
+            ),
+            const SizedBox(height: 15),
+            _buildSectionTitle('Help'),
+            const SizedBox(height: 5),
+            _buildSettingItem(
+              icon: Icons.help,
+              label: 'Help Center',
+              onTap: () {
+                // Navigate to help center page
+              },
+            ),
+            const SizedBox(height: 15),
+            _buildSectionTitle('Invite Friends'),
+            const SizedBox(height: 5),
+            _buildSettingItem(
+              icon: Icons.person_add,
+              label: 'Invite Friends',
+              onTap: () {
+                // Implement invite friends functionality
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -48,52 +83,65 @@ class _SettingsPageState extends State<SettingsPage> {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 20.0,
+        fontSize: 18.0,
         fontWeight: FontWeight.bold,
       ),
     );
   }
 
+  Widget _buildSettingItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildThemeColorDropdown(int selectedColor) {
-    return DropdownButton<int>(
-      value: selectedColor,
-      isExpanded: true,
-      items: _buildDropdownItems(),
-      onChanged: (value) async {
-        final appTheme = Provider.of<AppTheme>(context, listen: false);
-        appTheme.selectedColor = value!;
-        await FirebaseServices().updateThemeColor(value);
-      },
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DropdownButton<int>(
+        value: selectedColor,
+        isExpanded: true,
+        items: _buildDropdownItems(),
+        onChanged: (value) async {
+          if (value != null) {
+            final appTheme = Provider.of<AppTheme>(context, listen: false);
+            appTheme.selectedColor = value;
+            await FirebaseServices().updateThemeColor(value);
+          }
+        },
+      ),
     );
   }
 
   List<DropdownMenuItem<int>> _buildDropdownItems() {
-    return List<DropdownMenuItem<int>>.generate(
-      colorThemes.length,
-      (index) {
-        final color = colorThemes[index];
-        return DropdownMenuItem<int>(
-          value: index,
-          // child: Text(colorNames[index]),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 25,
-                  height: 20,
-                  margin: const EdgeInsets.only(right: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: color,
-                  ),
+    return colorThemes.map((color) {
+      final index = colorThemes.indexOf(color);
+      return DropdownMenuItem<int>(
+        value: index,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 25,
+                height: 20,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: color,
                 ),
-                Text(colorNames[index])
-              ],
-            ),
+              ),
+              Text(colorNames[index])
+            ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    }).toList();
   }
 }
