@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'theme/app_theme.dart';
 
@@ -36,7 +37,10 @@ class SettingsPageState extends State<SettingsPage> {
               icon: Icons.account_circle,
               label: 'アカウント設定',
               onTap: () {
-                // Navigate to account settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
               },
             ),
             const SizedBox(height: 15),

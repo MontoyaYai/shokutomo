@@ -20,99 +20,95 @@ class RegisterScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: size.height * 0.25),
+              SizedBox(height: size.height * 0.2),
               Padding(
-                padding: const EdgeInsets.all(9.5),
+                padding: const EdgeInsets.all(16.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withOpacity(0.90),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     children: [
                       Container(
                         alignment: Alignment.centerLeft,
                         child: const Text(
-                          "REGISTER",
+                          "アカウント作成",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2661FA),
-                            fontSize: 36,
+                            fontSize: 32,
                           ),
                           textAlign: TextAlign.left,
                         ),
                       ),
-                      SizedBox(height: size.height * 0.03),
-                      Container(
-                        alignment: Alignment.center,
-                        child: TextFormField(
-                          controller: nameController,
-                          decoration: InputDecoration(labelText: "名前"),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return '名前を入力してください';
-                            }
-                            return null;
-                          },
+                      SizedBox(height: size.height * 0.01),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: "名前",
+                          prefixIcon: Icon(Icons.person),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '名前を入力してください';
+                          }
+                          return null;
+                        },
                       ),
-                      SizedBox(height: size.height * 0.03),
-                      Container(
-                        alignment: Alignment.center,
-                        child: TextFormField(
-                          controller: emailController,
-                          decoration: InputDecoration(labelText: "メール"),
-                          validator: (value) {
-                            if (value == null || value.isEmpty || !value.contains('@')) {
-                              return '有効なメールを入力してください';
-                            }
-                            return null;
-                          },
+                      SizedBox(height: size.height * 0.01),
+                      TextFormField(
+                        controller: emailController,
+                        decoration: const InputDecoration(
+                          labelText: "メール",
+                          prefixIcon: Icon(Icons.email),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty || !value.contains('@')) {
+                            return '有効なメールを入力してください';
+                          }
+                          return null;
+                        },
                       ),
-                      SizedBox(height: size.height * 0.03),
-                      Container(
-                        alignment: Alignment.center,
-                        child: TextFormField(
-                          controller: usernameController,
-                          decoration: InputDecoration(labelText: "ユーザー名"),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'ユーザー名を入力してください';
-                            }
-                            return null;
-                          },
+                      SizedBox(height: size.height * 0.01),
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: const InputDecoration(
+                          labelText: "ユーザー名",
+                          prefixIcon: Icon(Icons.account_circle),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'ユーザー名を入力してください';
+                          }
+                          return null;
+                        },
                       ),
-                      SizedBox(height: size.height * 0.03),
-                      Container(
-                        alignment: Alignment.center,
-                        child: TextFormField(
-                          controller: passwordController,
-                          decoration: InputDecoration(labelText: "パスワード"),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'パスワードを入力してください';
-                            }
-                            return null;
-                          },
+                      SizedBox(height: size.height * 0.01),
+                      TextFormField(
+                        controller: passwordController,
+                        decoration: const InputDecoration(
+                          labelText: "パスワード",
+                          prefixIcon: Icon(Icons.lock),
                         ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'パスワードを入力してください';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: size.height * 0.05),
+              SizedBox(height: size.height * 0.03),
               Container(
-                alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
                   onPressed: () {
-                    // if (Form.of(context)!.validate()) {
-                    //   // すべてのフィールドが正しくバリデートされた場合の処理
-                    // }
+                    // Agrega la lógica del botón de registro aquí
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -126,16 +122,10 @@ class RegisterScreen extends StatelessWidget {
                     width: size.width * 0.5,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(80.0),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 255, 136, 34),
-                          Color.fromARGB(255, 255, 177, 41),
-                        ],
-                      ),
                     ),
                     padding: const EdgeInsets.all(0),
                     child: const Text(
-                      "SIGN UP",
+                      "サインアップ",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -143,7 +133,6 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: GestureDetector(
                   onTap: () {
@@ -157,12 +146,11 @@ class RegisterScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2661FA),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 40),
             ],
           ),
         ),

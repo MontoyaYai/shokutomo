@@ -38,19 +38,19 @@ class Background extends StatelessWidget {
             top: 95,
             left: 30,
             child: Image.asset(
-              "assets/img/shokutomoLogo.png",
+              "assets/img/LOGO.png",
               width: size.width * 0.35
             ),
           ),
           
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Image.asset(
-              "assets/img/bottom1.png",
-              width: size.width
-            ),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   right: 0,
+          //   child: Image.asset(
+          //     "assets/img/bottom1.png",
+          //     width: size.width
+          //   ),
+          // ),
           Positioned(
             bottom: 0,
             right: 0,
