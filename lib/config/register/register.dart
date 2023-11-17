@@ -4,13 +4,10 @@ import 'package:shokutomo/config/background.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 
 
-final TextEditingController nameController = TextEditingController();
-final TextEditingController emailController = TextEditingController();
-final TextEditingController usernameController = TextEditingController();
-final TextEditingController passwordController = TextEditingController();
-
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -45,19 +42,7 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: size.height * 0.01),
-                      TextFormField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: "名前",
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '名前を入力してください';
-                          }
-                          return null;
-                        },
-                      ),
+                      
                       SizedBox(height: size.height * 0.01),
                       TextFormField(
                         controller: emailController,
@@ -117,13 +102,13 @@ class RegisterScreen extends StatelessWidget {
                         password: passwordController.text,
                       );
 
-                      // Navegar a la clase de inicio de sesión después del registro exitoso
+                      // Navigate to the login screen after successful registration
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     } catch (error) {
-                      // Manejar errores de registro
+                      // Handle registration errors
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Error al registrar: $error'),

@@ -7,7 +7,7 @@ import 'package:shokutomo/config/settings_page.dart';
 
 class LoginScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -45,7 +45,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       SizedBox(height: size.height * 0.03),
                       TextFormField(
-                        controller: _usernameController,
+                        controller: _emailController,
                         decoration: const InputDecoration(
                           labelText: "ユーザーネーム",
                           hintText: "ユーザーネームを入力してください",
@@ -97,13 +97,13 @@ class LoginScreen extends StatelessWidget {
                         onPressed: () async {
                           if (_formKey.currentState != null &&
                               _formKey.currentState!.validate()) {
-                            String username = _usernameController.text;
+                            String email = _emailController.text;
                             String password = _passwordController.text;
 
                             try {
                               // Iniciar sesión con Firebase Auth
                               UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                                email: username,
+                                email: email,
                                 password: password,
                               );
 
@@ -113,7 +113,7 @@ class LoginScreen extends StatelessWidget {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text("Inicio de sesión exitoso"),
-                                    content: Text("¡Bienvenido, $username!"),
+                                    content: Text("¡Bienvenido, $email!"),
                                     actions: <Widget>[
                                       TextButton(
                                         onPressed: () {
@@ -175,7 +175,7 @@ class LoginScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    MaterialPageRoute(builder: (context) =>  RegisterScreen()),
                   );
                 },
                 child: const Text(
