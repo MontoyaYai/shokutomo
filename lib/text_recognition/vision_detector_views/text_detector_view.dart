@@ -2,8 +2,11 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:velocity_x/velocity_x.dart';
 
+import '../../firebase/productforsearch_json_map.dart';
 import 'detector_view.dart';
 import 'painters/text_detector_painter.dart';
 
@@ -13,8 +16,8 @@ class TextRecognizerView extends StatefulWidget {
   _TextRecognizerViewState createState() => _TextRecognizerViewState();
 }
 
-class Product {
-  const Product({
+class Pro {
+  const Pro({
     required this.name,
     required this.type,
   });
@@ -34,11 +37,11 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
   String? _text;
   var _cameraLensDirection = CameraLensDirection.back;
   List? testList = [];
-  var testProducts = <Product>[
-    const Product(name: 'プリン', type: 'デザート'),
-    const Product(name: 'ゼリー', type: 'デザート'),
-    const Product(name: 'ケーキ', type: 'デザート'),
-    const Product(name: 'バウムクーヘン', type: 'デザート'),
+  var testProducts = <Pro>[
+    const Pro(name: 'プリン', type: 'デザート'),
+    const Pro(name: 'ゼリー', type: 'デザート'),
+    const Pro(name: 'ケーキ', type: 'デザート'),
+    const Pro(name: 'バウムクーヘン', type: 'デザート'),
   ];
 
   @override
@@ -49,7 +52,15 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     final getName = testProducts.map((e) => e.name).toList();
     testList = getName;
     print(getName);
-    print('init');
+    print('initstart');
+    initializeDates();
+    print('initend');
+  }
+
+  void initializeDates() async {
+    List<Product> products = await FirebaseServices().getFirebaseProducts();
+    Product product = products[0];
+    print(product.productName);
   }
 
   @override
@@ -158,6 +169,7 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       setState(() {});
     }
     list();
+    firelist();
   }
 
   void list() {
@@ -169,5 +181,30 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       }
     }
     print(cacheList);
+  }
+
+  void firelist() async {
+    List<Product> products = await FirebaseServices().getFirebaseProducts();
+    for (int i = 0; i < products.length; i++) {
+      Product product = products[i];
+      bool contains = _text!.contains(product.productName);
+      if (contains) {
+        numList.add([product.productNo, product.productName]);
+        continue;
+      } //else if (contains = _text!.contains(product.hiragana)) {
+      //  numList.add([product.productNo, product.productName]);
+      //  continue;
+      //} else if (contains = _text!.contains(product.katakana)) {
+      //  numList.add([product.productNo, product.productName]);
+      //  continue;
+      //}  else if (contains = _text!.contains(product.kanji) &&  product.kanji != "") {
+      // numList.add([product.productNo, product.productName]);
+      // continue;
+      //}  else if (contains = _text!.contains(product.romaji)) {
+      // numList.add([product.productNo, product.productName]);
+      // continue;
+      //}
+    }
+    print(numList);
   }
 }
