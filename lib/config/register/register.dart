@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/config/background.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
+
 
 final TextEditingController nameController = TextEditingController();
 final TextEditingController emailController = TextEditingController();
@@ -107,8 +109,27 @@ class RegisterScreen extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Agrega la lógica del botón de registro aquí
+                  onPressed: () async {
+                    try {
+                      await FirebaseServices().registerUser(
+                        username: usernameController.text,
+                        email: emailController.text,
+                        password: passwordController.text,
+                      );
+
+                      // Navegar a la clase de inicio de sesión después del registro exitoso
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    } catch (error) {
+                      // Manejar errores de registro
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error al registrar: $error'),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -138,7 +159,7 @@ class RegisterScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
                   child: const Text(

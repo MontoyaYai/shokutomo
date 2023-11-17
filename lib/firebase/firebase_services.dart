@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shokutomo/firebase/categories_json_map.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
@@ -7,7 +8,8 @@ import 'package:shokutomo/firebase/shoplist_json_map.dart';
 //
 
 class FirebaseServices {
-  FirebaseFirestore database = FirebaseFirestore.instance;
+  final FirebaseFirestore database = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
 //!! GET METHOD's !!\\
 
@@ -237,46 +239,46 @@ class FirebaseServices {
 //!! CHECK PRODUCT EXISTENCE !!\\
 
 // CHECK product exist in MYPRODUCT
-Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
-  final productNo = product.no;
-  final expiredDate = product.expiredDate.toUtc();
+  Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
+    final productNo = product.no;
+    final expiredDate = product.expiredDate.toUtc();
 
-  final myProductCollection = database.collection('users/mecha/myproducts/');
+    final myProductCollection = database.collection('users/mecha/myproducts/');
 
-  final productNoQuery = await myProductCollection
-      .where('productNo', isEqualTo: productNo)
-      .get();
+    final productNoQuery = await myProductCollection
+        .where('productNo', isEqualTo: productNo)
+        .get();
 
-  final expiredDateQuery = await myProductCollection
-      .where('expiredDate', isEqualTo: expiredDate)
-      .get();
+    final expiredDateQuery = await myProductCollection
+        .where('expiredDate', isEqualTo: expiredDate)
+        .get();
 
-  if (productNoQuery.docs.isNotEmpty || expiredDateQuery.docs.isNotEmpty) {
-    // Existen productos con el mismo productNo o la misma expiredDate, actualiza
-    await Future.forEach(productNoQuery.docs, (existingProductDoc) async {
-      final existingQuantity = existingProductDoc['quantity'] ?? 0;
-      final existingGram = existingProductDoc['gram'] ?? 0;
+    if (productNoQuery.docs.isNotEmpty || expiredDateQuery.docs.isNotEmpty) {
+      // Existen productos con el mismo productNo o la misma expiredDate, actualiza
+      await Future.forEach(productNoQuery.docs, (existingProductDoc) async {
+        final existingQuantity = existingProductDoc['quantity'] ?? 0;
+        final existingGram = existingProductDoc['gram'] ?? 0;
 
-      await existingProductDoc.reference.update({
-        'quantity': existingQuantity + product.quantity,
-        'gram': existingGram + product.gram,
+        await existingProductDoc.reference.update({
+          'quantity': existingQuantity + product.quantity,
+          'gram': existingGram + product.gram,
+        });
       });
-    });
 
-    await Future.forEach(expiredDateQuery.docs, (existingProductDoc) async {
-      final existingQuantity = existingProductDoc['quantity'] ?? 0;
-      final existingGram = existingProductDoc['gram'] ?? 0;
+      await Future.forEach(expiredDateQuery.docs, (existingProductDoc) async {
+        final existingQuantity = existingProductDoc['quantity'] ?? 0;
+        final existingGram = existingProductDoc['gram'] ?? 0;
 
-      await existingProductDoc.reference.update({
-        'quantity': existingQuantity + product.quantity,
-        'gram': existingGram + product.gram,
+        await existingProductDoc.reference.update({
+          'quantity': existingQuantity + product.quantity,
+          'gram': existingGram + product.gram,
+        });
       });
-    });
-  } else {
-    // El producto no existe, agrégalo como un nuevo documento
-    await myProductCollection.add(product.toMap());
+    } else {
+      // El producto no existe, agrégalo como un nuevo documento
+      await myProductCollection.add(product.toMap());
+    }
   }
-}
 
 // CHECK product exist in SHOPLIST
   Future<bool> isProductAlreadyExistInShopList(ShopList product) async {
@@ -612,5 +614,77 @@ Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
       await insertShopList(product.toMap());
     }
   }
+
+
+
+
+
+
+
+// ここから
+
+//!! FIREBASE AUTH !! \\ß
+ Future<void> registerUser({
+  required String username,
+  required String email,
+  required String password,
+}) async {
+  try {
+    // Check if the user with the given email already exists
+    if (await isEmailRegistered(email)) {
+      throw 'Email already registered';
+    }
+
+    UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    String uid = userCredential.user!.uid;
+
+    // Create the user document in the 'users' collection
+    await database
+        .collection('users')
+        .doc(uid)
+        .collection('userinfotmation')
+        .add({
+      'username': username,
+      'email': email,
+      'password': password,
+      // Add more fields if needed
+    });
+  } on FirebaseAuthException catch (e) {
+    print('Error de autenticación: $e');
+    throw e.message ?? 'Error de autenticación';
+  } catch (e) {
+    print('Error desconocido: $e');
+    throw 'Error desconocido: $e';
+  }
 }
 
+Future<bool> isEmailRegistered(String email) async {
+  // Check if a user with the given email already exists
+  var snapshot = await database.collection('users').doc(email).get();
+  return snapshot.exists;
+}
+
+//ここまで
+
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } catch (e) {
+      print("Error de inicio de sesión: $e");
+      return null;
+    }
+  }
+
+  Future<void> signOut() async {
+    await auth.signOut();
+  }
+}
