@@ -45,6 +45,8 @@ class FirebaseServices {
     }
   }
 
+
+//!!Check
 // Get searchproduct from PRODUCT
   Future<List<ProductsForSearch>> getSearchResults(
       String searchText, int productNo) async {
@@ -238,47 +240,39 @@ class FirebaseServices {
 
 //!! CHECK PRODUCT EXISTENCE !!\\
 
-// CHECK product exist in MYPRODUCT
-  Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
-    final productNo = product.no;
-    final expiredDate = product.expiredDate.toUtc();
+Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
+  final productNo = product.no;
+  final expiredDate = product.expiredDate;
 
-    final myProductCollection = database.collection('users/mecha/myproducts/');
+  final myProductCollection = database.collection('users/mecha/myproducts/');
 
-    final productNoQuery = await myProductCollection
-        .where('productNo', isEqualTo: productNo)
-        .get();
+  final productQuery = await myProductCollection
+      .where('product_no', isEqualTo: productNo)
+      .where('expired_date', isEqualTo: formatDate(expiredDate))
+      .get();
 
-    final expiredDateQuery = await myProductCollection
-        .where('expiredDate', isEqualTo: expiredDate)
-        .get();
+  if (productQuery.docs.isNotEmpty) {
+    // Existen productos con el mismo productNo y la misma expiredDate, actualiza
+    await Future.forEach(productQuery.docs, (existingProductDoc) async {
+      final existingQuantity = existingProductDoc['quantity'] ?? 0;
+      final existingGram = existingProductDoc['gram'] ?? 0;
 
-    if (productNoQuery.docs.isNotEmpty || expiredDateQuery.docs.isNotEmpty) {
-      // Existen productos con el mismo productNo o la misma expiredDate, actualiza
-      await Future.forEach(productNoQuery.docs, (existingProductDoc) async {
-        final existingQuantity = existingProductDoc['quantity'] ?? 0;
-        final existingGram = existingProductDoc['gram'] ?? 0;
-
-        await existingProductDoc.reference.update({
-          'quantity': existingQuantity + product.quantity,
-          'gram': existingGram + product.gram,
-        });
+      await existingProductDoc.reference.update({
+        'quantity': existingQuantity + product.quantity,
+        'gram': existingGram + product.gram,
       });
-
-      await Future.forEach(expiredDateQuery.docs, (existingProductDoc) async {
-        final existingQuantity = existingProductDoc['quantity'] ?? 0;
-        final existingGram = existingProductDoc['gram'] ?? 0;
-
-        await existingProductDoc.reference.update({
-          'quantity': existingQuantity + product.quantity,
-          'gram': existingGram + product.gram,
-        });
-      });
-    } else {
-      // El producto no existe, agrégalo como un nuevo documento
-      await myProductCollection.add(product.toMap());
-    }
+    });
+  } else {
+    // El producto no existe, agrégalo como un nuevo documento
+    await myProductCollection.add(product.toMap());
   }
+}
+
+String formatDate(DateTime date) {
+  return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+}
+
+
 
 // CHECK product exist in SHOPLIST
   Future<bool> isProductAlreadyExistInShopList(ShopList product) async {
@@ -287,7 +281,7 @@ class FirebaseServices {
     final shopListCollection = database.collection('users/mecha/shoplist');
 
     final querySnapshot = await shopListCollection
-        .where('productNo', isEqualTo: productNo)
+        .where('product_no', isEqualTo: productNo)
         .limit(1)
         .get();
 
@@ -348,31 +342,33 @@ class FirebaseServices {
   }
 
 // Delete from MYPRODUCT
-  Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
-    final userDocRef = database.doc('users/mecha/myproducts');
+Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
+  final userDocRef = database.doc('users/mecha/myproducts');
 
-    final QuerySnapshot productSnapshot = await userDocRef
-        .collection('products')
-        .where(
-          'productNo',
-          isEqualTo: productNo,
-        )
-        .where(
-          'expiredDate',
-          isEqualTo: Timestamp.fromDate(expiredDate),
-        )
-        .get();
+  final QuerySnapshot productSnapshot = await userDocRef
+      .collection('myproducts')
+      .where(
+        'product_no',
+        isEqualTo: productNo,
+      )
+      .where(
+        'expired_date',
+        isEqualTo: formatDate(expiredDate),
+      )
+      .get();
 
-    final List<DocumentSnapshot> products = productSnapshot.docs;
+  final List<DocumentSnapshot> products = productSnapshot.docs;
 
-    if (products.isNotEmpty) {
-      final productToDelete = products.first;
-      await productToDelete.reference.delete();
-      return 1;
-    } else {
-      return 0;
-    }
+  if (products.isNotEmpty) {
+    final productToDelete = products.first;
+    await productToDelete.reference.delete();
+    return 1;
+  } else {
+    return 0;
   }
+}
+
+
 
 //!! UPDATE METHOD's !!\\
 
@@ -439,34 +435,35 @@ class FirebaseServices {
   }
 
 // Update record of MYPRODUCT
-  Future<int> updateRecordMyProduct(
-      MyProducts product, DateTime oldExpiredDate) async {
-    final CollectionReference myProductsCollection =
-        database.collection('users/mecha/myproducts');
+Future<int> updateRecordMyProduct(
+    MyProducts product, DateTime oldExpiredDate) async {
+  final CollectionReference myProductsCollection =
+      database.collection('users/mecha/myproducts');
 
-    final QuerySnapshot query = await myProductsCollection
-        .where('productNo', isEqualTo: product.no)
-        .where('expiredDate',
-            isEqualTo: oldExpiredDate.toUtc().toIso8601String())
-        .get();
+  final QuerySnapshot query = await myProductsCollection
+      .where('product_no', isEqualTo: product.no)
+      .where('expired_date', isEqualTo: formatDate(oldExpiredDate))
+      .get();
 
-    int updatedCount = 0;
+  int updatedCount = 0;
 
-    if (query.docs.isNotEmpty) {
-      final DocumentSnapshot productDocument = query.docs.first;
+  if (query.docs.isNotEmpty) {
+    final DocumentSnapshot productDocument = query.docs.first;
 
-      await myProductsCollection.doc(productDocument.id).update({
-        'quantity': product.quantity,
-        'gram': product.gram,
-        'purchasedDate': product.purchasedDate.toUtc().toIso8601String(),
-        'expiredDate': product.expiredDate.toUtc().toIso8601String(),
-      });
+    await myProductsCollection.doc(productDocument.id).update({
+      'quantity': product.quantity,
+      'gram': product.gram,
+      'purchased_date': product.purchasedDate.toUtc().toIso8601String(),
+      'expired_date': product.expiredDate.toUtc().toIso8601String(),
+    });
 
-      updatedCount = 1;
-    }
-
-    return updatedCount;
+    updatedCount = 1;
   }
+
+  return updatedCount;
+  }
+
+
 
 // Update SHOPLIST
   Future<void> updateShopList(Map<String, dynamic> updatedProduct) async {
