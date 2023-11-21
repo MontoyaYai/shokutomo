@@ -369,7 +369,7 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
                   );
 
                   // Utiliza el nuevo método para agregar o actualizar el producto en Firebase
-                  await FirebaseServices().addOrUpdateFirebaseMyProduct(myProduct);
+                  await FirebaseServices().addOrUpdateProductInMyProduct(myProduct);
                   
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
