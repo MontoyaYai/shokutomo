@@ -46,70 +46,6 @@ class ListViewForDayState extends State<ListViewForDay> {
     widget.onUpdateCalendar();
   }
 
-  //数量また重量を増やす
-  void incrementQuantity(int index) async {
-    int quantity = getProductsForDay[index].quantity;
-    int gram = getProductsForDay[index].gram;
-    //quantityとgram、両方ともデータがある場合
-    if (quantity != 0 && gram != 0) {
-      num avrGram = gram / quantity;
-      //quantityは1が増える, Gramは平均Gramが増える
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          ++quantity,
-          gram += avrGram.toInt());
-    } else if (quantity != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          ++quantity,
-          0);
-    } else if (gram != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          0,
-          gram += 10);
-    }
-    setState(() {
-      getProductsForDay[index].quantity = quantity;
-      getProductsForDay[index].gram = gram;
-    });
-  }
-
-  //数量また重量を減らす
-  void decrementQuantity(int index) async {
-    int quantity = getProductsForDay[index].quantity;
-    int gram = getProductsForDay[index].gram;
-    //quantityとgram、両方ともデータがある場合
-    if (quantity != 0 && gram != 0) {
-      num avrGram = gram / quantity;
-      //quantityは1が増える, Gramは平均Gramが増える
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          --quantity,
-          gram -= avrGram.toInt());
-    } else if (quantity != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          --quantity,
-          0);
-    } else if (gram != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          getProductsForDay[index].no,
-          getProductsForDay[index].expiredDate,
-          0,
-          gram -= 10);
-    }
-    setState(() {
-      getProductsForDay[index].quantity = quantity;
-      getProductsForDay[index].gram = gram;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -176,22 +112,6 @@ class ListViewForDayState extends State<ListViewForDay> {
                         Text('$quantity個'),
                       if (quantity != 0 && gram != 0) const Text(' / '),
                       if (gram != 0) Text('$gramグラム'),
-                      Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              incrementQuantity(index);
-                            },
-                            child: const Icon(Icons.arrow_drop_up),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              decrementQuantity(index);
-                            },
-                            child: const Icon(Icons.arrow_drop_down),
-                          ),
-                        ],
-                      )
                     ],
                   ),
                   leading: Image.asset("assets/img/$image"),

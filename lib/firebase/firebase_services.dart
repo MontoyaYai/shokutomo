@@ -11,9 +11,13 @@ class FirebaseServices {
   final FirebaseFirestore database = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  String formatDate(DateTime date) {
+    return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
 //!! GET METHOD's !!\\
 
-// Get PRODUCT
+//?? Get PRODUCT
   Future<List<Product>> getFirebaseProducts() async {
     List<Product> products = [];
 
@@ -29,7 +33,7 @@ class FirebaseServices {
     return products;
   }
 
-// Get PRODUCT by productNo
+//?? Get PRODUCT by productNo
   Future<Product> getProductByProductNo(String productNo) async {
     CollectionReference collectionReferenceProduct =
         database.collection('products');
@@ -44,7 +48,6 @@ class FirebaseServices {
       throw Exception("Product not found");
     }
   }
-
 
 //!!Check
 // Get searchproduct from PRODUCT
@@ -77,7 +80,7 @@ class FirebaseServices {
     return productsList;
   }
 
-// Get Unique CATEGORIES
+//?? Get Unique CATEGORIES
   Future<List<Categories>> getUniqueCategories() async {
     CollectionReference collectionReferenceProduct =
         database.collection('products');
@@ -108,7 +111,7 @@ class FirebaseServices {
     }
   }
 
-// Get MYPRODUCT
+//?? Get MYPRODUCT
   Future<List<MyProducts>> getFirebaseMyProducts() async {
     List<MyProducts> myProducts = [];
 
@@ -240,37 +243,34 @@ class FirebaseServices {
 
 //!! CHECK PRODUCT EXISTENCE !!\\
 
-Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
-  final productNo = product.no;
-  final expiredDate = product.expiredDate;
+//?? add and update myProduct
+  Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
+    final productNo = product.no;
+    final expiredDate = product.expiredDate;
 
-  final myProductCollection = database.collection('users/mecha/myproducts/');
+    final myProductCollection = database.collection('users/mecha/myproducts/');
 
-  final productQuery = await myProductCollection
-      .where('product_no', isEqualTo: productNo)
-      .where('expired_date', isEqualTo: formatDate(expiredDate))
-      .get();
+    final productQuery = await myProductCollection
+        .where('product_no', isEqualTo: productNo)
+        .where('expired_date', isEqualTo: formatDate(expiredDate))
+        .get();
 
-  if (productQuery.docs.isNotEmpty) {
-    // Existen productos con el mismo productNo y la misma expiredDate, actualiza
-    await Future.forEach(productQuery.docs, (existingProductDoc) async {
-      final existingQuantity = existingProductDoc['quantity'] ?? 0;
-      final existingGram = existingProductDoc['gram'] ?? 0;
+    if (productQuery.docs.isNotEmpty) {
+      // Existen productos con el mismo productNo y la misma expiredDate, actualiza
+      await Future.forEach(productQuery.docs, (existingProductDoc) async {
+        final existingQuantity = existingProductDoc['quantity'] ?? 0;
+        final existingGram = existingProductDoc['gram'] ?? 0;
 
-      await existingProductDoc.reference.update({
-        'quantity': existingQuantity + product.quantity,
-        'gram': existingGram + product.gram,
+        await existingProductDoc.reference.update({
+          'quantity': existingQuantity + product.quantity,
+          'gram': existingGram + product.gram,
+        });
       });
-    });
-  } else {
-    // El producto no existe, agrégalo como un nuevo documento
-    await myProductCollection.add(product.toMap());
+    } else {
+      // El producto no existe, agrégalo como un nuevo documento
+      await myProductCollection.add(product.toMap());
+    }
   }
-}
-
-String formatDate(DateTime date) {
-  return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-}
 
 
 
@@ -288,37 +288,6 @@ String formatDate(DateTime date) {
     return querySnapshot.docs.isNotEmpty;
   }
 
-//!! ADD METHOD's !!\\
-
-// Add or update firebase PRODUCT
-  Future<void> addOrUpdateFirebaseProduct(Product product) async {
-    CollectionReference collectionReferenceProduct =
-        database.collection('products');
-
-    final existingProduct =
-        await collectionReferenceProduct.doc(product.productNo).get();
-    if (existingProduct.exists) {
-      await collectionReferenceProduct
-          .doc(product.productNo)
-          .update(product.toMap());
-    } else {
-      await collectionReferenceProduct.add(product.toMap());
-    }
-  }
-
-// Add or update firebase MYPRODUCT
-  Future<void> addOrUpdateFirebaseMyProduct(MyProducts product) async {
-    CollectionReference collectionReferenceProduct =
-        database.collection('users/mecha/myproducts');
-
-    final existingProduct =
-        await collectionReferenceProduct.doc(product.no).get();
-    if (existingProduct.exists) {
-      await collectionReferenceProduct.doc(product.no).update(product.toMap());
-    } else {
-      await collectionReferenceProduct.add(product.toMap());
-    }
-  }
 
 //!! DELETE METHOD'S !!\\
 
@@ -342,108 +311,46 @@ String formatDate(DateTime date) {
   }
 
 // Delete from MYPRODUCT
-Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
-  final userDocRef = database.doc('users/mecha/myproducts');
+  Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
+    final userDocRef = database.doc('users/mecha/myproducts');
 
-  final QuerySnapshot productSnapshot = await userDocRef
-      .collection('myproducts')
-      .where(
-        'product_no',
-        isEqualTo: productNo,
-      )
-      .where(
-        'expired_date',
-        isEqualTo: formatDate(expiredDate),
-      )
-      .get();
-
-  final List<DocumentSnapshot> products = productSnapshot.docs;
-
-  if (products.isNotEmpty) {
-    final productToDelete = products.first;
-    await productToDelete.reference.delete();
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-
-
-//!! UPDATE METHOD's !!\\
-
-// Update MYPRODUCT
-  // Future<void> updateMyProduct(Map<String, dynamic> updatedProduct) async {
-  //   final int productNo = updatedProduct['productNo'];
-  //   final String expiredDate = updatedProduct['expiredDay'];
-
-  //   final QuerySnapshot productSnapshot = await database
-  //       .collection('users/mecha/myproducts')
-  //       .where('productNo', isEqualTo: productNo)
-  //       .where('expiredDay', isEqualTo: expiredDate)
-  //       .get();
-
-  //   if (productSnapshot.docs.isNotEmpty) {
-  //     final existingProduct =
-  //         productSnapshot.docs.first.data() as Map<String, dynamic>;
-
-  //     final int existingQuantity = existingProduct['quantity'] ?? 0;
-  //     final int existingGram = existingProduct['gram'] ?? 0;
-  //     final int updatedQuantity = updatedProduct['quantity'] ?? 0;
-  //     final int updatedGram = updatedProduct['gram'] ?? 0;
-
-  //     final int newQuantity = existingQuantity + updatedQuantity;
-  //     final int newGram = existingGram + updatedGram;
-
-  //     await database
-  //         .collection('products')
-  //         .doc(productSnapshot.docs.first.id)
-  //         .update({
-  //       'quantity': newQuantity,
-  //       'gram': newGram,
-  //     });
-  //   }
-  // }
-
-// Update Quantity and grams from MYPRODUCT
-  Future<void> updateQuantityAndGramOfMyProduct(
-      String no, DateTime expiredDate, int quantity, num gram) async {
-    final CollectionReference myProductsCollection =
-        database.collection('/users/mecha/myproducts');
-
-    final QuerySnapshot query = await myProductsCollection
-        .where('productNo', isEqualTo: no)
-        .where('expiredDate', isEqualTo: expiredDate.toUtc())
+    final QuerySnapshot productSnapshot = await userDocRef
+        .collection('myproducts')
+        .where(
+          'product_no',
+          isEqualTo: productNo,
+        )
+        .where(
+          'expired_date',
+          isEqualTo: formatDate(expiredDate),
+        )
         .get();
 
-    if (query.docs.isNotEmpty) {
-      final DocumentSnapshot productDocument = query.docs.first;
-      final Map<String, dynamic> productData =
-          productDocument.data() as Map<String, dynamic>;
+    final List<DocumentSnapshot> products = productSnapshot.docs;
 
-      final int existingQuantity = productData['quantity'] ?? 0;
-      final num existingGram = productData['gram'] ?? 0;
-
-      final int updatedQuantity = existingQuantity + quantity;
-      final num updatedGram = existingGram + gram;
-
-      await myProductsCollection.doc(productDocument.id).update({
-        'quantity': updatedQuantity,
-        'gram': updatedGram,
-      });
+    if (products.isNotEmpty) {
+      final productToDelete = products.first;
+      await productToDelete.reference.delete();
+      return 1;
+    } else {
+      return 0;
     }
   }
+
+//!! UPDATE METHOD's !!\\
 
 // Update record of MYPRODUCT
 Future<int> updateRecordMyProduct(
     MyProducts product, DateTime oldExpiredDate) async {
   final CollectionReference myProductsCollection =
-      database.collection('users/mecha/myproducts');
+      database.collection('users/mecha/myproducts/');
 
   final QuerySnapshot query = await myProductsCollection
       .where('product_no', isEqualTo: product.no)
       .where('expired_date', isEqualTo: formatDate(oldExpiredDate))
       .get();
+
+
 
   int updatedCount = 0;
 
@@ -453,17 +360,15 @@ Future<int> updateRecordMyProduct(
     await myProductsCollection.doc(productDocument.id).update({
       'quantity': product.quantity,
       'gram': product.gram,
-      'purchased_date': product.purchasedDate.toUtc().toIso8601String(),
-      'expired_date': product.expiredDate.toUtc().toIso8601String(),
+      'purchased_date': formatDate(product.purchasedDate),
+      'expired_date': formatDate(product.expiredDate),
     });
 
     updatedCount = 1;
   }
 
   return updatedCount;
-  }
-
-
+}
 
 // Update SHOPLIST
   Future<void> updateShopList(Map<String, dynamic> updatedProduct) async {
@@ -612,58 +517,52 @@ Future<int> updateRecordMyProduct(
     }
   }
 
-
-
-
-
-
-
 // ここから
 
 //!! FIREBASE AUTH !! \\ß
- Future<void> registerUser({
-  required String username,
-  required String email,
-  required String password,
-}) async {
-  try {
-    // Check if the user with the given email already exists
-    if (await isEmailRegistered(email)) {
-      throw 'Email already registered';
+  Future<void> registerUser({
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      // Check if the user with the given email already exists
+      if (await isEmailRegistered(email)) {
+        throw 'Email already registered';
+      }
+
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      String uid = userCredential.user!.uid;
+
+      // Create the user document in the 'users' collection
+      await database
+          .collection('users')
+          .doc(uid)
+          .collection('userinfotmation')
+          .add({
+        'username': username,
+        'email': email,
+        'password': password,
+        // Add more fields if needed
+      });
+    } on FirebaseAuthException catch (e) {
+      print('Error de autenticación: $e');
+      throw e.message ?? 'Error de autenticación';
+    } catch (e) {
+      print('Error desconocido: $e');
+      throw 'Error desconocido: $e';
     }
-
-    UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-
-    String uid = userCredential.user!.uid;
-
-    // Create the user document in the 'users' collection
-    await database
-        .collection('users')
-        .doc(uid)
-        .collection('userinfotmation')
-        .add({
-      'username': username,
-      'email': email,
-      'password': password,
-      // Add more fields if needed
-    });
-  } on FirebaseAuthException catch (e) {
-    print('Error de autenticación: $e');
-    throw e.message ?? 'Error de autenticación';
-  } catch (e) {
-    print('Error desconocido: $e');
-    throw 'Error desconocido: $e';
   }
-}
 
-Future<bool> isEmailRegistered(String email) async {
-  // Check if a user with the given email already exists
-  var snapshot = await database.collection('users').doc(email).get();
-  return snapshot.exists;
-}
+  Future<bool> isEmailRegistered(String email) async {
+    // Check if a user with the given email already exists
+    var snapshot = await database.collection('users').doc(email).get();
+    return snapshot.exists;
+  }
 
 //ここまで
 

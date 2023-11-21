@@ -277,7 +277,7 @@ class EditInsertInfoDialogState extends State<EditInsertInfoDialog> {
         //この商品のみ保存する
         TextButton(
             onPressed: () {
-              FirebaseServices().addOrUpdateFirebaseMyProduct(MyProducts(
+              FirebaseServices().addOrUpdateProductInMyProduct(MyProducts(
                   no: product.no,
                   name: product.name,
                   image: product.image,

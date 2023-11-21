@@ -32,9 +32,21 @@ class _InventoryPageState extends State<InventoryPage> {
     setState(() {});
   }
 
-  void insertIntoShopList(String no, int quantity, int gram, String name, String image, ) async {
+  void insertIntoShopList(
+    String no,
+    int quantity,
+    int gram,
+    String name,
+    String image,
+  ) async {
     await FirebaseServices().insertOrUpdateIntoShopList(
-      ShopList(productNo: no, name: name, image: image, quantity: quantity, gram: gram, status: 0),
+      ShopList(
+          productNo: no,
+          name: name,
+          image: image,
+          quantity: quantity,
+          gram: gram,
+          status: 0),
     );
   }
 
@@ -44,52 +56,6 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   void updateProductsList(DateTime selectedDate) async {
-    fetchMyProducts();
-  }
-
-  //数量また重量を増やす
-  void incrementQuantity(int index) async {
-    int quantity = myProducts[index].quantity;
-    int gram = myProducts[index].gram;
-    //quantityとgram、両方ともデータがある場合
-    if (quantity != 0 && gram != 0) {
-      num avrGram = gram / quantity;
-      //quantityは1が増える, Gramは平均Gramが増える
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no,
-          myProducts[index].expiredDate,
-          quantity + 1,
-          gram + avrGram);
-    } else if (quantity != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no, myProducts[index].expiredDate, quantity + 1, 0);
-    } else if (gram != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no, myProducts[index].expiredDate, 0, gram + 10);
-    }
-    fetchMyProducts();
-  }
-
-  //数量また重量を減らす
-  void decrementQuantity(int index) async {
-    int quantity = myProducts[index].quantity;
-    int gram = myProducts[index].gram;
-    //quantityとgram、両方ともデータがある場合
-    if (quantity != 0 && gram != 0) {
-      num avrGram = gram / quantity;
-      //quantityは1が増える, Gramは平均Gramが増える
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no,
-          myProducts[index].expiredDate,
-          quantity - 1,
-          gram - avrGram);
-    } else if (quantity != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no, myProducts[index].expiredDate, quantity - 1, 0);
-    } else if (gram != 0) {
-      await FirebaseServices().updateQuantityAndGramOfMyProduct(
-          myProducts[index].no, myProducts[index].expiredDate, 0, gram - 10);
-    }
     fetchMyProducts();
   }
 
@@ -156,8 +122,8 @@ class _InventoryPageState extends State<InventoryPage> {
                           SlidableAction(
                             onPressed: (BuildContext context) {
                               // Make a copy of the item in the shoplist database
-                              insertIntoShopList(
-                                  product.no, product.quantity, product.gram, product.name, product.image);
+                              insertIntoShopList(product.no, product.quantity,
+                                  product.gram, product.name, product.image);
                               // Delete the item from the "product" list
                               _deleteProduct(product);
                               Navigator.of(context)
@@ -206,22 +172,6 @@ class _InventoryPageState extends State<InventoryPage> {
                               if (product.quantity != 0 && product.gram != 0)
                                 const Text(' / '),
                               if (product.gram != 0) Text('${product.gram}グラム'),
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      incrementQuantity(index);
-                                    },
-                                    child: const Icon(Icons.arrow_drop_up),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      decrementQuantity(index);
-                                    },
-                                    child: const Icon(Icons.arrow_drop_down),
-                                  ),
-                                ],
-                              )
                             ],
                           ),
                         ),

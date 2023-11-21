@@ -285,6 +285,7 @@ class EditDialogState extends State<EditDialog> {
         TextButton(
             onPressed: () async {
               callUpdate(product, initialExpiredDate as DateTime);
+              print(initialExpiredDate);
               widget.onUpdate(initialExpiredDate as DateTime);
               Navigator.pop(context);
             },
