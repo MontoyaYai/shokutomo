@@ -39,7 +39,7 @@ class _InventoryPageState extends State<InventoryPage> {
     String name,
     String image,
   ) async {
-    await FirebaseServices().insertOrUpdateIntoShopList(
+    await FirebaseServices().addOrUpdateProductInShopList(
       ShopList(
           productNo: no,
           name: name,

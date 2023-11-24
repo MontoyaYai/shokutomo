@@ -83,7 +83,7 @@ class ListViewForDayState extends State<ListViewForDay> {
                   SlidableAction(
                     onPressed: (BuildContext context) async {
                       // Make a copy of the item in the shoplist database
-                      await FirebaseServices().insertOrUpdateIntoShopList(
+                      await FirebaseServices().addOrUpdateProductInShopList(
                         ShopList(
                             name: getProductsForDay[index].name,
                             image: getProductsForDay[index].image,

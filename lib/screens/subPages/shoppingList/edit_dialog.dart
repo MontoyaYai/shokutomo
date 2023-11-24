@@ -97,6 +97,6 @@ class ShopListEditDialog extends StatelessWidget {
   }
 
   void updateProduct(ShopList product) async {
-    await FirebaseServices().updateProductOfShopList(product);
+    await FirebaseServices().addOrUpdateProductInShopList(product);
   }
 }

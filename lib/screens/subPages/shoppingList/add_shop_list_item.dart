@@ -96,7 +96,7 @@ class AddShopListDialog extends StatelessWidget {
   void insertShopList(String productNo, int quantity, int grams) async {
     ShopList shoplist = ShopList(
           productNo: productNo, name: productName, image: productImage, quantity: quantity, gram: grams, status: 0);
-    await FirebaseServices().insertOrUpdateIntoShopList(shoplist);
+    await FirebaseServices().addOrUpdateProductInShopList(shoplist);
     //ShopList画面上にあるShopListのデータを表示するListViewをリセット
     onUpdate();
   }
