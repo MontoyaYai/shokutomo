@@ -49,6 +49,7 @@ class FirebaseServices {
     }
   }
 
+
 //!!Check
 // Get searchproduct from PRODUCT
   Future<List<ProductsForSearch>> getSearchResults(
@@ -241,12 +242,8 @@ class FirebaseServices {
     return 0;
   }
 
-
-
-
-
 //?? Add or Update myProduct
-Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
+  Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
     final productNo = product.no;
     final expiredDate = product.expiredDate;
 
@@ -275,134 +272,134 @@ Future<void> addOrUpdateProductInMyProduct(MyProducts product) async {
   }
 
 //?? Add or Update SHOPLIST
-Future<void> addOrUpdateProductInShopList(ShopList product) async {
-  final CollectionReference shopListCollection =
-      database.collection('users/mecha/shoplist');
+  Future<void> addOrUpdateProductInShopList(ShopList product) async {
+    final CollectionReference shopListCollection =
+        database.collection('users/mecha/shoplist');
 
-  final QuerySnapshot query = await shopListCollection
-      .where('product_no', isEqualTo: product.productNo)
-      .limit(1)
-      .get();
+    final QuerySnapshot query = await shopListCollection
+        .where('product_no', isEqualTo: product.productNo)
+        .limit(1)
+        .get();
 
-  if (query.docs.isNotEmpty) {
-    final DocumentSnapshot productDocument = query.docs.first;
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot productDocument = query.docs.first;
 
-    await shopListCollection.doc(productDocument.id).update({
-      'quantity': product.quantity,
-      'gram':  product.gram,
-    });
-  } else {
-    await shopListCollection.add(product.toMap());
+      await shopListCollection.doc(productDocument.id).update({
+        'quantity': product.quantity,
+        'gram': product.gram,
+      });
+    } else {
+      await shopListCollection.add(product.toMap());
+    }
   }
-}
 
 //?? Delete from SHOPLIST
-Future<void> deleteShopListProduct(String productNo) async {
-  CollectionReference shopListCollection =
-      database.collection('users/mecha/shoplist');
+  Future<void> deleteShopListProduct(String productNo) async {
+    CollectionReference shopListCollection =
+        database.collection('users/mecha/shoplist');
 
-  try {
-    final QuerySnapshot querySnapshot = await shopListCollection
+    try {
+      final QuerySnapshot querySnapshot = await shopListCollection
+          .where('product_no', isEqualTo: productNo)
+          .get();
+
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        await shopListCollection.doc(doc.id).delete();
+      }
+    } catch (error) {
+      print("Error deleting shop list product: $error");
+    }
+  }
+
+// ?? Delete from MYPRODUCT
+  Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
+    final userDocRef =
+        database.collection('users').doc('mecha').collection('myproducts');
+
+    final QuerySnapshot productSnapshot = await userDocRef
+        .where(
+          'product_no',
+          isEqualTo: productNo,
+        )
+        .where(
+          'expired_date',
+          isEqualTo: formatDate(expiredDate),
+        )
+        .get();
+
+    final List<QueryDocumentSnapshot> products = productSnapshot.docs;
+    if (products.isNotEmpty) {
+      final productToDelete = products.first;
+      print('Document Path: ${productToDelete.reference.path}');
+      try {
+        final DocumentSnapshot productDoc =
+            await productToDelete.reference.get(); // ドキュメントを削除する前にゲットします
+        if (productDoc.exists) {
+          await productToDelete.reference.delete();
+          return 1;
+        } else {
+          print('ドキュメントを見つかりませんでした');
+          return 0;
+        }
+      } catch (e) {
+        print('エラー発生しました: $e');
+        return 0;
+      }
+    } else {
+      print('削除するitemがありません');
+      return 0;
+    }
+  }
+
+//?? Update record of MYPRODUCT
+  Future<int> updateRecordMyProduct(
+      MyProducts product, DateTime oldExpiredDate) async {
+    final CollectionReference myProductsCollection =
+        database.collection('users/mecha/myproducts/');
+
+    final QuerySnapshot query = await myProductsCollection
+        .where('product_no', isEqualTo: product.no)
+        .where('expired_date', isEqualTo: formatDate(oldExpiredDate))
+        .get();
+
+    int updatedCount = 0;
+
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot productDocument = query.docs.first;
+
+      await myProductsCollection.doc(productDocument.id).update({
+        'quantity': product.quantity,
+        'gram': product.gram,
+        'purchased_date': formatDate(product.purchasedDate),
+        'expired_date': formatDate(product.expiredDate),
+      });
+
+      updatedCount = 1;
+    }
+
+    return updatedCount;
+  }
+
+//?? Update status of SHOPLIST
+  Future<void> updateStatusOfShopList(String productNo) async {
+    final CollectionReference shopListCollection =
+        database.collection('users/mecha/shoplist');
+
+    final QuerySnapshot query = await shopListCollection
         .where('product_no', isEqualTo: productNo)
         .get();
 
-    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-      await shopListCollection.doc(doc.id).delete();
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot productDocument = query.docs.first;
+
+      final int currentStatus = productDocument.get('status') ?? 0;
+      final int newStatus = (currentStatus == 0) ? 1 : 0;
+
+      await shopListCollection.doc(productDocument.id).update({
+        'status': newStatus,
+      });
     }
-  } catch (error) {
-    print("Error deleting shop list product: $error");
   }
-}
-
-// ?? Delete from MYPRODUCT
-Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
-  final userDocRef = database.collection('users').doc('mecha').collection('myproducts');
-
-  final QuerySnapshot productSnapshot = await userDocRef
-      .where(
-        'product_no',
-        isEqualTo: productNo,
-      )
-      .where(
-        'expired_date',
-        isEqualTo: formatDate(expiredDate),
-      )
-      .get();
-
-  final List<QueryDocumentSnapshot> products = productSnapshot.docs;
-  if (products.isNotEmpty) {
-    final productToDelete = products.first;
-    print('Document Path: ${productToDelete.reference.path}');
-    try {
-      final DocumentSnapshot productDoc = await productToDelete.reference.get(); // ドキュメントを削除する前にゲットします
-      if (productDoc.exists) {
-        await productToDelete.reference.delete();
-        return 1;
-      } else {
-        print('ドキュメントを見つかりませんでした');
-        return 0;
-      }
-    } catch (e) {
-      print('エラー発生しました: $e');
-      return 0;
-    }
-  } else {
-    print('削除するitemがありません');
-    return 0;
-  }
-}
-
-//?? Update record of MYPRODUCT
-Future<int> updateRecordMyProduct(
-    MyProducts product, DateTime oldExpiredDate) async {
-  final CollectionReference myProductsCollection =
-      database.collection('users/mecha/myproducts/');
-
-  final QuerySnapshot query = await myProductsCollection
-      .where('product_no', isEqualTo: product.no)
-      .where('expired_date', isEqualTo: formatDate(oldExpiredDate))
-      .get();
-
-  int updatedCount = 0;
-
-  if (query.docs.isNotEmpty) {
-    final DocumentSnapshot productDocument = query.docs.first;
-
-    await myProductsCollection.doc(productDocument.id).update({
-      'quantity': product.quantity,
-      'gram': product.gram,
-      'purchased_date': formatDate(product.purchasedDate),
-      'expired_date': formatDate(product.expiredDate),
-    });
-
-    updatedCount = 1;
-  }
-
-  return updatedCount;
-}
-
-//?? Update status of SHOPLIST
-Future<void> updateStatusOfShopList(String productNo) async {
-  final CollectionReference shopListCollection =
-      database.collection('users/mecha/shoplist');
-
-  final QuerySnapshot query = await shopListCollection
-      .where('product_no', isEqualTo: productNo)
-      .get();
-
-  if (query.docs.isNotEmpty) {
-    final DocumentSnapshot productDocument = query.docs.first;
-
-    final int currentStatus = productDocument.get('status') ?? 0;
-    final int newStatus = (currentStatus == 0) ? 1 : 0;
-
-    await shopListCollection.doc(productDocument.id).update({
-      'status': newStatus,
-    });
-  }
-}
-
-
 
 // Update THEMECOLOR
   Future<void> updateThemeColor(int selectedColor) async {
@@ -415,10 +412,7 @@ Future<void> updateStatusOfShopList(String productNo) async {
     }, SetOptions(merge: true));
   }
 
-
-
-//!! INSERT METHOD's MYPRODUCT FROM SHOPLIST CHECK  !!\\
-// Insert MYPRODUCT FROM SHOPLIST
+//?? Insert MYPRODUCT from SHOPLIST 
   Future<void> insertMyProductFromShopList() async {
     List<ShopList> insertValues = await FirebaseServices().getBoughtProduct();
     DateTime purchaseDate = DateTime.now();
@@ -434,35 +428,44 @@ Future<void> updateStatusOfShopList(String productNo) async {
       CollectionReference myProductsCollection =
           database.collection('users/mecha/myproducts');
 
-      // Adds the product 'myproducts' in Firebase Firestore
-      await myProductsCollection.add({
-        'productNo': value.productNo,
-        'quantity': value.quantity,
-        'gram': value.gram,
-        'purchasedDay':
-            DateTime(purchaseDate.year, purchaseDate.month, purchaseDate.day)
-                .toString(),
-        'expiredDay':
-            DateTime(expiredDate.year, expiredDate.month, expiredDate.day)
-                .toString(),
-      });
+      final productQuery = await myProductsCollection
+          .where('product_no', isEqualTo: productNo)
+          .where('expired_date', isEqualTo: formatDate(expiredDate))
+          .get();
 
+      if (productQuery.docs.isNotEmpty) {
+        await Future.forEach(productQuery.docs, (existingProductDoc) async {
+          final existingQuantity = existingProductDoc['quantity'] ?? 0;
+          final existingGram = existingProductDoc['gram'] ?? 0;
+
+          await existingProductDoc.reference.update({
+            'quantity': existingQuantity + value.quantity,
+            'gram': existingGram + value.gram,
+          });
+        });
+      } else {
+        // Adds the product 'myproducts' in Firebase Firestore
+        await myProductsCollection.add({
+          'product_no': value.productNo,
+          'product_name': product.productName,
+          'image': product.image,
+          'quantity': value.quantity,
+          'gram': value.gram,
+          'purchased_date': formatDate(purchaseDate),
+          'expired_date': formatDate(expiredDate),
+        });
+      }
       //Delete the producto from 'shoplist' in Firebase Firestore
       CollectionReference shopListCollection =
           database.collection('users/mecha/shoplist');
       QuerySnapshot querySnapshot = await shopListCollection
-          .where('productNo', isEqualTo: value.productNo)
+          .where('product_no', isEqualTo: value.productNo)
           .get();
       for (var doc in querySnapshot.docs) {
         await shopListCollection.doc(doc.id).delete();
       }
     }
   }
-
-
-
-
-
 
 //!! FIREBASE AUTH !! \\
   Future<void> registerUser({

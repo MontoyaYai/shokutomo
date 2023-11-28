@@ -91,7 +91,7 @@ class ShopListEditDialog extends StatelessWidget {
               onUpdate();
               Navigator.pop(context);
             },
-            child: const Text("編集")),
+            child: const Text("編集aaaa")),
       ],
     );
   }
