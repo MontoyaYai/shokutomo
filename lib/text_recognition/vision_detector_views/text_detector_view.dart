@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 import '../../firebase/productforsearch_json_map.dart';
+import '../../firebase/shoplist_json_map.dart';
 import 'detector_view.dart';
 import 'painters/text_detector_painter.dart';
 
@@ -26,7 +26,7 @@ class Pro {
 }
 
 var cacheList = [];
-var numList = [];
+List<ShopList> numList = [];
 
 class _TextRecognizerViewState extends State<TextRecognizerView> {
   var _script = TextRecognitionScript.japanese;
@@ -189,7 +189,14 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       Product product = products[i];
       bool contains = _text!.contains(product.productName);
       if (contains) {
-        numList.add([product.productNo, product.productName]);
+        ShopList num = ShopList(
+            productNo: product.productNo,
+            name: product.productName,
+            quantity: 0,
+            gram: 0,
+            image: product.image,
+            status: 1);
+        numList.add(num);
         continue;
       } //else if (contains = _text!.contains(product.hiragana)) {
       //  numList.add([product.productNo, product.productName]);
@@ -205,6 +212,15 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       // continue;
       //}
     }
-    print(numList);
+    for (int i = 0; i < numList.length; i++) {
+      print(numList[i].name);
+      print(numList[i].status);
+    }
+  }
+
+  void _reloadScreen(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => TextRecognizerView()),
+    );
   }
 }

@@ -6,8 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../firebase/product_json_map.dart';
+import '../../firebase/shoplist_json_map.dart';
 import 'text_detector_view.dart';
 import 'utils.dart';
+import '../../screens/subPages/shoppingList/confirm_dialog.dart';
+import '../../screens/subPages/shoppingList/edit_info_of_items_will_insert.dart';
+import '../../screens/subPages/shoppingList/list_shopping.dart';
+import '../../firebase/firebase_services.dart';
 
 class GalleryView extends StatefulWidget {
   GalleryView(
@@ -32,11 +38,37 @@ class _GalleryViewState extends State<GalleryView> {
   String? _path;
   ImagePicker? _imagePicker;
 
+  List<Product> product = [];
+
   @override
   void initState() {
     super.initState();
 
     _imagePicker = ImagePicker();
+  }
+
+  var fetch;
+  void someMethod() async {
+    InsertItemsConfirmState insertItemsConfirmState = InsertItemsConfirmState();
+
+    fetch = await insertItemsConfirmState.fetchPurchasedProducts();
+
+    ShoppingList shoppingList = ShoppingList();
+  }
+
+  void updatedShopList() async {
+    fetchShopList();
+  }
+
+  Future<void> fetchShopList() async {
+    product = await FirebaseServices().getFirebaseProducts();
+
+    setState(() {});
+  }
+
+  void update() {
+    setState(() {});
+    Widget.canUpdate;
   }
 
   @override
@@ -79,13 +111,6 @@ class _GalleryViewState extends State<GalleryView> {
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: ElevatedButton(
-          onPressed: _getImageAsset,
-          child: Text('From Assets'),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: ElevatedButton(
           child: Text('From Gallery'),
           onPressed: () => _getImage(ImageSource.gallery),
         ),
@@ -99,6 +124,23 @@ class _GalleryViewState extends State<GalleryView> {
       ),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
+        child: ElevatedButton(
+            child: Text('在庫に追加'),
+            onPressed: () {
+              List<ShopList> buyList = [];
+              for (var num in numList) {
+                buyList.add(num);
+              }
+              for (var buy in buyList) {
+                buy.status = 1;
+                print(buy.name);
+              }
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return InsertItemsConfirm(onUpdate: updatedShopList);
+                  });
+            }),
       ),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -106,7 +148,9 @@ class _GalleryViewState extends State<GalleryView> {
       ),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
-        child: Text(numList.toString()),
+        child: numList.isNotEmpty
+            ? Text(numList[0].name)
+            : Text('リストにまだアイテムがありません'),
       ),
       if (_image != null)
         Padding(
