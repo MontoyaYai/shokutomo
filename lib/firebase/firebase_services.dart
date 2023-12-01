@@ -410,6 +410,7 @@ class FirebaseServices {
       );
 
       String uid = userCredential.user!.uid;
+      print('User UID: $uid');
 
       // Create the user document in the 'users' collection
       await database

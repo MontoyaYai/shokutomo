@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/firebase/categories_json_map.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/screens/initial_page.dart';
@@ -23,7 +22,6 @@ void main() async {
 
   GetFirebaseDataToArray getFirebaseDataToArray = GetFirebaseDataToArray();
    await getFirebaseDataToArray.getFirebase();
-   print(getFirebaseDataToArray.categories);
 
   initializeDateFormatting("ja").then((value) => runApp(const MyApp()));
 }

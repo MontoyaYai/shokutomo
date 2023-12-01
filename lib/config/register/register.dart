@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shokutomo/config/Auth/Auth_service.dart';
 import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/config/background.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
-
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +42,6 @@ class RegisterScreen extends StatelessWidget {
                           textAlign: TextAlign.left,
                         ),
                       ),
-                      SizedBox(height: size.height * 0.01),
-                      
                       SizedBox(height: size.height * 0.01),
                       TextFormField(
                         controller: emailController,
@@ -96,7 +95,7 @@ class RegisterScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     try {
-                      await FirebaseServices().registerUser(
+                      await AuthService().registerWithEmailAndPassword(
                         username: usernameController.text,
                         email: emailController.text,
                         password: passwordController.text,

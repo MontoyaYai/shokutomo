@@ -9,7 +9,53 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  LoginScreen({super.key});
+  LoginScreen({Key? key}) : super(key: key);
+
+  Future<void> _showLoginErrorDialog(BuildContext context, String errorMessage) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Error de inicio de sesión"),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showLoginSuccessDialog(BuildContext context, String email) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("ログイン成功しました"),
+          content: Text("ようこそ, $email!"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +94,13 @@ class LoginScreen extends StatelessWidget {
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
-                          labelText: "ユーザーネーム",
-                          hintText: "ユーザーネームを入力してください",
+                          labelText: "Eメール",
+                          hintText: "Eメールを入力してください",
                           prefixIcon: Icon(Icons.person),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'ユーザーネームを入力してください';
+                            return 'Eメールを入力してください';
                           }
                           return null;
                         },
@@ -96,8 +142,7 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
                         onPressed: () async {
-                          if (_formKey.currentState != null &&
-                              _formKey.currentState!.validate()) {
+                          if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                             String email = _emailController.text;
                             String password = _passwordController.text;
 
@@ -109,38 +154,18 @@ class LoginScreen extends StatelessWidget {
                               );
 
                               // Usuario autenticado correctamente
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Inicio de sesión exitoso"),
-                                    content: Text("¡Bienvenido, $email!"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => const SettingsPage(),
-                                            ),
-                                          );
-                                        },
-                                        child: const Text("OK"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              _showLoginSuccessDialog(context, email);
                             } on FirebaseAuthException catch (e) {
                               // Manejar errores de inicio de sesión
+                              String errorMessage = "Error al iniciar sesión";
                               if (e.code == 'user-not-found') {
-                                print('No hay ningún usuario registrado con ese correo.');
+                                errorMessage = 'No hay ningún usuario registrado con ese correo.';
                               } else if (e.code == 'wrong-password') {
-                                print('Contraseña incorrecta.');
+                                errorMessage = 'Contraseña incorrecta.';
                               } else {
-                                print('Error: $e');
+                                errorMessage = 'Error: $e';
                               }
+                              _showLoginErrorDialog(context, errorMessage);
                             }
                           }
                         },

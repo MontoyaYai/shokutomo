@@ -1,23 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // ユーザーとパスワードのログイン
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential.user;
-    } catch (e) {
-      print("ログインにエラー発生しました $e");
-      return null;
-    }
-  }
-
-  // 登録
   Future<User?> registerWithEmailAndPassword({
     required String username,
     required String email,
@@ -29,17 +15,36 @@ class AuthService {
         password: password,
       );
 
-      // Puedes realizar acciones adicionales aquí, como almacenar información en una base de datos.
+      await _createUserDocument(
+        userCredential.user!.uid,
+        username,
+        email,
+      );
 
       return userCredential.user;
     } catch (e) {
-      print("ユーザー作成にエラーが発生しました： $e");
+      print("Error al registrar usuario: $e");
       return null;
     }
   }
 
-  // サインアウト
-  Future<void> signOut() async {
-    await _auth.signOut();
+  Future<void> _createUserDocument(
+    String uid,
+    String username,
+    String email,
+  ) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .set({
+            'username': username,
+            'email': email,
+          })
+          .then((_) => print("Usuario registrado en la base de datos"))
+          .catchError((error) => print("Error al registrar en la base de datos: $error"));
+    } catch (e) {
+      print("Error al crear el documento de usuario: $e");
+    }
   }
 }
