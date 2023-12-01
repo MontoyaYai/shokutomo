@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/create_record.dart';
 import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/select_product.dart';
@@ -70,9 +72,9 @@ class ProductPage extends StatelessWidget {
                   child: TextField(
                     onChanged: (value) {
                       searchProvider.searchText = value;
-                      Future<List<ProductsForSearch>> searchResults =
+                      Future<List<Product>> searchResults =
                           getSearchResults(searchProvider.searchText);
-                      searchResults.then((List<ProductsForSearch> results) {
+                      searchResults.then((List<Product> results) {
                         searchProvider.setSearchResults(results);
                       });
                     },
@@ -94,11 +96,11 @@ class ProductPage extends StatelessWidget {
                               shrinkWrap: true,
                               itemCount: searchProvider._searchResults.length,
                               itemBuilder: (context, index) {
-                                ProductsForSearch result =
+                                Product result =
                                     searchProvider._searchResults[index];
                                 return ListTile(
                                   title: Text(result.productName),
-                                  leading: Image.asset(result.productImage),
+                                  leading: Image.asset("assets/img/${result.image}"),
                                   onTap: () {
                                     showDialog(
                                         context: context,
@@ -151,15 +153,15 @@ class ProductPage extends StatelessWidget {
     );
   }
 
-  Future<List<ProductsForSearch>> getSearchResults(String searchText) {
-    return FirebaseServices().getSearchResults(searchText, categoryNo as int);
+  Future<List<Product>> getSearchResults(String searchText) {
+    return GetFirebaseDataToArray().searchProductsInArray(searchText);
   }
 }
 
 //　search state を保存するクラス
 class SearchProvider extends ChangeNotifier {
   String _searchText = '';
-  List<ProductsForSearch> _searchResults = [];
+  List<Product> _searchResults = [];
 
   String get searchText => _searchText;
 
@@ -168,7 +170,7 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSearchResults(List<ProductsForSearch> results) {
+  void setSearchResults(List<Product> results) {
     _searchResults = results;
     notifyListeners();
   }

@@ -30,7 +30,7 @@ class AddShopListDialog extends StatelessWidget {
               SizedBox(
                 height: 50,
                 width: 50,
-                child: Image.asset(productImage),
+                child: Image.asset('assets/img/$productImage'),
               ),
               Text(
                 productName,

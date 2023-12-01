@@ -1,6 +1,6 @@
 class ProductsForSearch {
   String productNo;
-  int categoryNo;
+  String categoryNo;
   String productName;
   String productImage;
 
@@ -16,7 +16,7 @@ class ProductsForSearch {
       productNo: map['product_no'],
       categoryNo: map['category_no'],
       productName: map['product_name'],
-      productImage: map['product_image'] ?? "assets/img/LOGO_BLUE.png",
+      productImage: map['image'] ?? "assets/img/LOGO.png",
     );
   }
 
@@ -25,7 +25,7 @@ class ProductsForSearch {
       'product_no': productNo,
       'category_no': categoryNo,
       'product_name': productName,
-      'product_image': productImage,
+      'image': productImage,
     };
   }
 }

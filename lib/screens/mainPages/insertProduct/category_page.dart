@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
+import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/create_record.dart';
 import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/select_category.dart';
@@ -58,8 +60,8 @@ class CategoryPage extends StatelessWidget {
                           onChanged: (value) async {
                             searchProvider._searchText = value;
                             searchProvider.showSearchResults = true;
-                            List<ProductsForSearch> searchResults =
-                               await getSearchResults(searchProvider.searchText);
+                            List<Product> searchResults =
+                               await GetFirebaseDataToArray().searchProductsInArray(searchProvider.searchText);
                              searchProvider.setSearchResults(searchResults);
                           },
                           decoration: const InputDecoration(
@@ -82,13 +84,13 @@ class CategoryPage extends StatelessWidget {
                                       itemCount:
                                           searchProvider._searchResults.length,
                                       itemBuilder: (context, index) {
-                                        ProductsForSearch result =
+                                        Product result =
                                             searchProvider
                                                 ._searchResults[index];
                                         return ListTile(
                                             title: Text(result.productName),
-                                            leading: Image.asset(
-                                                result.productImage),
+                                            leading: Image.asset("assets/img/${result.image}"
+                                                ),
                                             onTap: () {
                                               showDialog(
                                                   context: context,
@@ -138,15 +140,12 @@ class CategoryPage extends StatelessWidget {
     );
   }
 
-  Future<List<ProductsForSearch>> getSearchResults(String searchText) {
-    return FirebaseServices().getSearchResults(searchText, 0);
-  }
 }
 
 //　search state を保存するクラス
 class SearchProvider extends ChangeNotifier {
   String _searchText = '';
-  List<ProductsForSearch> _searchResults = [];
+  List<Product> _searchResults = [];
   bool _showSearchResults = true;
 
   String get searchText => _searchText;
@@ -156,7 +155,7 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSearchResults(List<ProductsForSearch> results) {
+  void setSearchResults(List<Product> results) {
     _searchResults = results;
     notifyListeners();
   }

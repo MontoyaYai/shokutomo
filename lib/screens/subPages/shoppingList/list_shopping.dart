@@ -106,9 +106,9 @@ class _ShoppingListPageState extends State<ShoppingList> {
                     onChanged: (value) {
                       searchProvider._searchText = value;
                       searchProvider.showSearchResults = true;
-                      Future<List<ProductsForSearch>> searchResults =
+                      Future<List<Product>> searchResults =
                           getSearchResults(searchProvider.searchText);
-                      searchResults.then((List<ProductsForSearch> results) {
+                      searchResults.then((List<Product> results) {
                         searchProvider.setSearchResults(results);
                       });
                     },
@@ -127,11 +127,11 @@ class _ShoppingListPageState extends State<ShoppingList> {
                       shrinkWrap: true,
                       itemCount: searchProvider._searchResults.length,
                       itemBuilder: (context, index) {
-                        ProductsForSearch result =
+                        Product result =
                             searchProvider._searchResults[index];
                         return ListTile(
                             title: Text(result.productName),
-                            leading: Image.asset("assets/img/${result.productImage}"),
+                            leading: Image.asset("assets/img/${result.image}"),
                             onTap: () {
                               showDialog(
                                   context: context,
@@ -139,7 +139,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
                                     return AddShopListDialog(
                                       productNo: result.productNo,
                                       productName: result.productName,
-                                      productImage: result.productImage,
+                                      productImage: result.image,
                                       onUpdate: updatedShopList,
                                     );
                                   }).then((_) {
@@ -297,8 +297,8 @@ class _ShoppingListPageState extends State<ShoppingList> {
     );
   }
 
-  Future<List<ProductsForSearch>> getSearchResults(String searchText) {
-    return FirebaseServices().getSearchResults(searchText, 0);
+  Future<List<Product>> getSearchResults(String searchText) {
+    return GetFirebaseDataToArray().searchProductsInArray(searchText);
   }
 
   void updateProductStatus(String productNo) async {
@@ -309,7 +309,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
 //　search state を保存するクラス
 class SearchProvider extends ChangeNotifier {
   String _searchText = ''; 
-  List<ProductsForSearch> _searchResults = [];
+  List<Product> _searchResults = [];
   bool _showSearchResults = true;
 
   String get searchText => _searchText;
@@ -319,7 +319,7 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSearchResults(List<ProductsForSearch> results) {
+  void setSearchResults(List<Product> results) {
     _searchResults = results;
     notifyListeners();
   }

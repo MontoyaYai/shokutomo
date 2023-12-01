@@ -31,9 +31,26 @@ class GetFirebaseDataToArray {
   }
 
   
-  Future<List<Product>> productsArray() => products;
-  Future<List<MyProducts>> myProductsArray() => myProducts;
-  Future<List<Categories>> categoriesArray() => categories;
-  Future<List<ShopList>>  shoppingListArray() => shoppingList;
+  Future<List<Product>> productsArray() async => await products;
+  Future<List<MyProducts>> myProductsArray() async => await myProducts;
+  Future<List<Categories>> categoriesArray() async => await categories;
+  Future<List<ShopList>>  shoppingListArray() async => await shoppingList;
+
+
+Future<List<Product>> searchProductsInArray(String searchText) async {
+  final productsArray = await products;
+  //searchText がNULLの場合は検索せずに空のリストを返す
+  if (searchText.isEmpty) return [];
+
+  // Realizar la búsqueda en el array local
+  return productsArray.where((product) =>
+      product.hiragana.toLowerCase().contains(searchText.toLowerCase()) ||
+      product.katakana.toLowerCase().contains(searchText.toLowerCase()) ||
+      product.kanji.toLowerCase().contains(searchText.toLowerCase()) ||
+      product.romaji.toLowerCase().contains(searchText.toLowerCase()) ||
+      product.english.toLowerCase().contains(searchText.toLowerCase()))
+    .toList();
+}
+
 
 }

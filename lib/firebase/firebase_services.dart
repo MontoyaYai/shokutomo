@@ -81,35 +81,6 @@ class FirebaseServices {
     }
   }
 
-//?? Get searchproduct from PRODUCT ??\\
-  Future<List<ProductsForSearch>> getSearchResults(
-      String searchText, int productNo) async {
-    final productsCollection = database.collection('products');
-
-    QuerySnapshot querySnapshot;
-
-    if (productNo != 0) {
-      querySnapshot = await productsCollection
-          .where('product_no', isEqualTo: productNo)
-          .where('product_name', isGreaterThanOrEqualTo: searchText)
-          .where('product_name', isLessThanOrEqualTo: searchText + '\uf8ff')
-          .get();
-    } else {
-      querySnapshot = await productsCollection
-          .where('product_name',
-              isGreaterThanOrEqualTo: searchText.toLowerCase())
-          .where('product_name',
-              isLessThanOrEqualTo: searchText.toLowerCase() + '\uf8ff')
-          .get();
-    }
-
-    final productsList = querySnapshot.docs
-        .map((document) =>
-            ProductsForSearch.fromMap(document.data() as Map<String, dynamic>))
-        .toList();
-
-    return productsList;
-  }
 
 // Get all MYPRODUCT
   Future<List<MyProducts>> getFirebaseMyProducts() async {
