@@ -3,7 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
-import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/add_shop_list_item.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/confirm_dialog.dart';
@@ -11,9 +10,10 @@ import 'package:shokutomo/screens/subPages/shoppingList/edit_dialog.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingList extends StatefulWidget {
-  const ShoppingList({Key? key}) : super(key: key);
+  const ShoppingList({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ShoppingListPageState createState() => _ShoppingListPageState();
 }
 

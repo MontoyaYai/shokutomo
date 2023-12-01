@@ -5,9 +5,10 @@ import 'package:velocity_x/velocity_x.dart';
 import 'threedots.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatPageState createState() => _ChatPageState();
 }
 

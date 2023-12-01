@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shokutomo/config/background.dart';
-import 'package:shokutomo/config/personalInfo.dart';
 import 'package:shokutomo/config/register/register.dart';
 import 'package:shokutomo/config/settings_page.dart';
 
@@ -9,6 +8,8 @@ class LoginScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

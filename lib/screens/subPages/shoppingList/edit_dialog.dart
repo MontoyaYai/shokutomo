@@ -10,12 +10,11 @@ class ShopListEditDialog extends StatelessWidget {
   final String productImage;
   final Function() onUpdate;
   const ShopListEditDialog(
-      {Key? key,
+      {super.key,
       required this.selectedProduct,
       required this.productName,
       required this.productImage,
-      required this.onUpdate})
-      : super(key: key);
+      required this.onUpdate});
 
   @override
   Widget build(BuildContext context) {

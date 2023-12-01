@@ -3,7 +3,6 @@ import 'package:shokutomo/firebase/categories_json_map.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 //
 

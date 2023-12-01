@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/create_record.dart';
-import 'package:shokutomo/firebase/productforsearch_json_map.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/select_product.dart';
 import '../../../widgets/app_bar_swipe.dart';
 import 'package:provider/provider.dart';

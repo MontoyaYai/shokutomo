@@ -6,9 +6,10 @@ import 'threedots.dart';
 class ChatScreen extends StatefulWidget {
   final String initialMessage;
 
-  const ChatScreen({Key? key, required this.initialMessage}) : super(key: key);
+  const ChatScreen({super.key, required this.initialMessage});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatScreenState createState() => _ChatScreenState();
 }
 
