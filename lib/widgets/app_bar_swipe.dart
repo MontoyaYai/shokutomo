@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/config/settings_page.dart';
+import 'package:shokutomo/text_recognition/vision_detector_views/text_detector_view.dart';
 import 'bottom_navigation_bar.dart';
 
 import 'package:shokutomo/screens/mainPages/calendar/calendar_page.dart';
@@ -17,6 +18,7 @@ class AppBarSwipe extends StatefulWidget {
   @override
   _AppBarSwipeState createState() => _AppBarSwipeState();
 }
+
 class _AppBarSwipeState extends State<AppBarSwipe> {
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
@@ -33,14 +35,14 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
     return Scaffold(
       key: scaffoldKey,
       drawer: Align(
-      alignment: Alignment.centerRight,
+        alignment: Alignment.centerRight,
         child: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
                 decoration: BoxDecoration(color: primaryColor.withOpacity(0.1)),
-                child:  Center(
+                child: Center(
                   child: Text(
                     'メニュー',
                     style: TextStyle(
@@ -141,6 +143,20 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   );
                 },
               ),
+              ListTile(
+                  leading: const Icon(Icons.camera),
+                  title: const Text(
+                    'カメラ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pageController.animateToPage(
+                      8,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  })
             ],
           ),
         ),
@@ -156,6 +172,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           SearchRecipe(),
           MyFridge(),
           SettingsPage(),
+          TextRecognizerView(),
           // ProductPage(),
         ],
         onPageChanged: (index) {

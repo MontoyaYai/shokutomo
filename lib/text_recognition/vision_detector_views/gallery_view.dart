@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 import '../../firebase/product_json_map.dart';
 import '../../firebase/shoplist_json_map.dart';
 import 'text_detector_view.dart';
 import 'utils.dart';
 import '../../screens/subPages/shoppingList/confirm_dialog.dart';
-import '../../screens/subPages/shoppingList/edit_info_of_items_will_insert.dart';
 import '../../screens/subPages/shoppingList/list_shopping.dart';
 import '../../firebase/firebase_services.dart';
 
@@ -53,7 +53,7 @@ class _GalleryViewState extends State<GalleryView> {
 
     fetch = await insertItemsConfirmState.fetchPurchasedProducts();
 
-    ShoppingList shoppingList = ShoppingList();
+    MyProducts shoppingList;
   }
 
   void updatedShopList() async {
@@ -78,7 +78,7 @@ class _GalleryViewState extends State<GalleryView> {
           title: Text(widget.title),
           actions: [
             Padding(
-              padding: EdgeInsets.only(right: 20.0),
+              padding: const EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: widget.onDetectorViewModeChanged,
                 child: Icon(
@@ -104,28 +104,28 @@ class _GalleryViewState extends State<GalleryView> {
                 ],
               ),
             )
-          : Icon(
+          : const Icon(
               Icons.image,
               size: 200,
             ),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ElevatedButton(
-          child: Text('From Gallery'),
+          child: const Text('From Gallery'),
           onPressed: () => _getImage(ImageSource.gallery),
         ),
       ),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ElevatedButton(
-          child: Text('Take a picture'),
+          child: const Text('Take a picture'),
           onPressed: () => _getImage(ImageSource.camera),
         ),
       ),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ElevatedButton(
-            child: Text('在庫に追加'),
+            child: const Text('在庫に追加'),
             onPressed: () {
               List<ShopList> buyList = [];
               for (var num in numList) {
@@ -143,14 +143,14 @@ class _GalleryViewState extends State<GalleryView> {
             }),
       ),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(cacheList.toString()),
       ),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: numList.isNotEmpty
             ? Text(numList[0].name)
-            : Text('リストにまだアイテムがありません'),
+            : const Text('リストにまだアイテムがありません'),
       ),
       if (_image != null)
         Padding(
@@ -195,7 +195,7 @@ class _GalleryViewState extends State<GalleryView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Select image',
                     style: TextStyle(fontSize: 20),
                   ),
@@ -222,7 +222,7 @@ class _GalleryViewState extends State<GalleryView> {
                   ),
                   ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Cancel')),
+                      child: const Text('Cancel')),
                 ],
               ),
             ),

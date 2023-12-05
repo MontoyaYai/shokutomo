@@ -2,10 +2,11 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
-import '../../firebase/productforsearch_json_map.dart';
+
 import '../../firebase/shoplist_json_map.dart';
 import 'detector_view.dart';
 import 'painters/text_detector_painter.dart';
@@ -58,7 +59,7 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
   }
 
   void initializeDates() async {
-    List<Product> products = await FirebaseServices().getFirebaseProducts();
+    List<Product> products = await GetFirebaseDataToArray().products;
     Product product = products[0];
     print(product.productName);
   }
