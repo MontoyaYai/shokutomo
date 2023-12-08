@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
-import 'dart:math';
+import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
 import 'chat_page.dart';
 import 'chat_screen.dart';
 
 class SearchRecipe extends StatefulWidget {
-  const SearchRecipe({Key? key}) : super(key: key);
+  const SearchRecipe({super.key});
 
   @override
-  _SearchRecipeState createState() => _SearchRecipeState();
+  SearchRecipeState createState() => SearchRecipeState();
 }
 
-class _SearchRecipeState extends State<SearchRecipe> {
-  Future<List<MyProducts>>? myProductsFuture;
-  Future<List<Product>>? productsFuture;
-  List<MyProducts> selectedItems = [];
+class SearchRecipeState extends State<SearchRecipe> {
+  late Future<List<MyProducts>> myProductsFuture;
+  late Future<List<Product>> productsFuture;
 
   @override
   void initState() {
@@ -26,195 +25,137 @@ class _SearchRecipeState extends State<SearchRecipe> {
   }
 
   Future<List<MyProducts>> fetchMyProducts() async {
-    return FirebaseServices().getFirebaseMyProducts();
+    return GetFirebaseDataToArray().myProductsArray();
   }
 
   Future<List<Product>> fetchProducts() async {
-    // final dbHelper = DBHelper.instance;
-    return FirebaseServices().getFirebaseProducts();
+    return GetFirebaseDataToArray().productsArray();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: const Text(
-          'レシピ検索',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          title: const Text(
+            'レシピブック',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'レシピ検索'),
+              Tab(text: 'マイレシピ'),
+            ],
+          ),
         ),
-      ),
-      body: Center(
-        child: FutureBuilder<List<Product>>(
-          future: productsFuture,
-          builder: (context, productsSnapshot) {
-            if (productsSnapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (productsSnapshot.hasError) {
-              return Text('Error: ${productsSnapshot.error}');
-            } else {
-              return Center(
-                child: FutureBuilder<List<MyProducts>>(
-                  future: myProductsFuture,
-                  builder: (context, myProductsSnapshot) {
-                    if (myProductsSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (myProductsSnapshot.hasError) {
-                      return Text('Error: ${myProductsSnapshot.error}');
-                    } else {
-                      return SizedBox(
-                        width: double.infinity,
-                        height: double.infinity,
-                        child: ButtonGrid(
-                          myProducts: myProductsSnapshot.data!,
-                          products: productsSnapshot.data!,
-                        ),
-                      );
-                    }
-                  },
-                ),
-              );
-            }
-          },
+        body: TabBarView(
+          children: [
+            _buildRecipeSearchTab(),
+            const Center(
+              child: MyRecipeTab(),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class ButtonGrid extends StatelessWidget {
-  final List<MyProducts> myProducts;
-  final List<Product> products;
+  Widget _buildRecipeSearchTab() {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            child: _buildButtonGrid(),
+          ),
+        ),
+        const SizedBox(height: 16),
+       Padding(
+        padding: const EdgeInsets.only(left: 16.0), // Agregado espacio desde la izquierda
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'おすすめ！',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ),
+      ),
+        Expanded(
+          child: FutureBuilder<List<MyProducts>>(
+            future: myProductsFuture,
+            builder: (context, productsSnapshot) {
+              if (productsSnapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (productsSnapshot.hasError) {
+                return Text('Error: ${productsSnapshot.error}');
+              } else {
+                return _buildRecommendedRecipesList(productsSnapshot.data!);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
-  const ButtonGrid({Key? key, required this.myProducts, required this.products})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // CHECK :必要はない
-    // Products randomProduct =
-    //     getRandomProductFromMyProducts(products);
-
+  Widget _buildButtonGrid() {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: GridView.count(
+      
+      
         crossAxisCount: 2,
         childAspectRatio: 0.7,
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
         mainAxisSpacing: 20.0,
         crossAxisSpacing: 20.0,
         children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
-            onPressed: () {
-              _showProductsDialogBox(context, products);
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/img/selectfood.png',
-                  width: 75,
-                  height: 75,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '好きな食材からレシピを選びましょう',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+          _buildElevatedButton(
+            Icons.kitchen,
+            '手持ち在庫からレシピを選びましょう',
+            Colors.green,
+            () => _showDialogBox(context, myProductsFuture),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
-            onPressed: () {
-              _showDialogBox(context, myProducts);
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/img/fridge.png",
-                  width: 75,
-                  height: 75,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '手持ち在庫からレシピを選びましょう',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+          _buildElevatedButton(
+            Icons.chat,
+            'チャットボットと会話する',
+            Colors.purple,
+            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage())),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
-            onPressed: () {
-              _navigateToChatScreen(context, '好きなレシピを教えてください。');
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/img/randomfood.png',
-                  width: 75,
-                  height: 75,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'ランダムなレシピ！',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
+        ],
+      ),
+    );
+  }
 
-            ///
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChatPage()),
-              );
-
-              ///
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/img/food.png",
-                  width: 75,
-                  height: 75,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'チャットボットと会話する',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+  Widget _buildElevatedButton(IconData icon, String label, Color color, VoidCallback onPressed) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+      ),
+      onPressed: onPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 75,
+            color: color,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -222,106 +163,109 @@ class ButtonGrid extends StatelessWidget {
     );
   }
 
-  void _showDialogBox(
-      BuildContext context, List<MyProducts>? myProducts) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('食材を選択してください'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: myProducts == null || myProducts.isEmpty
-                ? const Text('在庫に食材がありません!')
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: myProducts.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Image.asset(myProducts[index].image),
-                        title: Text(myProducts[index].name),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          _navigateToChatScreen(
-                            context,
-                            '${myProducts[index].name} がはいっているレシピ教えてください。',
-                          );
-                        },
-                      );
-                    },
-                  ),
+Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
+  return ListView.builder(
+    itemCount: myProducts.length,
+    itemBuilder: (context, index) {
+      return InkWell(
+        onTap: () {
+          // Aquí puedes agregar la lógica al hacer clic en una receta recomendada
+        },
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0), 
+            color: Colors.white, 
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 2), 
+              ),
+            ],
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                // Close the dialog box without selecting any item
-                Navigator.of(context).pop();
-              },
-              child: const Text('キャンセル'),
+          child: Row(
+            children: [
+              // Imagen a la izquierda
+              Container(
+                width: 50.0, // Reducido el tamaño
+                height: 45.0, // Reducido el tamaño
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("assets/img/${myProducts[index].image}"),
+                  ),
+                ),
+              ),
+              // Separación entre la imagen y el texto
+              const SizedBox(width: 12.0), // Reducido el espacio
+              // Título alineado a la izquierda
+              Expanded(
+                child: Text(
+                  myProducts[index].name,
+                  style: const TextStyle(
+                    fontSize: 16.0, // Reducido el tamaño de la fuente
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+  void _showDialogBox(BuildContext context, Future<List<MyProducts>> myProductsFuture) {
+    myProductsFuture.then((myProducts) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('食材を選択してください'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: myProducts.isEmpty
+                  ? const Text('在庫に食材がありません!')
+                  : _buildMyProductsList(myProducts),
             ),
-          ],
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('キャンセル'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildMyProductsList(List<MyProducts> myProducts) {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: myProducts.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: Image.asset("assets/img/${myProducts[index].image}"),
+          title: Text(myProducts[index].name),
+          onTap: () {
+            Navigator.of(context).pop();
+            _navigateToChatScreen(
+              context,
+              '${myProducts[index].name} がはいっているレシピ教えてください。',
+            );
+          },
         );
       },
     );
-  }
-
-  void _showProductsDialogBox(BuildContext context, List<Product>? products) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('食材を選択してください'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: products == null || products.isEmpty
-                ? const Text('在庫に食材がありません!')
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Image.asset(products[index].image),
-                        title: Text(products[index].productName),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          _navigateToChatScreen(
-                            context,
-                            '${products[index].productName} がはいっているレシピ教えてください。',
-                          );
-                        },
-                      );
-                    },
-                  ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                // Close the dialog box without selecting any item
-                Navigator.of(context).pop();
-              },
-              child: const Text('キャンセル'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  //CHECK: もう必要はない
-  // Products _getRandomProduct() {
-  //   return products[Random().nextInt(products.length)];
-  // }
-
-  Product getRandomProductFromMyProducts(List<Product> products) {
-    if (products.isEmpty) {
-      throw Exception("The list of myProducts is empty.");
-    }
-
-    // Generate a random index within the valid range of the list
-    int randomIndex = Random().nextInt(products.length);
-
-    // Return the product at the random index
-    return products[randomIndex];
   }
 
   void _navigateToChatScreen(BuildContext context, String message) {
