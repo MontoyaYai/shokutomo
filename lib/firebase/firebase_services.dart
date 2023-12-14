@@ -3,6 +3,7 @@ import 'package:shokutomo/firebase/categories_json_map.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 //
 
@@ -124,6 +125,19 @@ class FirebaseServices {
         .toList();
   }
 
+//Get Recipes  
+  Future<List<Recipe>> getAllRecipe() async {
+      CollectionReference collectionReferenceRecipe =
+        database.collection('recipes');
+    QuerySnapshot querySnapshot = await collectionReferenceRecipe.get();
+
+    List<Recipe> recipes = querySnapshot.docs
+        .map((document) =>
+            Recipe.fromMap(document.data() as Map<String, dynamic>))
+        .toList();
+    return recipes;
+  }
+  
 //?? Get THEMECOLOR ??\\
   Future<int> getThemeColor() async {
     // final DocumentReference userDocRef =

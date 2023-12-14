@@ -5,16 +5,14 @@ import 'bottom_navigation_bar.dart';
 import 'package:shokutomo/screens/mainPages/calendar/calendar_page.dart';
 import 'package:shokutomo/screens/mainPages/insertProduct/category_page.dart';
 import 'package:shokutomo/screens/mainPages/inventary/inventary_page.dart';
-
-import 'package:shokutomo/screens/subPages/myFridge/my_fridge.dart';
-import 'package:shokutomo/screens/subPages/myRecipe/recipeBook/my_recipe.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/search_recipe.dart';
 import 'package:shokutomo/screens/subPages/shoppingList/list_shopping.dart';
 
 class AppBarSwipe extends StatefulWidget {
-  const AppBarSwipe({Key? key}) : super(key: key);
+  const AppBarSwipe({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AppBarSwipeState createState() => _AppBarSwipeState();
 }
 class _AppBarSwipeState extends State<AppBarSwipe> {
@@ -97,36 +95,6 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.search),
-                title: const Text(
-                  'レシピ検索',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    5,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.snowing),
-                title: const Text(
-                  'マイ冷蔵庫',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    6,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text(
                   '設定',
@@ -152,9 +120,9 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           InventoryPage(),
           CategoryPage(),
           ShoppingList(),
-          MyRecipe(),
+          // MyRecipe(),
           SearchRecipe(),
-          MyFridge(),
+          // MyFridge(),
           SettingsPage(),
           // ProductPage(),
         ],

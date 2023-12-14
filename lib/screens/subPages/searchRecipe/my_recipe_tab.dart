@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
-import 'package:shokutomo/firebase/myproduct_json_map.dart';
+import 'package:shokutomo/firebase/recipe_json_map.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/recipe_form.dart';
 
 class MyRecipeTab extends StatelessWidget {
   const MyRecipeTab({super.key});
@@ -11,45 +12,54 @@ class MyRecipeTab extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
-          child: FutureBuilder<List<MyProducts>>(
-            future: GetFirebaseDataToArray().myProductsArray(),
-            builder: (context, myProductsSnapshot) {
-              if (myProductsSnapshot.connectionState == ConnectionState.waiting) {
+          child: FutureBuilder<List<Recipe>>(
+            future: GetFirebaseDataToArray().recipesArray(),
+            builder: (context, recipeSnapshot) {
+              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
-              } else if (myProductsSnapshot.hasError) {
-                return Text('Error: ${myProductsSnapshot.error}');
+              } else if (recipeSnapshot.hasError) {
+                return Text('Error: ${recipeSnapshot.error}');
               } else {
-                final myProducts = myProductsSnapshot.data!;
+                final recipes = recipeSnapshot.data!;
                 return GridView.count(
                   crossAxisCount: 3,
                   padding: const EdgeInsets.all(20.0),
                   mainAxisSpacing: 20.0,
                   crossAxisSpacing: 20.0,
                   children: [
-                    for (var product in myProducts)
-                      ElevatedButton(
-                        onPressed: () {
-                          // Acción del botón
+                    for (var recipe in recipes)
+                      GestureDetector(
+                        onTap: () {
+                          // Acción cuando se toca el elemento
                           // Puedes agregar lógica específica para cada producto aquí
                         },
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Imagen del producto
                             Container(
-                              width: 50.0,
-                              height: 50.0,
+                              width: 80.0,
+                              height: 80.0,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: AssetImage("assets/img/${product.image}"),
+                                  image:
+                                      AssetImage("assets/img/${recipe.image}"),
                                 ),
                               ),
                             ),
                             const SizedBox(height: 8),
                             // Texto con el nombre del producto
-                            Text(product.name),
+                            Flexible(
+                              child: Text(
+                                recipe.recipeName,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -61,10 +71,13 @@ class MyRecipeTab extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            // Acción del botón para agregar nuevos productos
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RecipeForm()),
+            );
           },
-          child:
-          const Text('レーシピを追加する', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: const Text('レーシピを追加する',
+              style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );

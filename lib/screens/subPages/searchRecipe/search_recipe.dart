@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
-import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
+import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
 import 'chat_page.dart';
 import 'chat_screen.dart';
@@ -14,18 +14,18 @@ class SearchRecipe extends StatefulWidget {
 }
 
 class SearchRecipeState extends State<SearchRecipe> {
-  late Future<List<MyProducts>> myProductsFuture;
+  late Future<List<Recipe>> recipesFuture;
   late Future<List<Product>> productsFuture;
 
   @override
   void initState() {
     super.initState();
-    myProductsFuture = fetchMyProducts();
+    recipesFuture = fetchRecipe();
     productsFuture = fetchProducts();
   }
 
-  Future<List<MyProducts>> fetchMyProducts() async {
-    return GetFirebaseDataToArray().myProductsArray();
+  Future<List<Recipe>> fetchRecipe() async {
+    return GetFirebaseDataToArray().recipesArray();
   }
 
   Future<List<Product>> fetchProducts() async {
@@ -86,15 +86,15 @@ class SearchRecipeState extends State<SearchRecipe> {
         ),
       ),
         Expanded(
-          child: FutureBuilder<List<MyProducts>>(
-            future: myProductsFuture,
-            builder: (context, productsSnapshot) {
-              if (productsSnapshot.connectionState == ConnectionState.waiting) {
+          child: FutureBuilder<List<Recipe>>(
+            future: recipesFuture,
+            builder: (context, recipeSnapshot) {
+              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
-              } else if (productsSnapshot.hasError) {
-                return Text('Error: ${productsSnapshot.error}');
+              } else if (recipeSnapshot.hasError) {
+                return Text('Error: ${recipeSnapshot.error}');
               } else {
-                return _buildRecommendedRecipesList(productsSnapshot.data!);
+                return _buildRecommendedRecipesList(recipeSnapshot.data!);
               }
             },
           ),
@@ -120,7 +120,7 @@ class SearchRecipeState extends State<SearchRecipe> {
             Icons.kitchen,
             '手持ち在庫からレシピを選びましょう',
             Colors.green,
-            () => _showDialogBox(context, myProductsFuture),
+            () => _showDialogBox(context, recipesFuture),
           ),
           _buildElevatedButton(
             Icons.chat,
@@ -163,9 +163,9 @@ class SearchRecipeState extends State<SearchRecipe> {
     );
   }
 
-Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
+Widget _buildRecommendedRecipesList(List<Recipe> recipes) {
   return ListView.builder(
-    itemCount: myProducts.length,
+    itemCount: recipes.length,
     itemBuilder: (context, index) {
       return InkWell(
         onTap: () {
@@ -196,7 +196,7 @@ Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: AssetImage("assets/img/${myProducts[index].image}"),
+                    image: AssetImage("assets/img/${recipes[index].image}"),
                   ),
                 ),
               ),
@@ -205,7 +205,7 @@ Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
               // Título alineado a la izquierda
               Expanded(
                 child: Text(
-                  myProducts[index].name,
+                  recipes[index].recipeName,
                   style: const TextStyle(
                     fontSize: 16.0, // Reducido el tamaño de la fuente
                     fontWeight: FontWeight.bold,
@@ -221,7 +221,7 @@ Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
   );
 }
 
-  void _showDialogBox(BuildContext context, Future<List<MyProducts>> myProductsFuture) {
+  void _showDialogBox(BuildContext context, Future<List<Recipe>> myProductsFuture) {
     myProductsFuture.then((myProducts) {
       showDialog(
         context: context,
@@ -248,19 +248,19 @@ Widget _buildRecommendedRecipesList(List<MyProducts> myProducts) {
     });
   }
 
-  Widget _buildMyProductsList(List<MyProducts> myProducts) {
+  Widget _buildMyProductsList(List<Recipe> recipes) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: myProducts.length,
+      itemCount: recipes.length,
       itemBuilder: (context, index) {
         return ListTile(
-          leading: Image.asset("assets/img/${myProducts[index].image}"),
-          title: Text(myProducts[index].name),
+          leading: Image.asset("assets/img/${recipes[index].image}"),
+          title: Text(recipes[index].recipeName),
           onTap: () {
             Navigator.of(context).pop();
             _navigateToChatScreen(
               context,
-              '${myProducts[index].name} がはいっているレシピ教えてください。',
+              '${recipes[index].recipeName} がはいっているレシピ教えてください。',
             );
           },
         );
