@@ -1,13 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
-
-import '../../firebase/shoplist_json_map.dart';
 import 'detector_view.dart';
 import 'painters/text_detector_painter.dart';
 
@@ -17,17 +15,7 @@ class TextRecognizerView extends StatefulWidget {
   _TextRecognizerViewState createState() => _TextRecognizerViewState();
 }
 
-class Pro {
-  const Pro({
-    required this.name,
-    required this.type,
-  });
-  final String name;
-  final String type;
-}
-
-var cacheList = [];
-List<ShopList> numList = [];
+List<MyProducts> productsList = [];
 
 class _TextRecognizerViewState extends State<TextRecognizerView> {
   var _script = TextRecognitionScript.japanese;
@@ -37,25 +25,13 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
   CustomPaint? _customPaint;
   String? _text;
   var _cameraLensDirection = CameraLensDirection.back;
-  List? testList = [];
-  var testProducts = <Pro>[
-    const Pro(name: 'プリン', type: 'デザート'),
-    const Pro(name: 'ゼリー', type: 'デザート'),
-    const Pro(name: 'ケーキ', type: 'デザート'),
-    const Pro(name: 'バウムクーヘン', type: 'デザート'),
-  ];
 
   @override
   void initState() {
     super.initState();
     _textRecognizer.close();
     _textRecognizer = TextRecognizer(script: _script);
-    final getName = testProducts.map((e) => e.name).toList();
-    testList = getName;
-    print(getName);
-    print('initstart');
     initializeDates();
-    print('initend');
   }
 
   void initializeDates() async {
@@ -69,12 +45,12 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     _canProcess = false;
     _textRecognizer.close();
     super.dispose();
-    print('disp');
   }
 
   @override
   Widget build(BuildContext context) {
     print('widg');
+    setState(() {});
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -85,7 +61,6 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       ),
       body: Stack(children: [
         DetectorView(
-          title: 'Text Detector',
           customPaint: _customPaint,
           text: _text,
           onImage: _processImage,
@@ -115,34 +90,6 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     );
   }
 
-  /*
-  Widget _buildDropdown() => DropdownButton<TextRecognitionScript>(
-        value: _script,
-        icon: const Icon(Icons.arrow_downward),
-        elevation: 16,
-        style: const TextStyle(color: Colors.blue),
-        underline: Container(
-          height: 2,
-          color: Colors.blue,
-        ),
-        onChanged: (TextRecognitionScript? script) {
-          if (script != null) {
-            setState(() {
-              _script = script;
-              _textRecognizer.close();
-              _textRecognizer = TextRecognizer(script: _script);
-            });
-          }
-        },
-        items: TextRecognitionScript.values
-            .map<DropdownMenuItem<TextRecognitionScript>>((script) {
-          return DropdownMenuItem<TextRecognitionScript>(
-            value: script,
-            child: Text(script.name),
-          );
-        }).toList(),
-      );
-  */
   Future<void> _processImage(InputImage inputImage) async {
     print('proc');
     if (!_canProcess) return;
@@ -165,63 +112,54 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
       _text = 'Recognized text:\n\n${recognizedText.text}';
       _customPaint = null;
     }
+    addProductsList();
+    print(_text);
     _isBusy = false;
     if (mounted) {
       setState(() {});
     }
-    list();
-    firelist();
   }
 
-  void list() {
-    for (var str in testList!) {
-      bool contains = _text!.contains(str);
-      print('"$_text" \ncontains "$str": $contains');
-      if (contains) {
-        cacheList.add(str);
+  void addProductsList() async {
+    List<Product> products = await GetFirebaseDataToArray().products;
+    List<String> lines = _text!.split('\n');
+    for (String text in lines) {
+      for (int i = 0; i < products.length; i++) {
+        Product product = products[i];
+        bool contains = text.contains(product.productName);
+        if (contains) {
+          // 既存の商品のインデックスを確認
+          int existingIndex = productsList.indexWhere(
+              (existingProduct) => existingProduct.name == product.productName);
+          if (existingIndex != -1) {
+            // 同じ名前の商品が存在する場合は数量を増やす
+            productsList[existingIndex].quantity += 1;
+          } else {
+            // 同じ名前の商品が存在しない場合は新しい商品を追加
+            DateTime useByDate =
+                DateTime.now().add(Duration(days: product.categoryUseBy));
+            DateTime exDate = DateTime(
+              useByDate.year,
+              useByDate.month,
+              useByDate.day,
+            );
+            MyProducts addproduct = MyProducts(
+              no: product.productNo,
+              name: product.productName,
+              quantity: 1,
+              gram: 0,
+              image: product.image,
+              purchasedDate: DateTime.now(),
+              expiredDate: exDate,
+            );
+            productsList.add(addproduct);
+          }
+        }
       }
+      for (int i = 0; i < productsList.length; i++) {
+        print(productsList[i].name);
+      }
+      setState(() {});
     }
-    print(cacheList);
-  }
-
-  void firelist() async {
-    List<Product> products = await FirebaseServices().getFirebaseProducts();
-    for (int i = 0; i < products.length; i++) {
-      Product product = products[i];
-      bool contains = _text!.contains(product.productName);
-      if (contains) {
-        ShopList num = ShopList(
-            productNo: product.productNo,
-            name: product.productName,
-            quantity: 0,
-            gram: 0,
-            image: product.image,
-            status: 1);
-        numList.add(num);
-        continue;
-      } //else if (contains = _text!.contains(product.hiragana)) {
-      //  numList.add([product.productNo, product.productName]);
-      //  continue;
-      //} else if (contains = _text!.contains(product.katakana)) {
-      //  numList.add([product.productNo, product.productName]);
-      //  continue;
-      //}  else if (contains = _text!.contains(product.kanji) &&  product.kanji != "") {
-      // numList.add([product.productNo, product.productName]);
-      // continue;
-      //}  else if (contains = _text!.contains(product.romaji)) {
-      // numList.add([product.productNo, product.productName]);
-      // continue;
-      //}
-    }
-    for (int i = 0; i < numList.length; i++) {
-      print(numList[i].name);
-      print(numList[i].status);
-    }
-  }
-
-  void _reloadScreen(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => TextRecognizerView()),
-    );
   }
 }
