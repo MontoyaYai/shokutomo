@@ -105,10 +105,16 @@ class _GalleryViewState extends State<GalleryView> {
             }),
       ),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: productsList.isNotEmpty
-            ? Text(getList())
-            : Text('リストにまだアイテムがありません'),
+            ? Text(
+                getList(),
+                style: TextStyle(fontSize: 18),
+              )
+            : Text(
+                'リストにまだアイテムがありません',
+                style: TextStyle(fontSize: 20),
+              ),
       ),
       /*if (_image != null)
         Padding(

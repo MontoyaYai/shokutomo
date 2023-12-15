@@ -67,25 +67,6 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
           initialCameraLensDirection: _cameraLensDirection,
           onCameraLensDirectionChanged: (value) => _cameraLensDirection = value,
         ),
-        Positioned(
-            top: 30,
-            left: 100,
-            right: 100,
-            child: Row(
-              children: [
-                Spacer(),
-                Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      //child: _buildDropdown(),
-                    )),
-                Spacer(),
-              ],
-            )),
       ]),
     );
   }
