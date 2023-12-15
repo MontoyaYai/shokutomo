@@ -11,10 +11,31 @@ class RecipeFormState extends State<RecipeForm> {
   final _formKey = GlobalKey<FormState>();
 
   String recipeName = '';
-  String recipeCategory = '';
+
+  List<String> recipeCategory = [
+    'ご飯もの',
+    '麺類',
+    'おかず',
+    'スープ',
+    '寿司',
+    '焼き物',
+    '鍋料理',
+    '揚げ物',
+    'サラダ',
+    '甘味',
+    'おでん',
+    '粥',
+    '一品料理',
+  ];
+  List<String> levels = ['小', '中', '高'];
+  List <String> personsGroup =['1人前', '2~3人前', '4~5人前', '5人前~'];
+
+  int selectedCategory = 0;
+  int selectedLevel = 0;
+  int selectedPersons =0;
+
   int cookTime = 0;
-  String difficulty = '';
-  String servingSize = '';
+
   List<Map<String, String>> ingredients = [];
   String selectedIcon =
       '/Users/mecha/Desktop/IT/FLUTTER/shokutomo/shokutomo/assets/img/LOGO.png';
@@ -32,7 +53,7 @@ class RecipeFormState extends State<RecipeForm> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -43,7 +64,7 @@ class RecipeFormState extends State<RecipeForm> {
                   decoration: const InputDecoration(labelText: 'レシピ名'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'レシピ名を入力して下さい';
+                      return 'レシピ名を入力してください';
                     }
                     return null;
                   },
@@ -53,36 +74,7 @@ class RecipeFormState extends State<RecipeForm> {
                     });
                   },
                 ),
-                // DropdownButtonFormField<String>(
-                //   value: recipeCategory,
-                //   items: [
-                //     'ご飯もの',
-                //     '麺類',
-                //     'おかず',
-                //     'スープ',
-                //     '寿司',
-                //     '焼き物',
-                //     '鍋料理',
-                //     '揚げ物',
-                //     'サラダ',
-                //     '甘味',
-                //     'おでん',
-                //     '粥',
-                //     '一品料理',
-                //   ].map((category) {
-                //     return DropdownMenuItem<String>(
-                //       value: category,
-                //       child: Text(category),
-                //     );
-                //   }).toList(),
-                //   onChanged: (value) {
-                //     setState(() {
-                //       recipeCategory = value!;
-                //     });
-                //   },
-                //   decoration: InputDecoration(labelText: 'Recipe Category'),
-                // ),
-                 TextFormField(
+                TextFormField(
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: '出来上がり時間'),
                   validator: (value) {
@@ -97,38 +89,22 @@ class RecipeFormState extends State<RecipeForm> {
                     });
                   },
                 ),
-
-                // DropdownButtonFormField<String>(
-                //   value: difficulty,
-                //   items: ['小', '中', '高'].map((level) {
-                //     return DropdownMenuItem<String>(
-                //       value: level,
-                //       child: Text(level),
-                //     );
-                //   }).toList(),
-                //   onChanged: (value) {
-                //     setState(() {
-                //       difficulty = value!;
-                //     });
-                //   },
-                //   decoration: InputDecoration(labelText: '難しさ'),
-                // ),
-                // DropdownButtonFormField<String>(
-                //   value: servingSize,
-                //   items: ['1', '2~3', '4~5', '5~'].map((size) {
-                //     return DropdownMenuItem<String>(
-                //       value: size,
-                //       child: Text(size),
-                //     );
-                //   }).toList(),
-                //   onChanged: (value) {
-                //     setState(() {
-                //       servingSize = value!;
-                //     });
-                //   },
-                //   decoration: InputDecoration(labelText: '何人前'),
-                // ),
-                // Lista de ingredientes
+                const SizedBox(height: 15),
+               Row(
+                children: [
+                  Expanded(
+                    child: _buildCategoryDropdown(selectedCategory),
+                  ),
+                  const SizedBox(width: 16), // Agrega un espacio entre los Dropdowns
+                  Expanded(
+                    child: _buildLevelDropdown(selectedLevel),
+                  ),
+                   Expanded(
+                    child: _buildPersonsDropdown(selectedPersons),
+                  ),
+                ],
+              ),
+                // const SizedBox(height: 5),
                 ListView.builder(
                   shrinkWrap: true,
                   itemCount: ingredients.length,
@@ -176,14 +152,12 @@ class RecipeFormState extends State<RecipeForm> {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        ingredients
-                            .add({'ingredient_name': '', 'quantity_gram': ''});
+                        ingredients.add({'ingredient_name': '', 'quantity_gram': ''});
                       });
                     },
                     child: const Text('材料追加'),
                   ),
                 ),
-                // Selección de icono
                 ListTile(
                   title: const Text('アイコン'),
                   trailing: GestureDetector(
@@ -196,7 +170,6 @@ class RecipeFormState extends State<RecipeForm> {
                     ),
                   ),
                 ),
-
                 TextFormField(
                   maxLines: 6,
                   minLines: 6,
@@ -213,12 +186,10 @@ class RecipeFormState extends State<RecipeForm> {
                       borderRadius: BorderRadius.circular(9),
                       borderSide: const BorderSide(
                         width: 2,
-                        // color: Colors.green,
                       ),
                     ),
                   ),
                 ),
-                // Botones de acción
                 Container(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -228,7 +199,7 @@ class RecipeFormState extends State<RecipeForm> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            //!! favorite
+                            // Implementa la acción para marcar como favorito
                           },
                           icon: const Icon(Icons.favorite),
                         ),
@@ -243,8 +214,7 @@ class RecipeFormState extends State<RecipeForm> {
                         IconButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              // Acción para guardar
-                              // !! save
+                              // Implementa la acción para guardar
                             }
                           },
                           icon: const Icon(Icons.save),
@@ -259,5 +229,131 @@ class RecipeFormState extends State<RecipeForm> {
         ),
       ),
     );
+  }
+
+  Widget _buildCategoryDropdown(int selectedCategory) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DropdownButton<int>(
+        value: selectedCategory,
+        isExpanded: true,
+        items: _buildDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            selectedCategory = value!;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildLevelDropdown(int selectedLevel) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DropdownButton<int>(
+        value: selectedLevel,
+        isExpanded: true,
+        items: _buildLevelDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            selectedLevel = value!;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildPersonsDropdown(int selectedPersons) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DropdownButton<int>(
+        value: selectedLevel,
+        isExpanded: true,
+        items: _buildPersonsDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            selectedPersons = value!;
+          });
+        },
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<int>> _buildDropdownItems() {
+    return recipeCategory.map((category) {
+      final index = recipeCategory.indexOf(category);
+      return DropdownMenuItem<int>(
+        value: index,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 25,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  // color: colo,r
+                ),
+              ),
+              Text(category),
+            ],
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  List<DropdownMenuItem<int>> _buildLevelDropdownItems() {
+    return levels.map((level) {
+    final index =levels.indexOf(level);
+      return DropdownMenuItem<int>(
+        value: index,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 25,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  // color: colo,r
+                ),
+              ),
+              Text(level),
+            ],
+          ),
+        ),
+      );
+    }).toList();
+  }
+  
+  List<DropdownMenuItem<int>> _buildPersonsDropdownItems() {
+    return personsGroup.map((person) {
+    final index =personsGroup.indexOf(person);
+      return DropdownMenuItem<int>(
+        value: index,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 25,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  // color: colo,r
+                ),
+              ),
+              Text(person),
+            ],
+          ),
+        ),
+      );
+    }).toList();
   }
 }
