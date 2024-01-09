@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
-import 'package:shokutomo/screens/subPages/searchRecipe/recipe_form.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
 
 class MyRecipeTab extends StatelessWidget {
   const MyRecipeTab({super.key});
