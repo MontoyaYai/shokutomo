@@ -5,6 +5,8 @@ import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
+
+import 'myrecipe_json_map.dart';
 //
 
 class FirebaseServices {
@@ -134,6 +136,17 @@ class FirebaseServices {
     List<Recipe> recipes = querySnapshot.docs
         .map((document) =>
             Recipe.fromMap(document.data() as Map<String, dynamic>))
+        .toList();
+    return recipes;
+  }
+  //Get MyRecipe
+  Future<List<MyRecipe>> getAllMyRecipe() async{
+    CollectionReference collectionReferenceMyRecipe = database.collection('users/mecha/myrecipe');
+    QuerySnapshot querySnapshot = await collectionReferenceMyRecipe.get();
+
+    List<MyRecipe> recipes = querySnapshot.docs
+        .map((document) =>
+            MyRecipe.fromMap(document.data() as Map<String, dynamic>))
         .toList();
     return recipes;
   }

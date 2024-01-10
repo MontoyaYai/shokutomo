@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shokutomo/firebase/recipe_json_map.dart';
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
+import 'package:shokutomo/firebase/myrecipe_json_map.dart';
+// import 'package:shokutomo/firebase/recipe_json_map.dart';
 
 class RecipeForm extends StatefulWidget {
   const RecipeForm({super.key});
@@ -11,9 +13,10 @@ class RecipeForm extends StatefulWidget {
 class RecipeFormState extends State<RecipeForm> {
   final _formKey = GlobalKey<FormState>();
 
-  Recipe currentRecipe = Recipe(
+  MyRecipe currentRecipe = MyRecipe(
     recipeName: '',
     recipeNo: '',
+    howTo: '',
     cookTime: 0,
     difficult: '',
     quantity: '',
@@ -23,8 +26,10 @@ class RecipeFormState extends State<RecipeForm> {
     ingredients: [],
   );
 
-  String recipeNo= '';
+  String recipeNo = '';
   String recipeName = '';
+  String howTo = '';
+
   List<String> recipeCategory = [
     'ご飯もの',
     '麺類',
@@ -43,16 +48,42 @@ class RecipeFormState extends State<RecipeForm> {
   List<String> levels = ['小', '中', '高'];
   List<String> personsGroup = ['1人前', '2~3人前', '4~5人前', '5人前~'];
 
+  List<Ingredient> ingredients = [];
+
   int selectedCategory = 0;
   int selectedLevel = 0;
   int selectedPersons = 0;
   int cookTime = 0;
 
-  List<Map<String, String>> ingredients = [];
   String selectedIcon =
       '/Users/mecha/Desktop/IT/FLUTTER/shokutomo/shokutomo/assets/img/LOGO.png';
 
   bool favoriteStatus = false;
+
+  //recipeNo ロジック
+  @override
+  void initState() {
+    super.initState();
+    // フォームを起動する際に recipeNo の値を読み込む
+    _loadRecipeNo();
+  }
+
+  Future<void> _loadRecipeNo() async {
+    final allRecipes = await GetFirebaseDataToArray().myRecipesArray();
+    // recipeNo の最大値を取得する
+    final maxRecipeNo = allRecipes.isNotEmpty
+        ? allRecipes
+            .map((recipe) => int.tryParse(recipe.recipeNo) ?? 0)
+            .reduce((value, element) => value > element ? value : element)
+        : 0;
+    final newRecipeNo = (maxRecipeNo + 1).toString();
+    // recipeNo の状態を更新する
+    setState(() {
+      recipeNo = newRecipeNo;
+      currentRecipe.recipeNo = newRecipeNo;
+      print("actual $recipeNo");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,13 +163,14 @@ class RecipeFormState extends State<RecipeForm> {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        ingredients
-                            .add({'ingredient_name': '', 'quantity_gram': ''});
+                        ingredients.add(
+                            Ingredient(ingredientName: '', quantityGram: ''));
                       });
                     },
                     child: const Text('材料追加'),
                   ),
                 ),
+
                 const SizedBox(height: 16),
                 ListTile(
                   //!! ICON VALUE /////////////
@@ -173,6 +205,11 @@ class RecipeFormState extends State<RecipeForm> {
                       ),
                     ),
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      currentRecipe.howTo = value;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -188,7 +225,9 @@ class RecipeFormState extends State<RecipeForm> {
                       },
                       icon: Icon(
                         Icons.favorite,
-                        color: favoriteStatus ? Theme.of(context).primaryColor : null,
+                        color: favoriteStatus
+                            ? Theme.of(context).primaryColor
+                            : null,
                       ),
                     ),
 
@@ -203,9 +242,11 @@ class RecipeFormState extends State<RecipeForm> {
                     //!!
                     IconButton(
                       onPressed: () {
-                        print('save buttoon');
+                        //?? HERE
                         if (_formKey.currentState!.validate()) {
                           // Implementa la acción para guardar
+                          print(currentRecipe.toMap());
+                          print(currentRecipe.ingredients.toString());
                         }
                       },
                       icon: const Icon(Icons.save),
@@ -270,7 +311,7 @@ class RecipeFormState extends State<RecipeForm> {
     );
   }
 
-  Widget _buildIngredientsList() {
+Widget _buildIngredientsList() {
     return ListView.builder(
       shrinkWrap: true,
       itemCount: ingredients.length,
@@ -281,7 +322,9 @@ class RecipeFormState extends State<RecipeForm> {
               child: TextFormField(
                 onChanged: (value) {
                   setState(() {
-                    ingredients[index]['ingredient'] = value;
+                    ingredients[index].ingredientName = value;
+                    currentRecipe.ingredients[index].ingredientName = value;
+            
                   });
                 },
                 decoration: const InputDecoration(
@@ -294,7 +337,8 @@ class RecipeFormState extends State<RecipeForm> {
               child: TextFormField(
                 onChanged: (value) {
                   setState(() {
-                    ingredients[index]['quantity_gram'] = value;
+                    ingredients[index].quantityGram = value;
+                    currentRecipe.ingredients[index].quantityGram = value;
                   });
                 },
                 decoration: const InputDecoration(
@@ -402,39 +446,5 @@ class RecipeFormState extends State<RecipeForm> {
         ),
       );
     }).toList();
-  }
-}
-
-class FavoriteButton extends StatefulWidget {
-  final bool isFavorite;
-  final Function(bool) onPressed;
-
-  const FavoriteButton(
-      {Key? key, required this.isFavorite, required this.onPressed})
-      : super(key: key);
-
-  @override
-  _FavoriteButtonState createState() => _FavoriteButtonState();
-}
-
-class _FavoriteButtonState extends State<FavoriteButton> {
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        widget.onPressed(!widget.isFavorite);
-      },
-      icon: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: widget.isFavorite ? Colors.red : null,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.favorite,
-          color: widget.isFavorite ? Colors.white : null,
-        ),
-      ),
-    );
   }
 }

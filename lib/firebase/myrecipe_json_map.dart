@@ -1,4 +1,4 @@
-class Recipe {
+class MyRecipe {
   String recipeName;
   String recipeNo;
   String howTo;
@@ -10,7 +10,7 @@ class Recipe {
   bool favoriteStatus;
   List<Ingredient> ingredients;
 
-  Recipe({
+  MyRecipe({
     required this.recipeName,
     required this.recipeNo,
     required this.howTo,
@@ -38,8 +38,8 @@ class Recipe {
     };
   }
 
-  factory Recipe.fromMap(Map<String, dynamic> map) {
-    return Recipe(
+  factory MyRecipe.fromMap(Map<String, dynamic> map) {
+    return MyRecipe(
       recipeName: map['recipe_name'],
       recipeNo: map['recipe_no'],
       howTo: map['how_to'],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
-import 'package:shokutomo/firebase/recipe_json_map.dart';
+import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
 
 class MyRecipeTab extends StatelessWidget {
@@ -12,8 +12,8 @@ class MyRecipeTab extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
-          child: FutureBuilder<List<Recipe>>(
-            future: GetFirebaseDataToArray().recipesArray(),
+          child: FutureBuilder<List<MyRecipe>>(
+            future: GetFirebaseDataToArray().myRecipesArray(),
             builder: (context, recipeSnapshot) {
               if (recipeSnapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();

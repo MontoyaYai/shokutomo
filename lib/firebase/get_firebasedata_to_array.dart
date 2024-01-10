@@ -7,12 +7,16 @@ import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 
+import 'myrecipe_json_map.dart';
+
 class GetFirebaseDataToArray {
   late Future<List<Product>> products;
   late Future<List<Categories>> categories;
   late Future<List<MyProducts>> myProducts;
   late Future<List<ShopList>> shoppingList;
   late Future<List<Recipe>> recipes;
+  late Future<List<MyRecipe>> myRecipes;
+
 
   final FirebaseServices firebaseServices = FirebaseServices();
 
@@ -26,12 +30,16 @@ class GetFirebaseDataToArray {
     final firebaseMyproduct = firebaseServices.getFirebaseMyProducts();
     final firebaseShoppingList = firebaseServices.getAllShoppingList();
     final firebaseRecipes = firebaseServices.getAllRecipe();
+    final firebaseMyRecipes = firebaseServices.getAllMyRecipe();
+
 
     products = firebaseProducts ;
     categories = firebaseCategories ;
     myProducts = firebaseMyproduct ;
     shoppingList = firebaseShoppingList ;
     recipes = firebaseRecipes;
+    myRecipes = firebaseMyRecipes;
+
   }
 
   
@@ -40,6 +48,8 @@ class GetFirebaseDataToArray {
   Future<List<Categories>> categoriesArray() async => await categories;
   Future<List<ShopList>>  shoppingListArray() async => await shoppingList;
   Future<List<Recipe>> recipesArray() async => await recipes;
+  Future<List<MyRecipe>> myRecipesArray() async => await myRecipes;
+
 
 
 Future<List<Product>> searchProductsInArray(String searchText) async {
