@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
@@ -44,8 +46,7 @@ class MyRecipeTab extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image:
-                                      AssetImage("assets/img/${recipe.image}"),
+                                  image: FileImage(File(recipe.image)),
                                 ),
                               ),
                             ),

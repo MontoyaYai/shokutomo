@@ -240,6 +240,38 @@ class FirebaseServices {
     }
   }
 
+//!!Add or Update MyRecipe
+Future<void> addOrUpdateMyRecipe(MyRecipe myRecipe) async {
+  final CollectionReference myRecipesCollection =
+      database.collection('users/mecha/myrecipe');
+
+  final QuerySnapshot query = await myRecipesCollection
+      .where('recipe_no', isEqualTo: myRecipe.recipeNo)
+      .limit(1)
+      .get();
+
+  if (query.docs.isNotEmpty) {
+    final DocumentSnapshot recipeDocument = query.docs.first;
+
+    await myRecipesCollection.doc(recipeDocument.id).update({
+      'recipe_name': myRecipe.recipeName,
+      'how_to': myRecipe.howTo,
+      'cook_time': myRecipe.cookTime,
+      'difficult': myRecipe.difficult,
+      'quantity': myRecipe.quantity,
+      'recipe_category': myRecipe.recipeCategory,
+      'image': myRecipe.image,
+      'favorite_status': myRecipe.favoriteStatus,
+      'ingredients': myRecipe.ingredients
+          .map((ingredient) => ingredient.toMap())
+          .toList(),
+    });
+  } else {
+    await myRecipesCollection.add(myRecipe.toMap());
+  }
+}
+
+
 // Update record of MYPRODUCT
   Future<int> updateRecordMyProduct(
       MyProducts product, DateTime oldExpiredDate) async {

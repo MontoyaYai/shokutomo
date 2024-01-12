@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
-// import 'package:shokutomo/firebase/recipe_json_map.dart';
 
 class RecipeForm extends StatefulWidget {
-  const RecipeForm({super.key});
+  const RecipeForm({Key? key}) : super(key: key);
 
   @override
   RecipeFormState createState() => RecipeFormState();
@@ -12,6 +15,7 @@ class RecipeForm extends StatefulWidget {
 
 class RecipeFormState extends State<RecipeForm> {
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker picker = ImagePicker();
 
   MyRecipe currentRecipe = MyRecipe(
     recipeName: '',
@@ -26,6 +30,9 @@ class RecipeFormState extends State<RecipeForm> {
     ingredients: [],
   );
 
+  FirebaseServices firebaseServices = FirebaseServices();
+
+  String imagePath = '';
   String recipeNo = '';
   String recipeName = '';
   String howTo = '';
@@ -46,8 +53,8 @@ class RecipeFormState extends State<RecipeForm> {
     '粥',
     '一品料理',
   ];
-  List<String> levels = ['難易度','小', '中', '高'];
-  List<String> personsGroup = ['人分','1人前', '2~3人前', '4~5人前', '5人前~'];
+  List<String> levels = ['難易度', '小', '中', '高'];
+  List<String> personsGroup = ['人分', '1人前', '2~3人前', '4~5人前', '5人前~'];
 
   List<Ingredient> ingredients = [];
 
@@ -56,29 +63,24 @@ class RecipeFormState extends State<RecipeForm> {
   int selectedPersons = 0;
   int cookTime = 0;
 
-  String selectedIcon =
-      '/Users/mecha/Desktop/IT/FLUTTER/shokutomo/shokutomo/assets/img/LOGO.png';
+  String selectedIcon = 'assets/img/galery.png';
 
   bool favoriteStatus = false;
 
-  //recipeNo ロジック
   @override
   void initState() {
     super.initState();
-    // フォームを起動する際に recipeNo の値を読み込む
     _loadRecipeNo();
   }
 
   Future<void> _loadRecipeNo() async {
     final allRecipes = await GetFirebaseDataToArray().myRecipesArray();
-    // recipeNo の最大値を取得する
     final maxRecipeNo = allRecipes.isNotEmpty
         ? allRecipes
             .map((recipe) => int.tryParse(recipe.recipeNo) ?? 0)
             .reduce((value, element) => value > element ? value : element)
         : 0;
     final newRecipeNo = (maxRecipeNo + 1).toString();
-    // recipeNo の状態を更新する
     setState(() {
       recipeNo = newRecipeNo;
       currentRecipe.recipeNo = newRecipeNo;
@@ -157,33 +159,30 @@ class RecipeFormState extends State<RecipeForm> {
                     ),
                   ],
                 ),
-                // const SizedBox(height: 10),
                 _buildIngredientsList(),
-                // const SizedBox(height: 10),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                     final newIngredient = Ingredient(ingredientName: '', quantityGram: '');
-        ingredients.add(newIngredient);
-        currentRecipe.ingredients.add(newIngredient);
+                        final newIngredient =
+                            Ingredient(ingredientName: '', quantityGram: '');
+                        ingredients.add(newIngredient);
+                        currentRecipe.ingredients.add(newIngredient);
                       });
                     },
                     child: const Text('材料追加'),
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 ListTile(
-                  //!! ICON VALUE /////////////
                   title: const Text('アイコン'),
                   trailing: GestureDetector(
-                    onTap: () {
-                      // Implementa la selección del icono
-                    },
+                    onTap: _pickImage,
                     child: CircleAvatar(
                       radius: 20,
-                      backgroundImage: AssetImage(selectedIcon),
+                      backgroundImage: imagePath.isNotEmpty
+                          ? Image.file(File(imagePath)).image
+                          : Image.asset(selectedIcon).image,
                     ),
                   ),
                 ),
@@ -232,7 +231,6 @@ class RecipeFormState extends State<RecipeForm> {
                             : null,
                       ),
                     ),
-
                     const SizedBox(width: 8),
                     IconButton(
                       onPressed: () {
@@ -241,19 +239,17 @@ class RecipeFormState extends State<RecipeForm> {
                       icon: const Icon(Icons.close),
                     ),
                     const SizedBox(width: 8),
-                    //!!
                     IconButton(
-                      onPressed: () {
-                        //?? HERE
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // Implementa la acción para guardar
                           print(currentRecipe.toMap());
                           print(currentRecipe.ingredients.toString());
+                          await firebaseServices
+                              .addOrUpdateMyRecipe(currentRecipe);
                         }
                       },
                       icon: const Icon(Icons.save),
                     ),
-                    //!!
                   ],
                 ),
               ],
@@ -264,125 +260,119 @@ class RecipeFormState extends State<RecipeForm> {
     );
   }
 
-Widget _buildCategoryDropdown(int selectedCategory) {
-  return SizedBox(
-    width: double.infinity,
-    child: DropdownButton<int>(
-      value: selectedCategory,
-      isExpanded: true,
-      alignment: Alignment.centerLeft,
-      items: _buildCategoryDropdownItems(),
-      onChanged: (value) {
-        setState(() {
-          this.selectedCategory = value!;
-          currentRecipe.recipeCategory = recipeCategory[this.selectedCategory];
-        });
-      },
-    ),
-  );
-}
+  Widget _buildCategoryDropdown(int selectedCategory) {
+    return SizedBox(
+      width: double.infinity,
+      child: DropdownButton<int>(
+        value: selectedCategory,
+        isExpanded: true,
+        alignment: Alignment.centerLeft,
+        items: _buildCategoryDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            this.selectedCategory = value!;
+            currentRecipe.recipeCategory =
+                recipeCategory[this.selectedCategory];
+          });
+        },
+      ),
+    );
+  }
 
+  Widget _buildLevelDropdown(int selectedLevel) {
+    return SizedBox(
+      width: double.infinity,
+      child: DropdownButton<int>(
+        value: selectedLevel,
+        isExpanded: true,
+        items: _buildLevelDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            this.selectedLevel = value!;
+            currentRecipe.difficult = levels[this.selectedLevel];
+          });
+        },
+      ),
+    );
+  }
 
+  Widget _buildPersonsDropdown(int selectedPersons) {
+    return SizedBox(
+      width: double.infinity,
+      child: DropdownButton<int>(
+        value: selectedPersons,
+        isExpanded: true,
+        items: _buildPersonsDropdownItems(),
+        onChanged: (value) {
+          setState(() {
+            this.selectedPersons = value!;
+            currentRecipe.quantity = personsGroup[this.selectedPersons];
+          });
+        },
+      ),
+    );
+  }
 
-
-Widget _buildLevelDropdown(int selectedLevel) {
-  return SizedBox(
-    width: double.infinity,
-    child: DropdownButton<int>(
-      value: selectedLevel,
-      isExpanded: true,
-      items: _buildLevelDropdownItems(),
-      onChanged: (value) {
-        setState(() {
-          this.selectedLevel = value!;
-          currentRecipe.difficult = levels[this.selectedLevel];
-        });
-      },
-    ),
-  );
-}
-
-
-Widget _buildPersonsDropdown(int selectedPersons) {
-  return SizedBox(
-    width: double.infinity,
-    child: DropdownButton<int>(
-      value: selectedPersons,
-      isExpanded: true,
-      items: _buildPersonsDropdownItems(),
-      onChanged: (value) {
-        setState(() {
-          this.selectedPersons = value!;
-          currentRecipe.quantity = personsGroup[this.selectedPersons];
-        });
-      },
-    ),
-  );
-}
-
-
-Widget _buildIngredientsList() {
-  return ListView.builder(
-    shrinkWrap: true,
-    itemCount: ingredients.length,
-    itemBuilder: (context, index) {
-      return Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              onChanged: (value) {
+  Widget _buildIngredientsList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: ingredients.length,
+      itemBuilder: (context, index) {
+        return Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                onChanged: (value) {
+                  setState(() {
+                    if (ingredients.length > index) {
+                      ingredients[index].ingredientName = value;
+                      if (currentRecipe.ingredients.length > index) {
+                        currentRecipe.ingredients[index].ingredientName = value;
+                      }
+                    }
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: '食材名',
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                onChanged: (value) {
+                  setState(() {
+                    if (ingredients.length > index) {
+                      ingredients[index].quantityGram = value;
+                      if (currentRecipe.ingredients.length > index) {
+                        currentRecipe.ingredients[index].quantityGram = value;
+                      }
+                    }
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: '個数・グラム',
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: () {
                 setState(() {
                   if (ingredients.length > index) {
-                    ingredients[index].ingredientName = value;
+                    ingredients.removeAt(index);
                     if (currentRecipe.ingredients.length > index) {
-                      currentRecipe.ingredients[index].ingredientName = value;
+                      currentRecipe.ingredients.removeAt(index);
                     }
                   }
                 });
               },
-              decoration: const InputDecoration(
-                labelText: '食材名',
-              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  if (ingredients.length > index) {
-                    ingredients[index].quantityGram = value;
-                    if (currentRecipe.ingredients.length > index) {
-                      currentRecipe.ingredients[index].quantityGram = value;
-                    }
-                  }
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: '個数・グラム',
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: () {
-              setState(() {
-                if (ingredients.length > index) {
-                  ingredients.removeAt(index);
-                  if (currentRecipe.ingredients.length > index) {
-                    currentRecipe.ingredients.removeAt(index);
-                  }
-                }
-              });
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
+          ],
+        );
+      },
+    );
+  }
 
   List<DropdownMenuItem<int>> _buildCategoryDropdownItems() {
     return recipeCategory.map((category) {
@@ -399,7 +389,6 @@ Widget _buildIngredientsList() {
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  // color: colo,r
                 ),
               ),
               Text(
@@ -429,7 +418,6 @@ Widget _buildIngredientsList() {
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  // color: colo,r
                 ),
               ),
               Text(
@@ -458,7 +446,6 @@ Widget _buildIngredientsList() {
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  // color: colo,r
                 ),
               ),
               Text(
@@ -471,4 +458,23 @@ Widget _buildIngredientsList() {
       );
     }).toList();
   }
+
+Future<String?> _pickImage() async {
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedFile != null) {
+    final imageName =
+        'user_image_${DateTime.now().millisecondsSinceEpoch}.png';
+    final appDir = await getApplicationDocumentsDirectory();
+    final newImage =
+        await File(pickedFile.path).copy('${appDir.path}/$imageName');
+    final imagePath = newImage.path;
+    print('Ruta de la imagen: $imagePath');
+    setState(() {
+      currentRecipe.image = imagePath; // Almacena la ruta completa en el campo image
+    });
+    return imagePath;
+  }
+  return null;
+}
 }
