@@ -64,6 +64,16 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   );
                 },
               ),
+               ListTile(
+                leading: const Icon(Icons.camera),
+                title: const Text(
+                  'カメラでまとめ登録',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  //!!
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.shopping_cart),
                 title: const Text(
@@ -120,6 +130,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           InventoryPage(),
           CategoryPage(),
           ShoppingList(),
+          ShoppingList(),// camera insert products 
           // MyRecipe(),
           SearchRecipe(),
           // MyFridge(),

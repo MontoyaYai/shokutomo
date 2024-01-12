@@ -459,22 +459,23 @@ class RecipeFormState extends State<RecipeForm> {
     }).toList();
   }
 
-Future<String?> _pickImage() async {
-  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  Future<String?> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  if (pickedFile != null) {
-    final imageName =
-        'user_image_${DateTime.now().millisecondsSinceEpoch}.png';
-    final appDir = await getApplicationDocumentsDirectory();
-    final newImage =
-        await File(pickedFile.path).copy('${appDir.path}/$imageName');
-    final imagePath = newImage.path;
-    print('Ruta de la imagen: $imagePath');
-    setState(() {
-      currentRecipe.image = imagePath; // Almacena la ruta completa en el campo image
-    });
-    return imagePath;
+    if (pickedFile != null) {
+      final imageName =
+          'user_image_${DateTime.now().millisecondsSinceEpoch}.png';
+      final appDir = await getApplicationDocumentsDirectory();
+      final newImage =
+          await File(pickedFile.path).copy('${appDir.path}/$imageName');
+      final imagePath = newImage.path;
+      print('Ruta de la imagen: $imagePath');
+      setState(() {
+        currentRecipe.image =
+            imagePath; // Almacena la ruta completa en el campo image
+      });
+      return imagePath;
+    }
+    return null;
   }
-  return null;
-}
 }
