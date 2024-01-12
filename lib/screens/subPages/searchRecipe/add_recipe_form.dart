@@ -31,6 +31,7 @@ class RecipeFormState extends State<RecipeForm> {
   String howTo = '';
 
   List<String> recipeCategory = [
+    'カテゴリ',
     'ご飯もの',
     '麺類',
     'おかず',
@@ -45,8 +46,8 @@ class RecipeFormState extends State<RecipeForm> {
     '粥',
     '一品料理',
   ];
-  List<String> levels = ['小', '中', '高'];
-  List<String> personsGroup = ['1人前', '2~3人前', '4~5人前', '5人前~'];
+  List<String> levels = ['難易度','小', '中', '高'];
+  List<String> personsGroup = ['人分','1人前', '2~3人前', '4~5人前', '5人前~'];
 
   List<Ingredient> ingredients = [];
 
@@ -163,8 +164,9 @@ class RecipeFormState extends State<RecipeForm> {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        ingredients.add(
-                            Ingredient(ingredientName: '', quantityGram: ''));
+                     final newIngredient = Ingredient(ingredientName: '', quantityGram: '');
+        ingredients.add(newIngredient);
+        currentRecipe.ingredients.add(newIngredient);
                       });
                     },
                     child: const Text('材料追加'),
@@ -262,105 +264,127 @@ class RecipeFormState extends State<RecipeForm> {
     );
   }
 
-  Widget _buildCategoryDropdown(int selectedCategory) {
-    return SizedBox(
-      width: double.infinity, // Ocupa todo el ancho disponible
-      child: DropdownButton<int>(
-        value: selectedCategory,
-        isExpanded: true,
-        alignment: Alignment.centerLeft,
-        items: _buildDropdownItems(),
-        onChanged: (value) {
-          setState(() {
-            selectedCategory = value!;
-          });
-        },
-      ),
-    );
-  }
+Widget _buildCategoryDropdown(int selectedCategory) {
+  return SizedBox(
+    width: double.infinity,
+    child: DropdownButton<int>(
+      value: selectedCategory,
+      isExpanded: true,
+      alignment: Alignment.centerLeft,
+      items: _buildCategoryDropdownItems(),
+      onChanged: (value) {
+        setState(() {
+          this.selectedCategory = value!;
+          currentRecipe.recipeCategory = recipeCategory[this.selectedCategory];
+        });
+      },
+    ),
+  );
+}
 
-  Widget _buildLevelDropdown(int selectedLevel) {
-    return SizedBox(
-      width: double.infinity, // Ocupa todo el ancho disponible
-      child: DropdownButton<int>(
-        value: selectedLevel,
-        isExpanded: true,
-        items: _buildLevelDropdownItems(),
-        onChanged: (value) {
-          setState(() {
-            selectedLevel = value!;
-          });
-        },
-      ),
-    );
-  }
 
-  Widget _buildPersonsDropdown(int selectedPersons) {
-    return SizedBox(
-      width: double.infinity, // Ocupa todo el ancho disponible
-      child: DropdownButton<int>(
-        value: selectedPersons,
-        isExpanded: true,
-        items: _buildPersonsDropdownItems(),
-        onChanged: (value) {
-          setState(() {
-            selectedPersons = value!;
-          });
-        },
-      ),
-    );
-  }
+
+
+Widget _buildLevelDropdown(int selectedLevel) {
+  return SizedBox(
+    width: double.infinity,
+    child: DropdownButton<int>(
+      value: selectedLevel,
+      isExpanded: true,
+      items: _buildLevelDropdownItems(),
+      onChanged: (value) {
+        setState(() {
+          this.selectedLevel = value!;
+          currentRecipe.difficult = levels[this.selectedLevel];
+        });
+      },
+    ),
+  );
+}
+
+
+Widget _buildPersonsDropdown(int selectedPersons) {
+  return SizedBox(
+    width: double.infinity,
+    child: DropdownButton<int>(
+      value: selectedPersons,
+      isExpanded: true,
+      items: _buildPersonsDropdownItems(),
+      onChanged: (value) {
+        setState(() {
+          this.selectedPersons = value!;
+          currentRecipe.quantity = personsGroup[this.selectedPersons];
+        });
+      },
+    ),
+  );
+}
+
 
 Widget _buildIngredientsList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: ingredients.length,
-      itemBuilder: (context, index) {
-        return Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index].ingredientName = value;
-                    currentRecipe.ingredients[index].ingredientName = value;
-            
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: '食材名',
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index].quantityGram = value;
-                    currentRecipe.ingredients[index].quantityGram = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: '個数・グラム',
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: () {
+  return ListView.builder(
+    shrinkWrap: true,
+    itemCount: ingredients.length,
+    itemBuilder: (context, index) {
+      return Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              onChanged: (value) {
                 setState(() {
-                  ingredients.removeAt(index);
+                  if (ingredients.length > index) {
+                    ingredients[index].ingredientName = value;
+                    if (currentRecipe.ingredients.length > index) {
+                      currentRecipe.ingredients[index].ingredientName = value;
+                    }
+                  }
                 });
               },
+              decoration: const InputDecoration(
+                labelText: '食材名',
+              ),
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextFormField(
+              onChanged: (value) {
+                setState(() {
+                  if (ingredients.length > index) {
+                    ingredients[index].quantityGram = value;
+                    if (currentRecipe.ingredients.length > index) {
+                      currentRecipe.ingredients[index].quantityGram = value;
+                    }
+                  }
+                });
+              },
+              decoration: const InputDecoration(
+                labelText: '個数・グラム',
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove),
+            onPressed: () {
+              setState(() {
+                if (ingredients.length > index) {
+                  ingredients.removeAt(index);
+                  if (currentRecipe.ingredients.length > index) {
+                    currentRecipe.ingredients.removeAt(index);
+                  }
+                }
+              });
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  List<DropdownMenuItem<int>> _buildDropdownItems() {
+
+
+  List<DropdownMenuItem<int>> _buildCategoryDropdownItems() {
     return recipeCategory.map((category) {
       final index = recipeCategory.indexOf(category);
       return DropdownMenuItem<int>(
@@ -410,7 +434,7 @@ Widget _buildIngredientsList() {
               ),
               Text(
                 level,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 13),
               ),
             ],
           ),
@@ -439,7 +463,7 @@ Widget _buildIngredientsList() {
               ),
               Text(
                 person,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 12),
               ),
             ],
           ),
