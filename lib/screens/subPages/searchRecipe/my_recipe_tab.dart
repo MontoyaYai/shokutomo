@@ -5,6 +5,8 @@ import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
 
+import 'recipe_detail_page.dart';
+
 class MyRecipeTab extends StatelessWidget {
   const MyRecipeTab({super.key});
 
@@ -32,8 +34,12 @@ class MyRecipeTab extends StatelessWidget {
                     for (var recipe in recipes)
                       GestureDetector(
                         onTap: () {
-                          // Acción cuando se toca el elemento
-                          // Puedes agregar lógica específica para cada producto aquí
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeDetailPage(recipe: recipe)),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
