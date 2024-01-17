@@ -3,6 +3,7 @@ import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/recomended_recipe_detail_page.dart';
 import 'chat_page.dart';
 import 'chat_screen.dart';
 
@@ -71,20 +72,21 @@ class SearchRecipeState extends State<SearchRecipe> {
           ),
         ),
         const SizedBox(height: 16),
-       Padding(
-        padding: const EdgeInsets.only(left: 16.0), // Agregado espacio desde la izquierda
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'おすすめ！',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 16.0), // Agregado espacio desde la izquierda
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'おすすめ！',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
             ),
           ),
         ),
-      ),
         Expanded(
           child: FutureBuilder<List<Recipe>>(
             future: recipesFuture,
@@ -108,8 +110,6 @@ class SearchRecipeState extends State<SearchRecipe> {
       width: double.infinity,
       height: double.infinity,
       child: GridView.count(
-      
-      
         crossAxisCount: 2,
         childAspectRatio: 0.7,
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
@@ -126,14 +126,16 @@ class SearchRecipeState extends State<SearchRecipe> {
             Icons.chat,
             'チャットボットと会話する',
             Colors.purple,
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage())),
+            () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const ChatPage())),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildElevatedButton(IconData icon, String label, Color color, VoidCallback onPressed) {
+  Widget _buildElevatedButton(
+      IconData icon, String label, Color color, VoidCallback onPressed) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
@@ -163,65 +165,71 @@ class SearchRecipeState extends State<SearchRecipe> {
     );
   }
 
-Widget _buildRecommendedRecipesList(List<Recipe> recipes) {
-  return ListView.builder(
-    itemCount: recipes.length,
-    itemBuilder: (context, index) {
-      return InkWell(
-        onTap: () {
-          // Aquí puedes agregar la lógica al hacer clic en una receta recomendada
-        },
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0), 
-            color: Colors.white, 
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 2), 
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Imagen a la izquierda
-              Container(
-                width: 50.0, // Reducido el tamaño
-                height: 45.0, // Reducido el tamaño
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: AssetImage("assets/img/${recipes[index].image}"),
+  Widget _buildRecommendedRecipesList(List<Recipe> recipes) {
+    return ListView.builder(
+      itemCount: recipes.length,
+      itemBuilder: (context, index) {
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      RecomendatedRecipeDetailPage(recipe: recipes[index] )),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Imagen a la izquierda
+                Container(
+                  width: 50.0, // Reducido el tamaño
+                  height: 45.0, // Reducido el tamaño
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: AssetImage("assets/img/${recipes[index].image}"),
+                    ),
                   ),
                 ),
-              ),
-              // Separación entre la imagen y el texto
-              const SizedBox(width: 12.0), // Reducido el espacio
-              // Título alineado a la izquierda
-              Expanded(
-                child: Text(
-                  recipes[index].recipeName,
-                  style: const TextStyle(
-                    fontSize: 16.0, // Reducido el tamaño de la fuente
-                    fontWeight: FontWeight.bold,
+                // Separación entre la imagen y el texto
+                const SizedBox(width: 12.0), // Reducido el espacio
+                // Título alineado a la izquierda
+                Expanded(
+                  child: Text(
+                    recipes[index].recipeName,
+                    style: const TextStyle(
+                      fontSize: 16.0, // Reducido el tamaño de la fuente
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
-  void _showDialogBox(BuildContext context, Future<List<Recipe>> myProductsFuture) {
+  void _showDialogBox(
+      BuildContext context, Future<List<Recipe>> myProductsFuture) {
     myProductsFuture.then((myProducts) {
       showDialog(
         context: context,
