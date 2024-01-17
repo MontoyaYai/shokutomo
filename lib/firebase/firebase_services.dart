@@ -448,6 +448,23 @@ Future<void> addOrUpdateMyRecipe(MyRecipe myRecipe) async {
     }
   }
 
+   Future<void> deleteMyRecipe(String recipeNo) async {
+    CollectionReference myRecipeCollection =
+        database.collection('users/mecha/myrecipe');
+
+    try {
+      final QuerySnapshot querySnapshot = await myRecipeCollection
+          .where('recipe_no', isEqualTo: recipeNo)
+          .get();
+
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        await myRecipeCollection.doc(doc.id).delete();
+      }
+    } catch (error) {
+      print("Error deleting myRecipe product: $error");
+    }
+  }
+
 
 //??
 //!! FIREBASE AUTH !! \\

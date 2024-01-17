@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'dart:io';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final MyRecipe recipe;
 
-  const RecipeDetailPage({Key? key, required this.recipe}) : super(key: key);
+  const RecipeDetailPage({super.key, required this.recipe});
 
   @override
-  _RecipeDetailPageState createState() => _RecipeDetailPageState();
+  RecipeDetailPageState createState() => RecipeDetailPageState();
 }
 
-class _RecipeDetailPageState extends State<RecipeDetailPage> {
+class RecipeDetailPageState extends State<RecipeDetailPage> {
   bool favoriteStatus = false;
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  FirebaseServices firebaseServices = FirebaseServices();
 
   @override
   void initState() {
@@ -127,7 +129,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         openCloseDial: isDialOpen,
         children: [
           SpeedDialChild(
-            child: const Icon(Icons.cancel),
+            child: const Icon(Icons.arrow_back),
             onTap: () {
               Navigator.pop(context); // Acción para cancelar
             },
@@ -141,7 +143,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           SpeedDialChild(
             child: const Icon(Icons.delete),
             onTap: () {
-              // Acción para borrar
+              firebaseServices.deleteMyRecipe(widget.recipe.recipeNo);
+              Navigator.pop(context, true);
             },
           ),
         ],

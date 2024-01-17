@@ -7,8 +7,21 @@ import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
 
 import 'recipe_detail_page.dart';
 
-class MyRecipeTab extends StatelessWidget {
+class MyRecipeTab extends StatefulWidget {
   const MyRecipeTab({super.key});
+
+  @override
+  MyRecipeTabState createState() => MyRecipeTabState();
+}
+
+class MyRecipeTabState extends State<MyRecipeTab> {
+  late Future<List<MyRecipe>> _recipesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _recipesFuture = GetFirebaseDataToArray().myRecipesArray();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +30,7 @@ class MyRecipeTab extends StatelessWidget {
       children: [
         Expanded(
           child: FutureBuilder<List<MyRecipe>>(
-            future: GetFirebaseDataToArray().myRecipesArray(),
+            future: _recipesFuture,
             builder: (context, recipeSnapshot) {
               if (recipeSnapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -33,13 +46,21 @@ class MyRecipeTab extends StatelessWidget {
                   children: [
                     for (var recipe in recipes)
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    RecipeDetailPage(recipe: recipe)),
+                              builder: (context) =>
+                                  RecipeDetailPage(recipe: recipe),
+                            ),
                           );
+                          if (result == true) {
+                            // Actualiza la lista de recetas si se borró una receta
+                            setState(() {
+                              _recipesFuture =
+                                  GetFirebaseDataToArray().myRecipesArray();
+                            });
+                          }
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,7 +101,7 @@ class MyRecipeTab extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => RecipeForm()),
+              MaterialPageRoute(builder: (context) => const RecipeForm()),
             );
           },
           child: const Text('レーシピを追加する',
