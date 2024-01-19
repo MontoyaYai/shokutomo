@@ -11,7 +11,8 @@ class LoginScreen extends StatelessWidget {
 
   LoginScreen({Key? key}) : super(key: key);
 
-  Future<void> _showLoginErrorDialog(BuildContext context, String errorMessage) async {
+  Future<void> _showLoginErrorDialog(
+      BuildContext context, String errorMessage) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -31,7 +32,8 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _showLoginSuccessDialog(BuildContext context, String email) async {
+  Future<void> _showLoginSuccessDialog(
+      BuildContext context, String email) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -41,13 +43,11 @@ class LoginScreen extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                /*
                 Navigator.of(context).pop();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  ),
-                );
+                Navigator.of(context).pop();
+                */
+                Navigator.popUntil(context, (route) => route.isFirst);
               },
               child: const Text("OK"),
             ),
@@ -60,7 +60,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Background(
@@ -74,7 +73,8 @@ class LoginScreen extends StatelessWidget {
                   color: Colors.white.withOpacity(0.90),
                   borderRadius: BorderRadius.circular(16.0),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -125,7 +125,8 @@ class LoginScreen extends StatelessWidget {
                       ),
                       Container(
                         alignment: Alignment.centerRight,
-                        margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 10),
                         child: GestureDetector(
                           onTap: () {
                             // Agrega aquí la lógica para restablecer la contraseña
@@ -142,24 +143,29 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
                         onPressed: () async {
-                          if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+                          if (_formKey.currentState != null &&
+                              _formKey.currentState!.validate()) {
                             String email = _emailController.text;
                             String password = _passwordController.text;
 
                             try {
                               // Iniciar sesión con Firebase Auth
-                              UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                              UserCredential userCredential = await FirebaseAuth
+                                  .instance
+                                  .signInWithEmailAndPassword(
                                 email: email,
                                 password: password,
                               );
-
+                              User user = userCredential.user!;
                               // Usuario autenticado correctamente
-                              _showLoginSuccessDialog(context, email);
+                              _showLoginSuccessDialog(
+                                  context, user!.email.toString());
                             } on FirebaseAuthException catch (e) {
                               // Manejar errores de inicio de sesión
                               String errorMessage = "Error al iniciar sesión";
                               if (e.code == 'user-not-found') {
-                                errorMessage = 'No hay ningún usuario registrado con ese correo.';
+                                errorMessage =
+                                    'No hay ningún usuario registrado con ese correo.';
                               } else if (e.code == 'wrong-password') {
                                 errorMessage = 'Contraseña incorrecta.';
                               } else {
@@ -201,7 +207,7 @@ class LoginScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) =>  RegisterScreen()),
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
                   );
                 },
                 child: const Text(

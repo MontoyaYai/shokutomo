@@ -29,6 +29,8 @@ class _InventoryPageState extends State<InventoryPage> {
 
   void fetchMyProducts() async {
     myProducts = await GetFirebaseDataToArray().myProductsArray();
+    print(FirebaseServices().getLoggedInUser().toString());
+    print('↑現在ログインしているユーザー');
     setState(() {});
   }
 
@@ -110,6 +112,7 @@ class _InventoryPageState extends State<InventoryPage> {
                         SlidableAction(
                           onPressed: (BuildContext context) {
                             _deleteProduct(product);
+                            setState(() {});
                           },
                           backgroundColor: Colors.red,
                           icon: Icons.delete,
@@ -128,6 +131,7 @@ class _InventoryPageState extends State<InventoryPage> {
                               _deleteProduct(product);
                               Navigator.of(context)
                                   .popUntil((route) => route.isFirst);
+                              setState(() {});
                             },
                             backgroundColor: primaryColor,
                             icon: Icons.shopping_cart_checkout,

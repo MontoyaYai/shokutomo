@@ -127,8 +127,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
                       shrinkWrap: true,
                       itemCount: searchProvider._searchResults.length,
                       itemBuilder: (context, index) {
-                        Product result =
-                            searchProvider._searchResults[index];
+                        Product result = searchProvider._searchResults[index];
                         return ListTile(
                             title: Text(result.productName),
                             leading: Image.asset("assets/img/${result.image}"),
@@ -235,8 +234,8 @@ class _ShoppingListPageState extends State<ShoppingList> {
                                   selectedEntryIndex = index;
                                 });
                               },
-                              leading: Image.asset('assets/img/${getProductImage(product.productNo)}'
-                                ,
+                              leading: Image.asset(
+                                'assets/img/${getProductImage(product.productNo)}',
                                 width: 30,
                                 height: 30,
                               ),
@@ -308,7 +307,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
 
 //　search state を保存するクラス
 class SearchProvider extends ChangeNotifier {
-  String _searchText = ''; 
+  String _searchText = '';
   List<Product> _searchResults = [];
   bool _showSearchResults = true;
 

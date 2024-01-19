@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shokutomo/config/Auth/Auth_service.dart';
 import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'theme/app_theme.dart';
@@ -33,16 +35,27 @@ class SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 15),
             _buildSectionTitle('アカウント'),
             const SizedBox(height: 5),
-            _buildSettingItem(
-              icon: Icons.account_circle,
-              label: 'アカウント設定',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
-            ),
+            if (FirebaseServices().getLoggedInUser() == 'mecha')
+              _buildSettingItem(
+                icon: Icons.account_circle,
+                label: 'アカウント設定',
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                  update();
+                },
+              ),
+            if (FirebaseServices().getLoggedInUser() != 'mecha')
+              _buildSettingItem(
+                icon: Icons.account_circle,
+                label: FirebaseServices().getLoggedInUser().toString(),
+                onTap: () async {
+                  await _showLogoutDialog(context);
+                  update();
+                },
+              ),
             const SizedBox(height: 15),
             _buildSectionTitle('Theme'),
             const SizedBox(height: 5),
@@ -121,6 +134,37 @@ class SettingsPageState extends State<SettingsPage> {
         },
       ),
     );
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ログアウトしますか？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                await FirebaseServices().signOut();
+                Navigator.of(context).pop();
+                update();
+              },
+              child: const Text('はい'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('いいえ'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> update() async {
+    setState(() {});
   }
 
   List<DropdownMenuItem<int>> _buildDropdownItems() {

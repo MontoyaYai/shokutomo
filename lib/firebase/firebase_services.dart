@@ -9,7 +9,7 @@ import 'package:shokutomo/firebase/shoplist_json_map.dart';
 class FirebaseServices {
   final FirebaseFirestore database = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
-  
+
   //Formate Date for Firebase (String "0000-00-00")
   String formatDate(DateTime date) {
     return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
@@ -80,13 +80,12 @@ class FirebaseServices {
     }
   }
 
-
 // Get all MYPRODUCT
   Future<List<MyProducts>> getFirebaseMyProducts() async {
     List<MyProducts> myProducts = [];
 
     CollectionReference collectionReferenceMyProducts =
-        database.collection('users/mecha/myproducts');
+        database.collection('users/${getLoggedInUser()}/myproducts');
     QuerySnapshot query = await collectionReferenceMyProducts.get();
     for (var document in query.docs) {
       Map<String, dynamic> myProductData =
@@ -100,7 +99,7 @@ class FirebaseServices {
 // Get all SHOPLIST
   Future<List<ShopList>> getAllShoppingList() async {
     CollectionReference collectionReferenceShopList =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
     QuerySnapshot querySnapshot = await collectionReferenceShopList.get();
 
     List<ShopList> shoppingList = querySnapshot.docs
@@ -114,7 +113,7 @@ class FirebaseServices {
 // Get bought product from SHOPLIST
   Future<List<ShopList>> getBoughtProduct() async {
     CollectionReference collectionReferenceShopList =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
     QuerySnapshot querySnapshot =
         await collectionReferenceShopList.where('status', isEqualTo: 1).get();
 
@@ -145,7 +144,7 @@ class FirebaseServices {
 //?? Get SCREEN MODE ??\\
   Future<int> getScreenMode() async {
     final DocumentReference userDocRef =
-        database.doc('users/mecha/userinformation');
+        database.doc('users/${getLoggedInUser()}/userinformation');
 
     final userData = await userDocRef.get();
     if (userData.exists) {
@@ -167,7 +166,8 @@ class FirebaseServices {
     final productNo = product.no;
     final expiredDate = product.expiredDate;
 
-    final myProductCollection = database.collection('users/mecha/myproducts/');
+    final myProductCollection =
+        database.collection('users/${getLoggedInUser()}/myproducts/');
 
     final productQuery = await myProductCollection
         .where('product_no', isEqualTo: productNo)
@@ -194,7 +194,7 @@ class FirebaseServices {
 // Add or Update SHOPLIST
   Future<void> addOrUpdateProductInShopList(ShopList product) async {
     final CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     final QuerySnapshot query = await shopListCollection
         .where('product_no', isEqualTo: product.productNo)
@@ -217,7 +217,7 @@ class FirebaseServices {
   Future<int> updateRecordMyProduct(
       MyProducts product, DateTime oldExpiredDate) async {
     final CollectionReference myProductsCollection =
-        database.collection('users/mecha/myproducts/');
+        database.collection('users/${getLoggedInUser()}/myproducts/');
 
     final QuerySnapshot query = await myProductsCollection
         .where('product_no', isEqualTo: product.no)
@@ -245,7 +245,7 @@ class FirebaseServices {
 // Update status of SHOPLIST
   Future<void> updateStatusOfShopList(String productNo) async {
     final CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     final QuerySnapshot query = await shopListCollection
         .where('product_no', isEqualTo: productNo)
@@ -266,7 +266,7 @@ class FirebaseServices {
 // Update THEMECOLOR for settings
   Future<void> updateThemeColor(int selectedColor) async {
     final DocumentReference userDocRef =
-        database.doc('users/mecha/userinformation');
+        database.doc('users/${getLoggedInUser()}/userinformation');
     await userDocRef.set({
       'settings': {
         'themecolor': selectedColor,
@@ -274,7 +274,7 @@ class FirebaseServices {
     }, SetOptions(merge: true));
   }
 
-// Insert MYPRODUCT from SHOPLIST 
+// Insert MYPRODUCT from SHOPLIST
   Future<void> insertMyProductFromShopList() async {
     List<ShopList> insertValues = await FirebaseServices().getBoughtProduct();
     DateTime purchaseDate = DateTime.now();
@@ -288,7 +288,7 @@ class FirebaseServices {
       DateTime expiredDate = purchaseDate.add(Duration(days: daysToExpire));
 
       CollectionReference myProductsCollection =
-          database.collection('users/mecha/myproducts');
+          database.collection('users/${getLoggedInUser()}/myproducts');
 
       final productQuery = await myProductsCollection
           .where('product_no', isEqualTo: productNo)
@@ -319,7 +319,7 @@ class FirebaseServices {
       }
       //Delete the producto from 'shoplist' in Firebase Firestore
       CollectionReference shopListCollection =
-          database.collection('users/mecha/shoplist');
+          database.collection('users/${getLoggedInUser()}/shoplist');
       QuerySnapshot querySnapshot = await shopListCollection
           .where('product_no', isEqualTo: value.productNo)
           .get();
@@ -333,8 +333,10 @@ class FirebaseServices {
 
 //  Delete from MYPRODUCT
   Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
-    final userDocRef =
-        database.collection('users').doc('mecha').collection('myproducts');
+    final userDocRef = database
+        .collection('users')
+        .doc(getLoggedInUser())
+        .collection('myproducts');
 
     final QuerySnapshot productSnapshot = await userDocRef
         .where(
@@ -374,7 +376,7 @@ class FirebaseServices {
 // Delete from SHOPLIST
   Future<void> deleteShopListProduct(String productNo) async {
     CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     try {
       final QuerySnapshot querySnapshot = await shopListCollection
@@ -388,7 +390,6 @@ class FirebaseServices {
       print("Error deleting shop list product: $error");
     }
   }
-
 
 //??
 //!! FIREBASE AUTH !! \\
@@ -415,7 +416,7 @@ class FirebaseServices {
       // Create the user document in the 'users' collection
       await database
           .collection('users')
-          .doc(uid)
+          .doc(email)
           .collection('userinfotmation')
           .add({
         'username': username,
@@ -456,5 +457,20 @@ class FirebaseServices {
 
   Future<void> signOut() async {
     await auth.signOut();
+  }
+
+  String getLoggedInUser() {
+    User? u = auth.currentUser;
+
+    if (u == null) {
+      // ログインしていない場合
+      return 'mecha';
+    }
+
+    if (u.uid == 'zaumzzH9A4cnkthFNDNiTjY7Jzw1') {
+      return 'mecha';
+    } else {
+      return u.email ?? 'Unknown email'; // メールが存在しない場合は'Unknown email'を返す
+    }
   }
 }
