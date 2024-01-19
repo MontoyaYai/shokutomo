@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
@@ -20,18 +22,38 @@ class _InventoryPageState extends State<InventoryPage> {
   int? selectedYear;
   int? selectedMonth;
   int? selectedDay;
+  // タイマーを設定
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    fetchMyProducts();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        fetchMyProducts();
+      }
+    });
+  }
+
+  // 画面から離れた際に呼ばれる
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void fetchMyProducts() async {
     myProducts = await GetFirebaseDataToArray().myProductsArray();
     print(FirebaseServices().getLoggedInUser().toString());
     print('↑現在ログインしているユーザー');
-    setState(() {});
+    // タイマーを初期化
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      // タイマーのコールバック内でsetState()を呼び出す例
+      if (mounted) {
+        // mountedプロパティを確認してからsetState()を呼び出す
+        setState(() {});
+      }
+    });
   }
 
   void insertIntoShopList(

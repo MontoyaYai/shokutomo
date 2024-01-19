@@ -108,7 +108,6 @@ class RegisterScreen extends StatelessWidget {
                     if (_formKey.currentState != null &&
                         _formKey.currentState!.validate()) {
                       try {
-                        print('regi1');
                         await AuthService().registerWithEmailAndPassword(
                           username: usernameController.text,
                           email: emailController.text,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
@@ -22,16 +24,32 @@ class _ShoppingListPageState extends State<ShoppingList> {
   List<Product> product = [];
   int selectedEntryIndex = -1;
 
+  late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    fetchShopList();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        fetchShopList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   Future<void> fetchShopList() async {
     product = await GetFirebaseDataToArray().productsArray();
     shopListProducts = await GetFirebaseDataToArray().shoppingListArray();
-    setState(() {});
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   String getProductName(String productNo) {
