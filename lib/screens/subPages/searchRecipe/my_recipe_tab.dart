@@ -5,7 +5,7 @@ import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
 
-import 'recipe_detail_page.dart';
+import 'my_recipe_detail_page.dart';
 
 class MyRecipeTab extends StatefulWidget {
   const MyRecipeTab({super.key});
@@ -55,7 +55,6 @@ class MyRecipeTabState extends State<MyRecipeTab> {
                             ),
                           );
                           if (result == true) {
-                            // Actualiza la lista de recetas si se borró una receta
                             setState(() {
                               _recipesFuture =
                                   GetFirebaseDataToArray().myRecipesArray();
@@ -98,11 +97,18 @@ class MyRecipeTabState extends State<MyRecipeTab> {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final resultForm = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const RecipeForm()),
+              MaterialPageRoute(
+                builder: (context) => const RecipeForm(),
+              ),
             );
+            if (resultForm == true) {
+              setState(() {
+                _recipesFuture = GetFirebaseDataToArray().myRecipesArray();
+              });
+            }
           },
           child: const Text('レーシピを追加する',
               style: TextStyle(fontWeight: FontWeight.bold)),

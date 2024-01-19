@@ -6,14 +6,15 @@ import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 
-class RecipeForm extends StatefulWidget {
-  const RecipeForm({Key? key}) : super(key: key);
+class EditMyRecipeForm extends StatefulWidget {
+  final MyRecipe recipe;
+  const EditMyRecipeForm({super.key, required this.recipe});
 
   @override
-  RecipeFormState createState() => RecipeFormState();
+  EditMyRecipeFormState createState() => EditMyRecipeFormState();
 }
 
-class RecipeFormState extends State<RecipeForm> {
+class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
 
@@ -70,7 +71,23 @@ class RecipeFormState extends State<RecipeForm> {
   @override
   void initState() {
     super.initState();
+    currentRecipe = widget.recipe;
     _loadRecipeNo();
+    recipeName = currentRecipe.recipeName;
+    cookTime = currentRecipe.cookTime;
+    selectedCategory = recipeCategory.indexOf(currentRecipe.recipeCategory);
+    selectedLevel = levels.indexOf(currentRecipe.difficult);
+    selectedPersons = personsGroup.indexOf(currentRecipe.quantity);
+    ingredients = [];
+    for (var ingredient in currentRecipe.ingredients) {
+      ingredients.add(Ingredient(
+        ingredientName: ingredient.ingredientName,
+        quantityGram: ingredient.quantityGram,
+      ));
+    }
+    favoriteStatus = currentRecipe.favoriteStatus;
+    howTo = currentRecipe.howTo;
+    imagePath = currentRecipe.image;
   }
 
   Future<void> _loadRecipeNo() async {
@@ -121,6 +138,8 @@ class RecipeFormState extends State<RecipeForm> {
                     }
                     return null;
                   },
+                  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  initialValue: recipeName,
                   onChanged: (value) {
                     setState(() {
                       currentRecipe.recipeName = value;
@@ -137,6 +156,8 @@ class RecipeFormState extends State<RecipeForm> {
                     }
                     return null;
                   },
+                  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  initialValue: cookTime.toString(),
                   onChanged: (value) {
                     setState(() {
                       currentRecipe.cookTime = int.tryParse(value) ?? 0;
@@ -206,6 +227,7 @@ class RecipeFormState extends State<RecipeForm> {
                       ),
                     ),
                   ),
+                  initialValue: howTo,
                   onChanged: (value) {
                     setState(() {
                       currentRecipe.howTo = value;

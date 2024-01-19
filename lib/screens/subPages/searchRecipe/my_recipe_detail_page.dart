@@ -3,6 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'dart:io';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/edit_myecipe_form.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final MyRecipe recipe;
@@ -137,7 +138,12 @@ class RecipeDetailPageState extends State<RecipeDetailPage> {
           SpeedDialChild(
             child: const Icon(Icons.edit),
             onTap: () {
-              // Acción para editar
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditMyRecipeForm(recipe: widget.recipe),
+                ),
+              );
             },
           ),
           SpeedDialChild(
