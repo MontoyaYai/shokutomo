@@ -4,6 +4,7 @@ import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/config/background.dart';
 
 class RegisterScreen extends StatelessWidget {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -28,8 +29,10 @@ class RegisterScreen extends StatelessWidget {
                     color: Colors.white.withOpacity(0.90),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
+                    key: _formKey,
                     children: [
                       Container(
                         alignment: Alignment.centerLeft,
@@ -50,7 +53,9 @@ class RegisterScreen extends StatelessWidget {
                           prefixIcon: Icon(Icons.email),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty || !value.contains('@')) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              !value.contains('@')) {
                             return '有効なメールを入力してください';
                           }
                           return null;
@@ -91,28 +96,33 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: size.height * 0.03),
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
                   onPressed: () async {
-                    try {
-                      await AuthService().registerWithEmailAndPassword(
-                        username: usernameController.text,
-                        email: emailController.text,
-                        password: passwordController.text,
-                      );
+                    if (_formKey.currentState != null &&
+                        _formKey.currentState!.validate()) {
+                      try {
+                        await AuthService().registerWithEmailAndPassword(
+                          username: usernameController.text,
+                          email: emailController.text,
+                          password: passwordController.text,
+                        );
 
-                      // Navigate to the login screen after successful registration
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    } catch (error) {
-                      // Handle registration errors
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error al registrar: $error'),
-                        ),
-                      );
+                        // Navigate to the login screen after successful registration
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()),
+                        );
+                      } catch (error) {
+                        // Handle registration errors
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error al registrar: $error'),
+                          ),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -138,7 +148,8 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.push(
