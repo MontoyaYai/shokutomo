@@ -151,6 +151,7 @@ class RecipeDetailPageState extends State<RecipeDetailPage> {
             onTap: () {
               firebaseServices.deleteMyRecipe(widget.recipe.recipeNo);
               Navigator.pop(context, true);
+              
             },
           ),
         ],

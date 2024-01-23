@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
@@ -16,6 +17,7 @@ class MyRecipeTab extends StatefulWidget {
 
 class MyRecipeTabState extends State<MyRecipeTab> {
   late Future<List<MyRecipe>> _recipesFuture;
+   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
   @override
   void initState() {
@@ -23,9 +25,16 @@ class MyRecipeTabState extends State<MyRecipeTab> {
     _recipesFuture = GetFirebaseDataToArray().myRecipesArray();
   }
 
+    Future<void> _refreshRecipes() async {
+    setState(() {
+      _recipesFuture = GetFirebaseDataToArray().myRecipesArray();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Scaffold(
+    body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
@@ -77,7 +86,6 @@ class MyRecipeTabState extends State<MyRecipeTab> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            // Texto con el nombre del producto
                             Flexible(
                               child: Text(
                                 recipe.recipeName,
@@ -95,25 +103,46 @@ class MyRecipeTabState extends State<MyRecipeTab> {
               }
             },
           ),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            final resultForm = await Navigator.push(
+        )]),
+
+      // ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: SpeedDial(
+      
+        icon: Icons.menu_book_rounded,
+        activeIcon: Icons.close,
+        spacing: 8.0,
+        openCloseDial: isDialOpen,
+
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.favorite),
+            onTap: () {
+              // HERE 
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.refresh),
+            onTap: () {
+              _refreshRecipes();
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.add_circle_outline_rounded),
+            onTap: () async{
+             final resultForm = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const RecipeForm(),
               ),
             );
             if (resultForm == true) {
-              setState(() {
-                _recipesFuture = GetFirebaseDataToArray().myRecipesArray();
-              });
-            }
-          },
-          child: const Text('レーシピを追加する',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-      ],
+              _refreshRecipes();}
+            },
+          ),
+        ],
+      ),
+        
     );
   }
 }
