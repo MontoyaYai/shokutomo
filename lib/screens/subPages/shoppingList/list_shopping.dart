@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
@@ -22,16 +24,32 @@ class _ShoppingListPageState extends State<ShoppingList> {
   List<Product> product = [];
   int selectedEntryIndex = -1;
 
+  late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    fetchShopList();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        fetchShopList();
+      }
+    });
   }
 
   Future<void> fetchShopList() async {
     product = await GetFirebaseDataToArray().productsArray();
     shopListProducts = await GetFirebaseDataToArray().shoppingListArray();
-    setState(() {});
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   String getProductName(String productNo) {
@@ -127,8 +145,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
                       shrinkWrap: true,
                       itemCount: searchProvider._searchResults.length,
                       itemBuilder: (context, index) {
-                        Product result =
-                            searchProvider._searchResults[index];
+                        Product result = searchProvider._searchResults[index];
                         return ListTile(
                             title: Text(result.productName),
                             leading: Image.asset("assets/img/${result.image}"),
@@ -235,8 +252,8 @@ class _ShoppingListPageState extends State<ShoppingList> {
                                   selectedEntryIndex = index;
                                 });
                               },
-                              leading: Image.asset('assets/img/${getProductImage(product.productNo)}'
-                                ,
+                              leading: Image.asset(
+                                'assets/img/${getProductImage(product.productNo)}',
                                 width: 30,
                                 height: 30,
                               ),
@@ -308,7 +325,7 @@ class _ShoppingListPageState extends State<ShoppingList> {
 
 //　search state を保存するクラス
 class SearchProvider extends ChangeNotifier {
-  String _searchText = ''; 
+  String _searchText = '';
   List<Product> _searchResults = [];
   bool _showSearchResults = true;
 
