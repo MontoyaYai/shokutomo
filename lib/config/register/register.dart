@@ -31,66 +31,68 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
+                  child: Form(
                     key: _formKey,
-                    children: [
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: const Text(
-                          "アカウント作成",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32,
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            "アカウント作成",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32,
+                            ),
+                            textAlign: TextAlign.left,
                           ),
-                          textAlign: TextAlign.left,
                         ),
-                      ),
-                      SizedBox(height: size.height * 0.01),
-                      TextFormField(
-                        controller: emailController,
-                        decoration: const InputDecoration(
-                          labelText: "メール",
-                          prefixIcon: Icon(Icons.email),
+                        SizedBox(height: size.height * 0.01),
+                        TextFormField(
+                          controller: emailController,
+                          decoration: const InputDecoration(
+                            labelText: "メール",
+                            prefixIcon: Icon(Icons.email),
+                          ),
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                !value.contains('@')) {
+                              return '有効なメールを入力してください';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              !value.contains('@')) {
-                            return '有効なメールを入力してください';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: size.height * 0.01),
-                      TextFormField(
-                        controller: usernameController,
-                        decoration: const InputDecoration(
-                          labelText: "ユーザー名",
-                          prefixIcon: Icon(Icons.account_circle),
+                        SizedBox(height: size.height * 0.01),
+                        TextFormField(
+                          controller: usernameController,
+                          decoration: const InputDecoration(
+                            labelText: "ユーザー名",
+                            prefixIcon: Icon(Icons.account_circle),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'ユーザー名を入力してください';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'ユーザー名を入力してください';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: size.height * 0.01),
-                      TextFormField(
-                        controller: passwordController,
-                        decoration: const InputDecoration(
-                          labelText: "パスワード",
-                          prefixIcon: Icon(Icons.lock),
+                        SizedBox(height: size.height * 0.01),
+                        TextFormField(
+                          controller: passwordController,
+                          decoration: const InputDecoration(
+                            labelText: "パスワード",
+                            prefixIcon: Icon(Icons.lock),
+                          ),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'パスワードを入力してください';
+                            }
+                            return null;
+                          },
                         ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'パスワードを入力してください';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
