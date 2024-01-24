@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
+import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/product_json_map.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
@@ -16,8 +17,8 @@ class SearchRecipe extends StatefulWidget {
 
 class SearchRecipeState extends State<SearchRecipe> {
   late Future<List<Recipe>> recipesFuture;
-  late Future<List<Product>> productsFuture;
-
+  late Future<List<MyProducts>> productsFuture;
+ 
   @override
   void initState() {
     super.initState();
@@ -29,8 +30,8 @@ class SearchRecipeState extends State<SearchRecipe> {
     return GetFirebaseDataToArray().recipesArray();
   }
 
-  Future<List<Product>> fetchProducts() async {
-    return GetFirebaseDataToArray().productsArray();
+  Future<List<MyProducts>> fetchProducts() async {
+    return GetFirebaseDataToArray().myProductsArray();
   }
 
   @override
@@ -120,7 +121,7 @@ class SearchRecipeState extends State<SearchRecipe> {
             Icons.kitchen,
             '手持ち在庫からレシピを選びましょう',
             Colors.green,
-            () => _showDialogBox(context, recipesFuture),
+            () => _showDialogBox(context, productsFuture),
           ),
           _buildElevatedButton(
             Icons.chat,
@@ -229,7 +230,7 @@ class SearchRecipeState extends State<SearchRecipe> {
   }
 
   void _showDialogBox(
-      BuildContext context, Future<List<Recipe>> myProductsFuture) {
+      BuildContext context, Future<List<MyProducts>> myProductsFuture) {
     myProductsFuture.then((myProducts) {
       showDialog(
         context: context,
@@ -256,19 +257,19 @@ class SearchRecipeState extends State<SearchRecipe> {
     });
   }
 
-  Widget _buildMyProductsList(List<Recipe> recipes) {
+  Widget _buildMyProductsList(List<MyProducts> products) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: recipes.length,
+      itemCount: products.length,
       itemBuilder: (context, index) {
         return ListTile(
-          leading: Image.asset("assets/img/${recipes[index].image}"),
-          title: Text(recipes[index].recipeName),
+          leading: Image.asset("assets/img/${products[index].image}"),
+          title: Text(products[index].name),
           onTap: () {
             Navigator.of(context).pop();
             _navigateToChatScreen(
               context,
-              '${recipes[index].recipeName} がはいっているレシピ教えてください。',
+              '${products[index].name} がはいっているレシピ教えてください。',
             );
           },
         );
