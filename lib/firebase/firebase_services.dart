@@ -273,6 +273,48 @@ class FirebaseServices {
     }
   }
 
+  Future<void> updateRecipeFavoriteStatus(
+      String recipeNo, bool newFavoriteStatus) async {
+    final CollectionReference recipesCollection =
+        database.collection('recipes');
+
+    final QuerySnapshot query = await recipesCollection
+        .where('recipe_no', isEqualTo: recipeNo)
+        .limit(1)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot recipeDocument = query.docs.first;
+
+      await recipesCollection.doc(recipeDocument.id).update({
+        'favorite_status': newFavoriteStatus,
+      });
+    } else {
+      print('Recipe no found');
+    }
+  }
+
+  Future<void> updateMyRecipeFavoriteStatus(
+      String recipeNo, bool newFavoriteStatus) async {
+    final CollectionReference recipesCollection =
+        database.collection('users/mecha/myrecipe');
+
+    final QuerySnapshot query = await recipesCollection
+        .where('recipe_no', isEqualTo: recipeNo)
+        .limit(1)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot recipeDocument = query.docs.first;
+
+      await recipesCollection.doc(recipeDocument.id).update({
+        'favorite_status': newFavoriteStatus,
+      });
+    } else {
+      print('Recipe no found');
+    }
+  }
+
 // Update record of MYPRODUCT
   Future<int> updateRecordMyProduct(
       MyProducts product, DateTime oldExpiredDate) async {

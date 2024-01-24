@@ -7,7 +7,7 @@ import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 
 class RecipeForm extends StatefulWidget {
-  const RecipeForm({Key? key}) : super(key: key);
+  const RecipeForm({super.key});
 
   @override
   RecipeFormState createState() => RecipeFormState();
@@ -84,7 +84,7 @@ class RecipeFormState extends State<RecipeForm> {
     setState(() {
       recipeNo = newRecipeNo;
       currentRecipe.recipeNo = newRecipeNo;
-      print("actual $recipeNo");
+      // print("actual $recipeNo");
     });
   }
 
@@ -242,9 +242,10 @@ class RecipeFormState extends State<RecipeForm> {
                     IconButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          print(currentRecipe.toMap());
+                          // print(currentRecipe.toMap());
                           await firebaseServices
                               .addOrUpdateMyRecipe(currentRecipe);
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context, true);
                         }
                       },
@@ -469,10 +470,10 @@ class RecipeFormState extends State<RecipeForm> {
       final newImage =
           await File(pickedFile.path).copy('${appDir.path}/$imageName');
       final imagePath = newImage.path;
-      print('Ruta de la imagen: $imagePath');
+      // print('Imagen PATH: $imagePath');
       setState(() {
         currentRecipe.image =
-            imagePath; // Almacena la ruta completa en el campo image
+            imagePath; 
       });
       return imagePath;
     }

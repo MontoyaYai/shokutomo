@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
-import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_detail_page.dart';
 
 class EditMyRecipeForm extends StatefulWidget {
   final MyRecipe recipe;
@@ -72,7 +72,8 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   void initState() {
     super.initState();
     currentRecipe = widget.recipe;
-    _loadRecipeNo();
+    recipeNo = currentRecipe.recipeNo;
+    // _loadRecipeNo();
     recipeName = currentRecipe.recipeName;
     cookTime = currentRecipe.cookTime;
     selectedCategory = recipeCategory.indexOf(currentRecipe.recipeCategory);
@@ -88,21 +89,6 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
     favoriteStatus = currentRecipe.favoriteStatus;
     howTo = currentRecipe.howTo;
     imagePath = currentRecipe.image;
-  }
-
-  Future<void> _loadRecipeNo() async {
-    final allRecipes = await GetFirebaseDataToArray().myRecipesArray();
-    final maxRecipeNo = allRecipes.isNotEmpty
-        ? allRecipes
-            .map((recipe) => int.tryParse(recipe.recipeNo) ?? 0)
-            .reduce((value, element) => value > element ? value : element)
-        : 0;
-    final newRecipeNo = (maxRecipeNo + 1).toString();
-    setState(() {
-      recipeNo = newRecipeNo;
-      currentRecipe.recipeNo = newRecipeNo;
-      print("actual $recipeNo");
-    });
   }
 
   @override
@@ -138,7 +124,6 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     }
                     return null;
                   },
-                  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                   initialValue: recipeName,
                   onChanged: (value) {
                     setState(() {
@@ -156,7 +141,6 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     }
                     return null;
                   },
-                  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                   initialValue: cookTime.toString(),
                   onChanged: (value) {
                     setState(() {
@@ -264,10 +248,20 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     IconButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          print(currentRecipe.toMap());
+                          // print(currentRecipe.toMap());
                           await firebaseServices
                               .addOrUpdateMyRecipe(currentRecipe);
-                          Navigator.pop(context, true);
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context); // Cierra la pantalla actual
+                          // ignore: use_build_context_synchronously
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecipeDetailPage(
+                                  recipe:
+                                      currentRecipe), 
+                            ),
+                          );
                         }
                       },
                       icon: const Icon(Icons.save),
@@ -340,18 +334,25 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       shrinkWrap: true,
       itemCount: ingredients.length,
       itemBuilder: (context, index) {
+        final ingredientNameController = TextEditingController(
+          text: ingredients[index].ingredientName,
+        );
+        final quantityGramController = TextEditingController(
+          text: ingredients[index].quantityGram,
+        );
+
         return Row(
           children: [
             Expanded(
               child: TextFormField(
+                controller: ingredientNameController,
                 onChanged: (value) {
                   setState(() {
-                    if (ingredients.length > index) {
-                      ingredients[index].ingredientName = value;
-                      if (currentRecipe.ingredients.length > index) {
-                        currentRecipe.ingredients[index].ingredientName = value;
-                      }
-                    }
+                    ingredients[index] = Ingredient(
+                      ingredientName: value,
+                      quantityGram: ingredients[index].quantityGram,
+                    );
+                    currentRecipe.ingredients = List.from(ingredients);
                   });
                 },
                 decoration: const InputDecoration(
@@ -362,14 +363,14 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
             const SizedBox(width: 8),
             Expanded(
               child: TextFormField(
+                controller: quantityGramController,
                 onChanged: (value) {
                   setState(() {
-                    if (ingredients.length > index) {
-                      ingredients[index].quantityGram = value;
-                      if (currentRecipe.ingredients.length > index) {
-                        currentRecipe.ingredients[index].quantityGram = value;
-                      }
-                    }
+                    ingredients[index] = Ingredient(
+                      ingredientName: ingredients[index].ingredientName,
+                      quantityGram: value,
+                    );
+                    currentRecipe.ingredients = List.from(ingredients);
                   });
                 },
                 decoration: const InputDecoration(
@@ -383,9 +384,7 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                 setState(() {
                   if (ingredients.length > index) {
                     ingredients.removeAt(index);
-                    if (currentRecipe.ingredients.length > index) {
-                      currentRecipe.ingredients.removeAt(index);
-                    }
+                    currentRecipe.ingredients = List.from(ingredients);
                   }
                 });
               },
@@ -491,10 +490,10 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       final newImage =
           await File(pickedFile.path).copy('${appDir.path}/$imageName');
       final imagePath = newImage.path;
-      print('Ruta de la imagen: $imagePath');
+      // print('Imagen path: $imagePath');
       setState(() {
         currentRecipe.image =
-            imagePath; // Almacena la ruta completa en el campo image
+            imagePath; 
       });
       return imagePath;
     }
