@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shokutomo/config/Auth/Auth_service.dart';
 import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
 import 'theme/app_theme.dart';
@@ -144,6 +146,37 @@ class SettingsPageState extends State<SettingsPage> {
         },
       ),
     );
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ログアウトしますか？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                await FirebaseServices().signOut();
+                Navigator.of(context).pop();
+                update();
+              },
+              child: const Text('はい'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('いいえ'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> update() async {
+    setState(() {});
   }
 
   List<DropdownMenuItem<int>> _buildDropdownItems() {

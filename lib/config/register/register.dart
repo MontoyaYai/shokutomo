@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shokutomo/config/Auth/Auth_service.dart';
 import 'package:shokutomo/config/Login/login.dart';
 import 'package:shokutomo/config/background.dart';
+import 'package:shokutomo/firebase/firebase_services.dart';
 
 class RegisterScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -87,6 +88,8 @@ class RegisterScreen extends StatelessWidget {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'パスワードを入力してください';
+                            } else if (value.length < 6) {
+                              return 'パスワードは少なくとも6文字以上である必要があります';
                             }
                             return null;
                           },

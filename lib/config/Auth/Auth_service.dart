@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<User?> registerWithEmailAndPassword({
     required String username,
@@ -10,13 +10,14 @@ class AuthService {
     required String password,
   }) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      String uid = userCredential.user!.uid;
       await _createUserDocument(
-        userCredential.user!.uid,
+        uid,
         username,
         email,
       );
@@ -36,13 +37,14 @@ class AuthService {
     try {
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(email)
+          .doc(uid)
           .set({
             'username': username,
             'email': email,
           })
           .then((_) => print("Usuario registrado en la base de datos"))
-          .catchError((error) => print("Error al registrar en la base de datos: $error"));
+          .catchError((error) =>
+              print("Error al registrar en la base de datos: $error"));
     } catch (e) {
       print("Error al crear el documento de usuario: $e");
     }

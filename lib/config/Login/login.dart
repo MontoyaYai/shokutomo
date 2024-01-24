@@ -65,7 +65,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Background(
@@ -162,9 +161,10 @@ class LoginScreen extends StatelessWidget {
                                 email: email,
                                 password: password,
                               );
-
+                              User user = userCredential.user!;
                               // Usuario autenticado correctamente
-                              _showLoginSuccessDialog(context, email);
+                              _showLoginSuccessDialog(
+                                  context, user!.email.toString());
                             } on FirebaseAuthException catch (e) {
                               // Manejar errores de inicio de sesión
                               String errorMessage = "Error al iniciar sesión";

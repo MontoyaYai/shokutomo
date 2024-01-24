@@ -535,7 +535,7 @@ class FirebaseServices {
       // Create the user document in the 'users' collection
       await database
           .collection('users')
-          .doc(uid)
+          .doc(email)
           .collection('userinfotmation')
           .add({
         'username': username,

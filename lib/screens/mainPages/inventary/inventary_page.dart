@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shokutomo/firebase/firebase_services.dart';
@@ -21,7 +23,7 @@ class _InventoryPageState extends State<InventoryPage> {
   int? selectedYear;
   int? selectedMonth;
   int? selectedDay;
-
+  // タイマーを設定
   late Timer _timer;
 
   @override
@@ -127,6 +129,7 @@ class _InventoryPageState extends State<InventoryPage> {
                         SlidableAction(
                           onPressed: (BuildContext context) {
                             _deleteProduct(product);
+                            setState(() {});
                           },
                           backgroundColor: Colors.red,
                           icon: Icons.delete,
@@ -145,6 +148,7 @@ class _InventoryPageState extends State<InventoryPage> {
                               _deleteProduct(product);
                               Navigator.of(context)
                                   .popUntil((route) => route.isFirst);
+                              setState(() {});
                             },
                             backgroundColor: primaryColor,
                             icon: Icons.shopping_cart_checkout,
