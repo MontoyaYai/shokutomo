@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myrecipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/add_recipe_form.dart';
+import 'package:shokutomo/screens/subPages/searchRecipe/favorite_recipe_dialog.dart';
 
 import 'my_recipe_detail_page.dart';
 
@@ -118,7 +119,10 @@ class MyRecipeTabState extends State<MyRecipeTab> {
           SpeedDialChild(
             child: const Icon(Icons.favorite),
             onTap: () {
-              // HERE 
+              showDialog(
+              context: context, 
+              builder: (context)=> FavoriteRecipesDialog(),
+              );
             },
           ),
           SpeedDialChild(
