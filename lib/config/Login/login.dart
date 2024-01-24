@@ -43,11 +43,11 @@ class LoginScreen extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
                 /*
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                */
                 Navigator.popUntil(context, (route) => route.isFirst);
+                */
               },
               child: const Text("OK"),
             ),
