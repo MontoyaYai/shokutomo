@@ -32,11 +32,12 @@ class RecipeDetailPageState extends State<RecipeDetailPage> {
         title: Text(widget.recipe.recipeName),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 favoriteStatus = !favoriteStatus;
                 widget.recipe.favoriteStatus = favoriteStatus;
               });
+                await firebaseServices.updateMyRecipeFavoriteStatus(widget.recipe.recipeNo, favoriteStatus);
             },
             icon: Icon(
               Icons.favorite,

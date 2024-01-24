@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
+import 'package:shokutomo/firebase/firebase_services.dart';
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 
 class RecomendatedRecipeDetailPage extends StatefulWidget {
@@ -14,6 +14,7 @@ class RecomendatedRecipeDetailPage extends StatefulWidget {
 class RecomendatedRecipeDetailState extends State<RecomendatedRecipeDetailPage> {
   bool favoriteStatus = false;
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  FirebaseServices firebaseServices = FirebaseServices();
 
   @override
   void initState() {
@@ -28,11 +29,12 @@ class RecomendatedRecipeDetailState extends State<RecomendatedRecipeDetailPage> 
         title: Text(widget.recipe.recipeName),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 favoriteStatus = !favoriteStatus;
                 widget.recipe.favoriteStatus = favoriteStatus;
               });
+               await firebaseServices.updateRecipeFavoriteStatus(widget.recipe.recipeNo, favoriteStatus);
             },
             icon: Icon(
               Icons.favorite,
