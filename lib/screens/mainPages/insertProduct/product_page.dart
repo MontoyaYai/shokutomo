@@ -12,11 +12,11 @@ class ProductPage extends StatelessWidget {
   final int? categoryNo;
 
   const ProductPage({
-    Key? key,
+    super.key,
     this.appBarSwipe,
     this.selectProduct,
     this.categoryNo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,8 @@ class ProductPage extends StatelessWidget {
                                     searchProvider._searchResults[index];
                                 return ListTile(
                                   title: Text(result.productName),
-                                  leading: Image.asset("assets/img/${result.image}"),
+                                  leading:
+                                      Image.asset("assets/img/${result.image}"),
                                   onTap: () {
                                     showDialog(
                                         context: context,

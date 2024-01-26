@@ -92,10 +92,21 @@ class RecipeFormState extends State<RecipeForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'レシピを追加',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                'レシピ追加',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -103,157 +114,165 @@ class RecipeFormState extends State<RecipeForm> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'レシピ名',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'レシピ名を入力してください';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.recipeName = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: '出来上がり時間'),
-                  validator: (value) {
-                    if (value == null || int.tryParse(value) == null) {
-                      return '正しい数字を入力し下さい';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.cookTime = int.tryParse(value) ?? 0;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildCategoryDropdown(selectedCategory),
+      body: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_up.png'),
+              fit: BoxFit.fill,
+            ),
+          ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'レシピ名',
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildLevelDropdown(selectedLevel),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildPersonsDropdown(selectedPersons),
-                    ),
-                  ],
-                ),
-                _buildIngredientsList(),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'レシピ名を入力してください';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
                       setState(() {
-                        final newIngredient =
-                            Ingredient(ingredientName: '', quantityGram: '');
-                        ingredients.add(newIngredient);
-                        currentRecipe.ingredients.add(newIngredient);
+                        currentRecipe.recipeName = value;
                       });
                     },
-                    child: const Text('材料追加'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  title: const Text('アイコン'),
-                  trailing: GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: imagePath.isNotEmpty
-                          ? Image.file(File(imagePath)).image
-                          : Image.asset(selectedIcon).image,
-                    ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: '出来上がり時間'),
+                    validator: (value) {
+                      if (value == null || int.tryParse(value) == null) {
+                        return '正しい数字を入力し下さい';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        currentRecipe.cookTime = int.tryParse(value) ?? 0;
+                      });
+                    },
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  maxLines: 6,
-                  minLines: 6,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    labelText: '作り方',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9),
-                      borderSide: const BorderSide(
-                        width: 2,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCategoryDropdown(selectedCategory),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9),
-                      borderSide: const BorderSide(
-                        width: 2,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildLevelDropdown(selectedLevel),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildPersonsDropdown(selectedPersons),
+                      ),
+                    ],
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.howTo = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
+                  _buildIngredientsList(),
+                  Center(
+                    child: ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          favoriteStatus = !favoriteStatus;
-                          currentRecipe.favoriteStatus = favoriteStatus;
-                          _formKey.currentState!.save();
+                          final newIngredient =
+                              Ingredient(ingredientName: '', quantityGram: '');
+                          ingredients.add(newIngredient);
+                          currentRecipe.ingredients.add(newIngredient);
                         });
                       },
-                      icon: Icon(
-                        Icons.favorite,
-                        color: favoriteStatus
-                            ? Theme.of(context).primaryColor
-                            : null,
+                      child: const Text('材料追加'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text('アイコン'),
+                    trailing: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: imagePath.isNotEmpty
+                            ? Image.file(File(imagePath)).image
+                            : Image.asset(selectedIcon).image,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    maxLines: 6,
+                    minLines: 6,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: '作り方',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(9),
+                        borderSide: const BorderSide(
+                          width: 2,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(9),
+                        borderSide: const BorderSide(
+                          width: 2,
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          // print(currentRecipe.toMap());
-                          await firebaseServices
-                              .addOrUpdateMyRecipe(currentRecipe);
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context, true);
-                        }
-                      },
-                      icon: const Icon(Icons.save),
-                    ),
-                  ],
-                ),
-              ],
+                    onChanged: (value) {
+                      setState(() {
+                        currentRecipe.howTo = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            favoriteStatus = !favoriteStatus;
+                            currentRecipe.favoriteStatus = favoriteStatus;
+                            _formKey.currentState!.save();
+                          });
+                        },
+                        icon: Icon(
+                          Icons.favorite,
+                          color: favoriteStatus
+                              ? Theme.of(context).primaryColor
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            // print(currentRecipe.toMap());
+                            await firebaseServices
+                                .addOrUpdateMyRecipe(currentRecipe);
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context, true);
+                          }
+                        },
+                        icon: const Icon(Icons.save),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
-import 'package:shokutomo/firebase/product_json_map.dart';
+
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/recomended_recipe_detail_page.dart';
@@ -41,9 +41,20 @@ class SearchRecipeState extends State<SearchRecipe> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          title: const Text(
-            'レシピブック',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                'レシピブック',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           bottom: const TabBar(
             tabs: [
@@ -65,44 +76,52 @@ class SearchRecipeState extends State<SearchRecipe> {
   }
 
   Widget _buildRecipeSearchTab() {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            child: _buildButtonGrid(),
+    return Container(
+    decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_completo.png'),
+              fit: BoxFit.fill,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.only(
-              left: 16.0), // Agregado espacio desde la izquierda
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'おすすめ！',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              child: _buildButtonGrid(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 16.0), // Agregado espacio desde la izquierda
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'おすすめ！',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: FutureBuilder<List<Recipe>>(
-            future: recipesFuture,
-            builder: (context, recipeSnapshot) {
-              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (recipeSnapshot.hasError) {
-                return Text('Error: ${recipeSnapshot.error}');
-              } else {
-                return _buildRecommendedRecipesList(recipeSnapshot.data!);
-              }
-            },
+          Expanded(
+            child: FutureBuilder<List<Recipe>>(
+              future: recipesFuture,
+              builder: (context, recipeSnapshot) {
+                if (recipeSnapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (recipeSnapshot.hasError) {
+                  return Text('Error: ${recipeSnapshot.error}');
+                } else {
+                  return _buildRecommendedRecipesList(recipeSnapshot.data!);
+                }
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

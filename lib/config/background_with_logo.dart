@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Background extends StatelessWidget {
+class BackgroundWithLogo extends StatelessWidget {
   final Widget child;
 
-  const Background({
+  const BackgroundWithLogo({
     super.key,
     required this.child,
   });
@@ -34,7 +34,15 @@ class Background extends StatelessWidget {
               width: size.width
             ),
           ),
-         
+          Positioned(
+            top: 95,
+            left: 30,
+            child: Image.asset(
+              "assets/img/LOGO.png",
+              width: size.width * 0.35
+            ),
+          ),
+          
           Positioned(
             bottom: 0,
             right: 0,

@@ -8,13 +8,13 @@ import 'package:shokutomo/screens/mainPages/calendar/edit_dialog.dart';
 import 'dart:async';
 
 class InventoryPage extends StatefulWidget {
-  const InventoryPage({Key? key}) : super(key: key);
+  const InventoryPage({super.key});
 
   @override
-  _InventoryPageState createState() => _InventoryPageState();
+  InventoryPageState createState() => InventoryPageState();
 }
 
-class _InventoryPageState extends State<InventoryPage> {
+class InventoryPageState extends State<InventoryPage> {
   List<MyProducts> myProducts = [];
   int? selectedEntryIndex;
 
@@ -27,7 +27,7 @@ class _InventoryPageState extends State<InventoryPage> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (mounted) {
         fetchMyProducts();
       }
@@ -36,7 +36,7 @@ class _InventoryPageState extends State<InventoryPage> {
 
   void fetchMyProducts() async {
     myProducts = await GetFirebaseDataToArray().myProductsArray();
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (mounted) {
         setState(() {});
       }
@@ -83,125 +83,137 @@ class _InventoryPageState extends State<InventoryPage> {
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
-          automaticallyImplyLeading: false,
-          title: const Text(
-            '在庫',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                '在庫',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
-        body: Column(
-          children: [
-            const SizedBox(
-              height: 3,
+        body: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_up_down.png'),
+              fit: BoxFit.fill,
             ),
-            if (myProducts.isEmpty)
-              Flexible(
-                child: Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/img/noentry.png',
-                      ),
-                      const Text(
-                        'まだエントリーがありません',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+          ),
+          child: Column(
+          
+            children: [
+              const SizedBox(
+                height: 3,
+              ),
+              if (myProducts.isEmpty)
+                Flexible(
+                  child: Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/img/noentry.png',
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              )
-            else // Si hay elementos en el inventario
-              Flexible(
-                child: ListView.builder(
-                  itemCount: myProducts.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final product = myProducts[index];
-                    return Slidable(
-                      //SHOPLISTへinsertせずにMYPRODUCTから消す
-                      startActionPane:
-                          ActionPane(motion: const StretchMotion(), children: [
-                        SlidableAction(
-                          onPressed: (BuildContext context) {
-                            _deleteProduct(product);
-                          },
-                          backgroundColor: Colors.red,
-                          icon: Icons.delete,
-                          label: "削除",
-                        )
-                      ]),
-                      endActionPane: ActionPane(
-                        motion: const StretchMotion(),
-                        children: [
+                )
+              else // Si hay elementos en el inventario
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: myProducts.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final product = myProducts[index];
+                      return Slidable(
+                        //SHOPLISTへinsertせずにMYPRODUCTから消す
+                        startActionPane:
+                            ActionPane(motion: const StretchMotion(), children: [
                           SlidableAction(
                             onPressed: (BuildContext context) {
-                              // Make a copy of the item in the shoplist database
-                              insertIntoShopList(product.no, product.quantity,
-                                  product.gram, product.name, product.image);
-                              // Delete the item from the "product" list
                               _deleteProduct(product);
-                              Navigator.of(context)
-                                  .popUntil((route) => route.isFirst);
                             },
-                            backgroundColor: primaryColor,
-                            icon: Icons.shopping_cart_checkout,
-                            label: "使い切り",
-                          ),
-                        ],
-                      ),
-                      child: Card(
-                        child: ListTile(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return EditDialog(
-                                    product: product,
-                                    onUpdate: updateProductsList,
-                                  );
-                                });
-                            setState(() {
-                              selectedEntryIndex = index;
-                            });
-                          },
-                          leading: Image.asset(
-                            "assets/img/${product.image}",
-                            width: 30,
-                            height: 30,
-                          ),
-                          title: Text(product.name),
-                          subtitle: Text(
-                            product.expiredDate.toString().substring(0, 10),
-                            style: const TextStyle(
-                              fontSize: 12, // Adjust the font size if needed
+                            backgroundColor: Colors.red,
+                            icon: Icons.delete,
+                            label: "削除",
+                          )
+                        ]),
+                        endActionPane: ActionPane(
+                          motion: const StretchMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (BuildContext context) {
+                                // Make a copy of the item in the shoplist database
+                                insertIntoShopList(product.no, product.quantity,
+                                    product.gram, product.name, product.image);
+                                // Delete the item from the "product" list
+                                _deleteProduct(product);
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                              },
+                              backgroundColor: primaryColor,
+                              icon: Icons.shopping_cart_checkout,
+                              label: "使い切り",
+                            ),
+                          ],
+                        ),
+                        child: Card(
+                          child: ListTile(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return EditDialog(
+                                      product: product,
+                                      onUpdate: updateProductsList,
+                                    );
+                                  });
+                              setState(() {
+                                selectedEntryIndex = index;
+                              });
+                            },
+                            leading: Image.asset(
+                              "assets/img/${product.image}",
+                              width: 30,
+                              height: 30,
+                            ),
+                            title: Text(product.name),
+                            subtitle: Text(
+                              product.expiredDate.toString().substring(0, 10),
+                              style: const TextStyle(
+                                fontSize: 12, // Adjust the font size if needed
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (product.quantity == 0 && product.gram == 0)
+                                  const Text("未入力")
+                                else if (product.quantity != 0)
+                                  Text('${product.quantity} 個'),
+                                if (product.quantity != 0 && product.gram != 0)
+                                  const Text(' / '),
+                                if (product.gram != 0) Text('${product.gram}グラム'),
+                              ],
                             ),
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (product.quantity == 0 && product.gram == 0)
-                                const Text("未入力")
-                              else if (product.quantity != 0)
-                                Text('${product.quantity} 個'),
-                              if (product.quantity != 0 && product.gram != 0)
-                                const Text(' / '),
-                              if (product.gram != 0) Text('${product.gram}グラム'),
-                            ],
-                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            //画面スワイプ用の空間
-            const SizedBox(
-              height: 25,
-            )
-          ],
+              //画面スワイプ用の空間
+              const SizedBox(
+                height: 25,
+              )
+            ],
+          ),
         ));
   }
 }

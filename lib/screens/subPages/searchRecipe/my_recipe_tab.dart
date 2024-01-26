@@ -35,76 +35,85 @@ class MyRecipeTabState extends State<MyRecipeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    body: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: FutureBuilder<List<MyRecipe>>(
-            future: _recipesFuture,
-            builder: (context, recipeSnapshot) {
-              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (recipeSnapshot.hasError) {
-                return Text('Error: ${recipeSnapshot.error}');
-              } else {
-                final recipes = recipeSnapshot.data!;
-                return GridView.count(
-                  crossAxisCount: 3,
-                  padding: const EdgeInsets.all(20.0),
-                  mainAxisSpacing: 20.0,
-                  crossAxisSpacing: 20.0,
-                  children: [
-                    for (var recipe in recipes)
-                      GestureDetector(
-                        onTap: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  RecipeDetailPage(recipe: recipe),
-                            ),
-                          );
-                          if (result == true) {
-                            setState(() {
-                              _recipesFuture =
-                                  GetFirebaseDataToArray().myRecipesArray();
-                            });
-                          }
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Imagen del producto
-                            Container(
-                              width: 80.0,
-                              height: 80.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: FileImage(File(recipe.image)),
+    body: Container(
+    decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_up_down.png'),
+              fit: BoxFit.fill,
+            ),
+          ),
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: FutureBuilder<List<MyRecipe>>(
+              future: _recipesFuture,
+              builder: (context, recipeSnapshot) {
+                if (recipeSnapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (recipeSnapshot.hasError) {
+                  return Text('Error: ${recipeSnapshot.error}');
+                } else {
+                  final recipes = recipeSnapshot.data!;
+                  return GridView.count(
+                    crossAxisCount: 3,
+                    padding: const EdgeInsets.all(20.0),
+                    mainAxisSpacing: 20.0,
+                    crossAxisSpacing: 20.0,
+                    children: [
+                      for (var recipe in recipes)
+                        GestureDetector(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeDetailPage(recipe: recipe),
+                              ),
+                            );
+                            if (result == true) {
+                              setState(() {
+                                _recipesFuture =
+                                    GetFirebaseDataToArray().myRecipesArray();
+                              });
+                            }
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Imagen del producto
+                              Container(
+                                width: 80.0,
+                                height: 80.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: FileImage(File(recipe.image)),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Flexible(
-                              child: Text(
-                                recipe.recipeName,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.bold),
+                              const SizedBox(height: 8),
+                              Flexible(
+                                child: Text(
+                                  recipe.recipeName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
-                );
-              }
-            },
-          ),
-        )]),
+                    ],
+                  );
+                }
+              },
+            ),
+          )]),
+    ),
 
       // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -121,7 +130,7 @@ class MyRecipeTabState extends State<MyRecipeTab> {
             onTap: () {
               showDialog(
               context: context, 
-              builder: (context)=> FavoriteRecipesDialog(),
+              builder: (context)=> const FavoriteRecipesDialog(),
               );
             },
           ),

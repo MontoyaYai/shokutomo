@@ -8,6 +8,7 @@ import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_detail_page.da
 import 'package:shokutomo/screens/subPages/searchRecipe/recomended_recipe_detail_page.dart';
 
 class FavoriteRecipesDialog extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const FavoriteRecipesDialog({Key? key});
 
   @override
