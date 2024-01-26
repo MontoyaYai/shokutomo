@@ -33,49 +33,72 @@ class SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 15),
             _buildSectionTitle('アカウント'),
             const SizedBox(height: 5),
-            _buildSettingItem(
-              icon: Icons.account_circle,
-              label: 'アカウント設定',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
-            ),
+            if (FirebaseServices().getLoggedInUser() == 'mecha')
+              Expanded(
+                child: _buildSettingItem(
+                  icon: Icons.account_circle,
+                  label: 'アカウント設定',
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                    update();
+                  },
+                ),
+              ),
+            if (FirebaseServices().getLoggedInUser() != 'mecha')
+              Expanded(
+                child: _buildSettingItem(
+                  icon: Icons.account_circle,
+                  label: FirebaseServices().getLoggedInUser().toString(),
+                  onTap: () async {
+                    await _showLogoutDialog(context);
+                    update();
+                  },
+                ),
+              ),
             const SizedBox(height: 15),
             _buildSectionTitle('Theme'),
             const SizedBox(height: 5),
-            _buildThemeColorDropdown(selectedColor),
+            Expanded(
+              child: _buildThemeColorDropdown(selectedColor),
+            ),
             const SizedBox(height: 15),
             _buildSectionTitle('Notifications'),
             const SizedBox(height: 5),
-            _buildSettingItem(
-              icon: Icons.notifications,
-              label: 'Notification Settings',
-              onTap: () {
-                // Navigate to notification settings page
-              },
+            Expanded(
+              child: _buildSettingItem(
+                icon: Icons.notifications,
+                label: 'Notification Settings',
+                onTap: () {
+                  // Navigate to notification settings page
+                },
+              ),
             ),
             const SizedBox(height: 15),
             _buildSectionTitle('Help'),
             const SizedBox(height: 5),
-            _buildSettingItem(
-              icon: Icons.help,
-              label: 'Help Center',
-              onTap: () {
-                // Navigate to help center page
-              },
+            Expanded(
+              child: _buildSettingItem(
+                icon: Icons.help,
+                label: 'Help Center',
+                onTap: () {
+                  // Navigate to help center page
+                },
+              ),
             ),
             const SizedBox(height: 15),
             _buildSectionTitle('Invite Friends'),
             const SizedBox(height: 5),
-            _buildSettingItem(
-              icon: Icons.person_add,
-              label: 'Invite Friends',
-              onTap: () {
-                // Implement invite friends functionality
-              },
+            Expanded(
+              child: _buildSettingItem(
+                icon: Icons.person_add,
+                label: 'Invite Friends',
+                onTap: () {
+                  // Implement invite friends functionality
+                },
+              ),
             ),
           ],
         ),
@@ -147,5 +170,36 @@ class SettingsPageState extends State<SettingsPage> {
         ),
       );
     }).toList();
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ログアウトしますか？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                await FirebaseServices().signOut();
+                Navigator.of(context).pop();
+                update();
+              },
+              child: const Text('はい'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('いいえ'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> update() async {
+    setState(() {});
   }
 }

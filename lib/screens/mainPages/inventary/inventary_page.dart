@@ -5,6 +5,7 @@ import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 import 'package:shokutomo/firebase/shoplist_json_map.dart';
 import 'package:shokutomo/screens/mainPages/calendar/edit_dialog.dart';
+import 'dart:async';
 
 class InventoryPage extends StatefulWidget {
   const InventoryPage({Key? key}) : super(key: key);
@@ -21,15 +22,31 @@ class _InventoryPageState extends State<InventoryPage> {
   int? selectedMonth;
   int? selectedDay;
 
+  late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    fetchMyProducts();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        fetchMyProducts();
+      }
+    });
   }
 
   void fetchMyProducts() async {
     myProducts = await GetFirebaseDataToArray().myProductsArray();
-    setState(() {});
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void insertIntoShopList(

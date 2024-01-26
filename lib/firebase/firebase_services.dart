@@ -12,7 +12,7 @@ import 'myrecipe_json_map.dart';
 class FirebaseServices {
   final FirebaseFirestore database = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
-  
+
   //Formate Date for Firebase (String "0000-00-00")
   String formatDate(DateTime date) {
     return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
@@ -83,13 +83,12 @@ class FirebaseServices {
     }
   }
 
-
 // Get all MYPRODUCT
   Future<List<MyProducts>> getFirebaseMyProducts() async {
     List<MyProducts> myProducts = [];
 
     CollectionReference collectionReferenceMyProducts =
-        database.collection('users/mecha/myproducts');
+        database.collection('users/${getLoggedInUser()}/myproducts');
     QuerySnapshot query = await collectionReferenceMyProducts.get();
     for (var document in query.docs) {
       Map<String, dynamic> myProductData =
@@ -103,7 +102,7 @@ class FirebaseServices {
 // Get all SHOPLIST
   Future<List<ShopList>> getAllShoppingList() async {
     CollectionReference collectionReferenceShopList =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
     QuerySnapshot querySnapshot = await collectionReferenceShopList.get();
 
     List<ShopList> shoppingList = querySnapshot.docs
@@ -117,7 +116,7 @@ class FirebaseServices {
 // Get bought product from SHOPLIST
   Future<List<ShopList>> getBoughtProduct() async {
     CollectionReference collectionReferenceShopList =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
     QuerySnapshot querySnapshot =
         await collectionReferenceShopList.where('status', isEqualTo: 1).get();
 
@@ -127,9 +126,9 @@ class FirebaseServices {
         .toList();
   }
 
-//Get Recipes  
+//Get Recipes
   Future<List<Recipe>> getAllRecipe() async {
-      CollectionReference collectionReferenceRecipe =
+    CollectionReference collectionReferenceRecipe =
         database.collection('recipes');
     QuerySnapshot querySnapshot = await collectionReferenceRecipe.get();
 
@@ -139,9 +138,11 @@ class FirebaseServices {
         .toList();
     return recipes;
   }
+
   //Get MyRecipe
-  Future<List<MyRecipe>> getAllMyRecipe() async{
-    CollectionReference collectionReferenceMyRecipe = database.collection('users/mecha/myrecipe');
+  Future<List<MyRecipe>> getAllMyRecipe() async {
+    CollectionReference collectionReferenceMyRecipe =
+        database.collection('users/${getLoggedInUser()}/myrecipe');
     QuerySnapshot querySnapshot = await collectionReferenceMyRecipe.get();
 
     List<MyRecipe> recipes = querySnapshot.docs
@@ -150,11 +151,11 @@ class FirebaseServices {
         .toList();
     return recipes;
   }
-  
+
 //?? Get THEMECOLOR ??\\
   Future<int> getThemeColor() async {
     // final DocumentReference userDocRef =
-    //     database.doc('users/mecha/userinformation');
+    //     database.doc('users/${getLoggedInUser()}/userinformation');
 
     // final userData = await userDocRef.get();
     // if (userData.exists) {
@@ -172,7 +173,7 @@ class FirebaseServices {
 //?? Get SCREEN MODE ??\\
   Future<int> getScreenMode() async {
     final DocumentReference userDocRef =
-        database.doc('users/mecha/userinformation');
+        database.doc('users/${getLoggedInUser()}/userinformation');
 
     final userData = await userDocRef.get();
     if (userData.exists) {
@@ -194,7 +195,8 @@ class FirebaseServices {
     final productNo = product.no;
     final expiredDate = product.expiredDate;
 
-    final myProductCollection = database.collection('users/mecha/myproducts/');
+    final myProductCollection =
+        database.collection('users/${getLoggedInUser()}/myproducts/');
 
     final productQuery = await myProductCollection
         .where('product_no', isEqualTo: productNo)
@@ -221,7 +223,7 @@ class FirebaseServices {
 // Add or Update SHOPLIST
   Future<void> addOrUpdateProductInShopList(ShopList product) async {
     final CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     final QuerySnapshot query = await shopListCollection
         .where('product_no', isEqualTo: product.productNo)
@@ -241,35 +243,35 @@ class FirebaseServices {
   }
 
 //!!Add or Update MyRecipe
-Future<void> addOrUpdateMyRecipe(MyRecipe myRecipe) async {
-  final CollectionReference myRecipesCollection =
-      database.collection('users/mecha/myrecipe');
+  Future<void> addOrUpdateMyRecipe(MyRecipe myRecipe) async {
+    final CollectionReference myRecipesCollection =
+        database.collection('users/${getLoggedInUser()}/myrecipe');
 
-  final QuerySnapshot query = await myRecipesCollection
-      .where('recipe_no', isEqualTo: myRecipe.recipeNo)
-      .limit(1)
-      .get();
+    final QuerySnapshot query = await myRecipesCollection
+        .where('recipe_no', isEqualTo: myRecipe.recipeNo)
+        .limit(1)
+        .get();
 
-  if (query.docs.isNotEmpty) {
-    final DocumentSnapshot recipeDocument = query.docs.first;
+    if (query.docs.isNotEmpty) {
+      final DocumentSnapshot recipeDocument = query.docs.first;
 
-    await myRecipesCollection.doc(recipeDocument.id).update({
-      'recipe_name': myRecipe.recipeName,
-      'how_to': myRecipe.howTo,
-      'cook_time': myRecipe.cookTime,
-      'difficult': myRecipe.difficult,
-      'quantity': myRecipe.quantity,
-      'recipe_category': myRecipe.recipeCategory,
-      'image': myRecipe.image,
-      'favorite_status': myRecipe.favoriteStatus,
-      'ingredients': myRecipe.ingredients
-          .map((ingredient) => ingredient.toMap())
-          .toList(),
-    });
-  } else {
-    await myRecipesCollection.add(myRecipe.toMap());
+      await myRecipesCollection.doc(recipeDocument.id).update({
+        'recipe_name': myRecipe.recipeName,
+        'how_to': myRecipe.howTo,
+        'cook_time': myRecipe.cookTime,
+        'difficult': myRecipe.difficult,
+        'quantity': myRecipe.quantity,
+        'recipe_category': myRecipe.recipeCategory,
+        'image': myRecipe.image,
+        'favorite_status': myRecipe.favoriteStatus,
+        'ingredients': myRecipe.ingredients
+            .map((ingredient) => ingredient.toMap())
+            .toList(),
+      });
+    } else {
+      await myRecipesCollection.add(myRecipe.toMap());
+    }
   }
-}
 
 Future<void> updateRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatus) async {
   final CollectionReference recipesCollection = database.collection('recipes');
@@ -312,7 +314,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
   Future<int> updateRecordMyProduct(
       MyProducts product, DateTime oldExpiredDate) async {
     final CollectionReference myProductsCollection =
-        database.collection('users/mecha/myproducts/');
+        database.collection('users/${getLoggedInUser()}/myproducts/');
 
     final QuerySnapshot query = await myProductsCollection
         .where('product_no', isEqualTo: product.no)
@@ -340,7 +342,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
 // Update status of SHOPLIST
   Future<void> updateStatusOfShopList(String productNo) async {
     final CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     final QuerySnapshot query = await shopListCollection
         .where('product_no', isEqualTo: productNo)
@@ -361,7 +363,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
 // Update THEMECOLOR for settings
   Future<void> updateThemeColor(int selectedColor) async {
     final DocumentReference userDocRef =
-        database.doc('users/mecha/userinformation');
+        database.doc('users/${getLoggedInUser()}/userinformation');
     await userDocRef.set({
       'settings': {
         'themecolor': selectedColor,
@@ -369,7 +371,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
     }, SetOptions(merge: true));
   }
 
-// Insert MYPRODUCT from SHOPLIST 
+// Insert MYPRODUCT from SHOPLIST
   Future<void> insertMyProductFromShopList() async {
     List<ShopList> insertValues = await FirebaseServices().getBoughtProduct();
     DateTime purchaseDate = DateTime.now();
@@ -383,7 +385,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
       DateTime expiredDate = purchaseDate.add(Duration(days: daysToExpire));
 
       CollectionReference myProductsCollection =
-          database.collection('users/mecha/myproducts');
+          database.collection('users/${getLoggedInUser()}/myproducts');
 
       final productQuery = await myProductsCollection
           .where('product_no', isEqualTo: productNo)
@@ -414,7 +416,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
       }
       //Delete the producto from 'shoplist' in Firebase Firestore
       CollectionReference shopListCollection =
-          database.collection('users/mecha/shoplist');
+          database.collection('users/${getLoggedInUser()}/shoplist');
       QuerySnapshot querySnapshot = await shopListCollection
           .where('product_no', isEqualTo: value.productNo)
           .get();
@@ -428,8 +430,10 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
 
 //  Delete from MYPRODUCT
   Future<int> deleteMyProduct(String productNo, DateTime expiredDate) async {
-    final userDocRef =
-        database.collection('users').doc('mecha').collection('myproducts');
+    final userDocRef = database
+        .collection('users')
+        .doc(getLoggedInUser())
+        .collection('myproducts');
 
     final QuerySnapshot productSnapshot = await userDocRef
         .where(
@@ -469,7 +473,7 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
 // Delete from SHOPLIST
   Future<void> deleteShopListProduct(String productNo) async {
     CollectionReference shopListCollection =
-        database.collection('users/mecha/shoplist');
+        database.collection('users/${getLoggedInUser()}/shoplist');
 
     try {
       final QuerySnapshot querySnapshot = await shopListCollection
@@ -484,9 +488,9 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
     }
   }
 
-   Future<void> deleteMyRecipe(String recipeNo) async {
+  Future<void> deleteMyRecipe(String recipeNo) async {
     CollectionReference myRecipeCollection =
-        database.collection('users/mecha/myrecipe');
+        database.collection('users/${getLoggedInUser()}/myrecipe');
 
     try {
       final QuerySnapshot querySnapshot = await myRecipeCollection
@@ -500,7 +504,6 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
       print("Error deleting myRecipe product: $error");
     }
   }
-
 
 //??
 //!! FIREBASE AUTH !! \\
@@ -568,5 +571,20 @@ Future<void> updateMyRecipeFavoriteStatus(String recipeNo, bool newFavoriteStatu
 
   Future<void> signOut() async {
     await auth.signOut();
+  }
+
+  String getLoggedInUser() {
+    User? u = auth.currentUser;
+
+    if (u == null) {
+      // ログインしていない場合
+      return 'mecha';
+    }
+
+    if (u.uid == 'zaumzzH9A4cnkthFNDNiTjY7Jzw1') {
+      return 'mecha';
+    } else {
+      return u.email ?? 'mecha'; // メールが存在しない場合も'mecha'を返す
+    }
   }
 }
