@@ -16,6 +16,8 @@ class RecipeForm extends StatefulWidget {
 class RecipeFormState extends State<RecipeForm> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
+  Key circleAvatarKey = GlobalKey();
+
 
   MyRecipe currentRecipe = MyRecipe(
     recipeName: '',
@@ -192,15 +194,16 @@ class RecipeFormState extends State<RecipeForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ListTile(
+                 ListTile(
                     title: const Text('アイコン'),
                     trailing: GestureDetector(
                       onTap: _pickImage,
                       child: CircleAvatar(
+                      key: circleAvatarKey,
                         radius: 20,
                         backgroundImage: imagePath.isNotEmpty
-                            ? Image.file(File(imagePath)).image
-                            : Image.asset(selectedIcon).image,
+                            ? FileImage(File(imagePath)) as ImageProvider<Object>?
+                            : AssetImage(selectedIcon),
                       ),
                     ),
                   ),
@@ -488,12 +491,13 @@ class RecipeFormState extends State<RecipeForm> {
       final appDir = await getApplicationDocumentsDirectory();
       final newImage =
           await File(pickedFile.path).copy('${appDir.path}/$imageName');
-      final imagePath = newImage.path;
-      // print('Imagen PATH: $imagePath');
+       imagePath = newImage.path;
+
       setState(() {
-        currentRecipe.image =
-            imagePath; 
+        currentRecipe.image = imagePath;
+        circleAvatarKey = GlobalKey();
       });
+
       return imagePath;
     }
     return null;

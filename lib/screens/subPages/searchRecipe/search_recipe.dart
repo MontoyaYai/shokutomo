@@ -18,7 +18,7 @@ class SearchRecipe extends StatefulWidget {
 class SearchRecipeState extends State<SearchRecipe> {
   late Future<List<Recipe>> recipesFuture;
   late Future<List<MyProducts>> productsFuture;
- 
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +41,7 @@ class SearchRecipeState extends State<SearchRecipe> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-            title: Row(
+          title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
@@ -58,12 +58,29 @@ class SearchRecipeState extends State<SearchRecipe> {
           ),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'レシピ検索'),
-              Tab(text: 'マイレシピ'),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search),
+                    Text('レシピ検索'),
+                  ],
+                ),
+              ),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.book),
+                    Text('マイレシピ'),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
         body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildRecipeSearchTab(),
             const Center(
@@ -77,12 +94,12 @@ class SearchRecipeState extends State<SearchRecipe> {
 
   Widget _buildRecipeSearchTab() {
     return Container(
-    decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/img/fondo_completo.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/img/fondo_down.png'),
+          fit: BoxFit.fill,
+        ),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -125,65 +142,43 @@ class SearchRecipeState extends State<SearchRecipe> {
     );
   }
 
-  Widget _buildButtonGrid() {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
-        mainAxisSpacing: 20.0,
-        crossAxisSpacing: 20.0,
-        children: [
-          _buildElevatedButton(
-            Icons.kitchen,
-            '手持ち在庫からレシピを選びましょう',
-            Colors.green,
-            () => _showDialogBox(context, productsFuture),
+ Widget _buildButtonGrid() {
+  return SizedBox(
+    width: double.infinity,
+    height: double.infinity,
+    child: GridView.count(
+      crossAxisCount: 2,
+      childAspectRatio: 0.7,
+      padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
+      mainAxisSpacing: 20.0,
+      crossAxisSpacing: 20.0,
+      children: [
+        InkWell(
+          onTap: () {
+            _showDialogBox(context, productsFuture);
+          },
+          child: Ink.image(
+            image: const AssetImage('assets/img/select_search.png'),
+            fit: BoxFit.cover,
           ),
-          _buildElevatedButton(
-            Icons.chat,
-            'チャットボットと会話する',
-            Colors.purple,
-            () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ChatPage())),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildElevatedButton(
-      IconData icon, String label, Color color, VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
         ),
-      ),
-      onPressed: onPressed,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 75,
-            color: color,
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatPage()),
+            );
+          },
+          child: Ink.image(
+            image: const AssetImage('assets/img/chatbot.png'),
+            fit: BoxFit.fill,
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildRecommendedRecipesList(List<Recipe> recipes) {
     return ListView.builder(
@@ -195,7 +190,7 @@ class SearchRecipeState extends State<SearchRecipe> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      RecomendatedRecipeDetailPage(recipe: recipes[index] )),
+                      RecomendatedRecipeDetailPage(recipe: recipes[index])),
             );
           },
           child: Container(

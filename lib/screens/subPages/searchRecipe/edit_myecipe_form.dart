@@ -17,6 +17,7 @@ class EditMyRecipeForm extends StatefulWidget {
 class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
+  Key circleAvatarKey = GlobalKey();
 
   MyRecipe currentRecipe = MyRecipe(
     recipeName: '',
@@ -71,9 +72,9 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   @override
   void initState() {
     super.initState();
+
     currentRecipe = widget.recipe;
     recipeNo = currentRecipe.recipeNo;
-    // _loadRecipeNo();
     recipeName = currentRecipe.recipeName;
     cookTime = currentRecipe.cookTime;
     selectedCategory = recipeCategory.indexOf(currentRecipe.recipeCategory);
@@ -91,26 +92,35 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
     imagePath = currentRecipe.image;
   }
 
+  ImageProvider<Object> _getImageProvider() {
+    if (imagePath.isNotEmpty) {
+      // Si hay una imagen seleccionada, mostrarla
+      return FileImage(File(imagePath));
+    } else {
+      // Si no hay imagen seleccionada, mostrar la imagen predeterminada
+      return AssetImage(selectedIcon);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/img/logo_sushi.png',
-                width: 30, // ajusta el ancho según sea necesario
-                height: 30, // ajusta la altura según sea necesario
-              ),
-              const SizedBox(width: 8), // Espacio entre la imagen y el texto
-              const Text(
-                'レシピを編集',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/img/logo_sushi.png',
+              width: 30, // ajusta el ancho según sea necesario
+              height: 30, // ajusta la altura según sea necesario
+            ),
+            const SizedBox(width: 8), // Espacio entre la imagen y el texto
+            const Text(
+              'レシピを編集',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -118,13 +128,13 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
           },
         ),
       ),
-     body: Container(
-      decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/img/fondo_up_down.png'),
-              fit: BoxFit.fill,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/img/fondo_up_down.png'),
+            fit: BoxFit.fill,
           ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
@@ -203,10 +213,9 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     trailing: GestureDetector(
                       onTap: _pickImage,
                       child: CircleAvatar(
+                        key: circleAvatarKey,
                         radius: 20,
-                        backgroundImage: imagePath.isNotEmpty
-                            ? Image.file(File(imagePath)).image
-                            : Image.asset(selectedIcon).image,
+                        backgroundImage: _getImageProvider(),
                       ),
                     ),
                   ),
@@ -276,9 +285,8 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => RecipeDetailPage(
-                                    recipe:
-                                        currentRecipe), 
+                                builder: (context) =>
+                                    RecipeDetailPage(recipe: currentRecipe),
                               ),
                             );
                           }
@@ -500,7 +508,7 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
     }).toList();
   }
 
-  Future<String?> _pickImage() async {
+  Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
@@ -509,14 +517,14 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       final appDir = await getApplicationDocumentsDirectory();
       final newImage =
           await File(pickedFile.path).copy('${appDir.path}/$imageName');
-      final imagePath = newImage.path;
-      // print('Imagen path: $imagePath');
+      final newImagePath = newImage.path;
+
       setState(() {
-        currentRecipe.image =
-            imagePath; 
+        currentRecipe.image = newImagePath;
+        imagePath = newImagePath; // Actualiza la variable imagePath
       });
-      return imagePath;
+
+      circleAvatarKey = GlobalKey(); // Reconstruye el CircleAvatar
     }
-    return null;
   }
 }
