@@ -135,24 +135,20 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
             fit: BoxFit.fill,
           ),
         ),
+        
         child: Padding(
+        
           padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
+            
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'レシピ名',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'レシピ名を入力してください';
-                      }
-                      return null;
-                    },
+                const SizedBox(height: 16),
+                  _buildTextFormField(
+                    labelText: 'レシピ名',
                     initialValue: recipeName,
                     onChanged: (value) {
                       setState(() {
@@ -161,15 +157,9 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  _buildTextFormField(
+                    labelText: '出来上がり時間',
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: '出来上がり時間'),
-                    validator: (value) {
-                      if (value == null || int.tryParse(value) == null) {
-                        return '正しい数字を入力し下さい';
-                      }
-                      return null;
-                    },
                     initialValue: cookTime.toString(),
                     onChanged: (value) {
                       setState(() {
@@ -178,21 +168,12 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildCategoryDropdown(selectedCategory),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildLevelDropdown(selectedLevel),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildPersonsDropdown(selectedPersons),
-                      ),
-                    ],
+                  _buildDropdownRow(
+                    _buildCategoryDropdown(selectedCategory),
+                    _buildLevelDropdown(selectedLevel),
+                    _buildPersonsDropdown(selectedPersons),
                   ),
+                  const SizedBox(height: 16),
                   _buildIngredientsList(),
                   Center(
                     child: ElevatedButton(
@@ -220,26 +201,9 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    maxLines: 6,
-                    minLines: 6,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: '作り方',
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(9),
-                        borderSide: const BorderSide(
-                          width: 2,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(9),
-                        borderSide: const BorderSide(
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    initialValue: howTo,
+                  _buildMultilineTextFormField(
+                  labelText: '作り方',
+                    initialValue: widget.recipe.howTo,
                     onChanged: (value) {
                       setState(() {
                         currentRecipe.howTo = value;
@@ -304,6 +268,22 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
     );
   }
 
+    Widget _buildDropdownRow(
+    Widget categoryDropdown,
+    Widget levelDropdown,
+    Widget personsDropdown,
+  ) {
+    return Row(
+      children: [
+        Expanded(child: categoryDropdown),
+        const SizedBox(width: 8),
+        Expanded(child: levelDropdown),
+        const SizedBox(width: 8),
+        Expanded(child: personsDropdown),
+      ],
+    );
+  }
+
   Widget _buildCategoryDropdown(int selectedCategory) {
     return SizedBox(
       width: double.infinity,
@@ -320,6 +300,8 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
           });
         },
       ),
+
+
     );
   }
 
@@ -362,66 +344,75 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       shrinkWrap: true,
       itemCount: ingredients.length,
       itemBuilder: (context, index) {
-        final ingredientNameController = TextEditingController(
-          text: ingredients[index].ingredientName,
-        );
+        // final ingredientNameController = TextEditingController(
+        //   text: ingredients[index].ingredientName,
+        // );
         final quantityGramController = TextEditingController(
           text: ingredients[index].quantityGram,
         );
 
-        return Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: ingredientNameController,
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index] = Ingredient(
-                      ingredientName: value,
-                      quantityGram: ingredients[index].quantityGram,
-                    );
-                    currentRecipe.ingredients = List.from(ingredients);
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: '食材名',
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildTextFormField(
+                labelText: '食材名',
+                  // controller: ingredientNameController,
+                  initialValue:ingredients[index].ingredientName,
+                  onChanged: (value) {
+                    setState(() {
+                      ingredients[index] = Ingredient(
+                        ingredientName: value,
+                        quantityGram: ingredients[index].quantityGram,
+                      );
+                      currentRecipe.ingredients = List.from(ingredients);
+                    });
+                  },
+                  // decoration: const InputDecoration(
+                  //   labelText: '食材名',
+                  // ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: quantityGramController,
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index] = Ingredient(
-                      ingredientName: ingredients[index].ingredientName,
-                      quantityGram: value,
-                    );
-                    currentRecipe.ingredients = List.from(ingredients);
-                  });
-                },
-                decoration: const InputDecoration(
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildTextFormField(
+                  // controller: quantityGramController,
                   labelText: '個数・グラム',
+                  initialValue: ingredients[index].quantityGram,
+                  onChanged: (value) {
+                    setState(() {
+                      ingredients[index] = Ingredient(
+                        ingredientName: ingredients[index].ingredientName,
+                        quantityGram: value,
+                      );
+                      currentRecipe.ingredients = List.from(ingredients);
+                    });
+                  },
+                  // decoration: const InputDecoration(
+                  //   labelText: '個数・グラム',
+                  // ),
                 ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: () {
-                setState(() {
-                  if (ingredients.length > index) {
-                    ingredients.removeAt(index);
-                    currentRecipe.ingredients = List.from(ingredients);
-                  }
-                });
-              },
-            ),
-          ],
+                    const SizedBox(height: 16),
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  setState(() {
+                    if (ingredients.length > index) {
+                      ingredients.removeAt(index);
+                      currentRecipe.ingredients = List.from(ingredients);
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
         );
       },
     );
   }
+
 
   List<DropdownMenuItem<int>> _buildCategoryDropdownItems() {
     return recipeCategory.map((category) {
@@ -507,6 +498,35 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       );
     }).toList();
   }
+  Widget _buildMultilineTextFormField({
+    required String labelText,
+    required void Function(String) onChanged, required String initialValue,
+  }) {
+    return TextFormField(
+    initialValue: howTo,
+      maxLines: 6,
+      minLines: 6,
+      keyboardType: TextInputType.multiline,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: const BorderSide(
+            width: 2,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: const BorderSide(
+            width: 2,
+          ),
+        ),
+        filled: true,
+        fillColor: Colors.white70,
+      ),
+      onChanged: onChanged,
+    );
+  }
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -526,5 +546,39 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
 
       circleAvatarKey = GlobalKey(); // Reconstruye el CircleAvatar
     }
+  }
+   Widget _buildTextFormField({
+    required String labelText,
+    TextInputType keyboardType = TextInputType.text,
+    required void Function(String) onChanged, required String initialValue,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: labelText,
+        
+        filled: true,
+        fillColor: Colors.white70,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      keyboardType: keyboardType,
+      initialValue: initialValue,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '$labelTextを入力してください';
+        }
+        return null;
+      },
+      onChanged: onChanged,
+    );
   }
 }
