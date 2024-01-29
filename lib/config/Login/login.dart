@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Error de inicio de sesión"),
+          title: const Text("Error:"),
           content: Text(errorMessage),
           actions: <Widget>[
             TextButton(
@@ -45,14 +45,6 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-                /*
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(),
-                  ),
-                );
-                */
               },
               child: const Text("OK"),
             ),
@@ -167,15 +159,18 @@ class LoginScreen extends StatelessWidget {
                                   context, user!.email.toString());
                             } on FirebaseAuthException catch (e) {
                               // Manejar errores de inicio de sesión
-                              String errorMessage = "Error al iniciar sesión";
+                              String errorMessage = "もう一度お試しください";
+                              print('エラー${e.code}');
                               if (e.code == 'user-not-found') {
                                 errorMessage =
-                                    'No hay ningún usuario registrado con ese correo.';
+                                    'ユーザーが見つかりませんでした。正しいメールアドレスを入力してください';
                               } else if (e.code == 'wrong-password') {
-                                errorMessage = 'Contraseña incorrecta.';
-                              } else {
-                                errorMessage = 'Error: $e';
+                                errorMessage =
+                                    'パスワードが間違っています。正しいパスワードを入力してください';
+                              } else if (e.code == 'invalid-credential') {
+                                errorMessage = 'メールアドレスかパスワードが間違っています。';
                               }
+
                               _showLoginErrorDialog(context, errorMessage);
                             }
                           }

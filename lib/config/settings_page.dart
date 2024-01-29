@@ -204,35 +204,4 @@ class SettingsPageState extends State<SettingsPage> {
       );
     }).toList();
   }
-
-  Future<void> _showLogoutDialog(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('ログアウトしますか？'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                await FirebaseServices().signOut();
-                Navigator.of(context).pop();
-                update();
-              },
-              child: const Text('はい'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('いいえ'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> update() async {
-    setState(() {});
-  }
 }

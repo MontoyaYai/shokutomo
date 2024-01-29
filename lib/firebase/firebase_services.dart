@@ -297,7 +297,7 @@ class FirebaseServices {
   Future<void> updateMyRecipeFavoriteStatus(
       String recipeNo, bool newFavoriteStatus) async {
     final CollectionReference recipesCollection =
-        database.collection('users/mecha/myrecipe');
+        database.collection('users/${getLoggedInUser()}/myrecipe');
 
     final QuerySnapshot query = await recipesCollection
         .where('recipe_no', isEqualTo: recipeNo)

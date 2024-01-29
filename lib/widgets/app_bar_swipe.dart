@@ -66,14 +66,19 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   );
                 },
               ),
-               ListTile(
+              ListTile(
                 leading: const Icon(Icons.camera),
                 title: const Text(
                   'カメラでまとめ登録',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 onTap: () {
-                  //!!
+                  Navigator.pop(context);
+                  _pageController.animateToPage(
+                    4,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                 },
               ),
               ListTile(
@@ -100,7 +105,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                 onTap: () {
                   Navigator.pop(context);
                   _pageController.animateToPage(
-                    4,
+                    5,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
@@ -115,26 +120,12 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                 onTap: () {
                   Navigator.pop(context);
                   _pageController.animateToPage(
-                    7,
+                    6,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
                 },
               ),
-              ListTile(
-                  leading: const Icon(Icons.camera),
-                  title: const Text(
-                    'カメラ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pageController.animateToPage(
-                      8,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  })
             ],
           ),
         ),
@@ -146,12 +137,11 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           InventoryPage(),
           CategoryPage(),
           ShoppingList(),
-          ShoppingList(),// camera insert products 
+          TextRecognizerView(), // camera insert products
           // MyRecipe(),
           SearchRecipe(),
           // MyFridge(),
           SettingsPage(),
-          TextRecognizerView(),
           // ProductPage(),
         ],
         onPageChanged: (index) {

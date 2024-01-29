@@ -27,16 +27,11 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
   late String name;
   late int quantity = 0;
 
-  late Timer _timer;
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if (mounted) {
-        initializeDates();
-      }
-    });
+
+    initializeDates();
   }
 
   void initializeDates() async {
@@ -44,21 +39,12 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
     Product selectedProduct = products.firstWhere(
       (product) => product.productName == widget.productName,
     );
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if (mounted) {
-        setState(() {
-          useByDate =
-              DateTime.now().add(Duration(days: selectedProduct.categoryUseBy));
-          selectedUseByDate = useByDate;
-        });
-      }
-    });
-  }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
+    setState(() {
+      useByDate =
+          DateTime.now().add(Duration(days: selectedProduct.categoryUseBy));
+      selectedUseByDate = useByDate;
+    });
   }
 
   @override
