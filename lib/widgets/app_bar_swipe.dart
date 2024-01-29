@@ -35,98 +35,113 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
       drawer: Align(
         alignment: Alignment.centerRight,
         child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(color: primaryColor.withOpacity(0.1)),
-                child: Center(
-                  child: Text(
-                    'メニュー',
-                    style: TextStyle(
-                        // color: Colors.grey.shade800,
-                        fontSize: titleFontSize,
-                        // fontSize: 40,
-                        fontWeight: FontWeight.bold),
+          child: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/img/fondo_sushi_transparent.png'),
+                // fit: BoxFit.fill,
+              ),
+            ),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  decoration:
+                      BoxDecoration(color: primaryColor.withOpacity(0.1)),
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/img/tomo.png',
+                          width: 80, // ajusta el ancho según sea necesario
+                          height: 80, // ajusta la altura según sea necesario
+                        ),
+                        // const SizedBox(width: 8), /s/ Espacio entre la imagen y el texto
+
+                        Text(
+                          'メニュー',
+                          style: TextStyle(
+                              // color: Colors.grey.shade800,
+                              fontSize: titleFontSize,
+                              // fontSize: 40,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.calendar_month),
-                title: const Text(
-                  'カレンダー',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: const Icon(Icons.calendar_month),
+                  title: const Text(
+                    'カレンダー',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pageController.animateToPage(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera),
-                title: const Text(
-                  'カメラでまとめ登録',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: const Icon(Icons.camera),
+                  title: const Text(
+                    'カメラでまとめ登録',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    //!!
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    4,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.shopping_cart),
-                title: const Text(
-                  'ショッピングリスト',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: const Icon(Icons.shopping_cart),
+                  title: const Text(
+                    'ショッピングリスト',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pageController.animateToPage(
+                      3,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    3,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.menu_book),
-                title: const Text(
-                  'レシピブック',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: const Icon(Icons.menu_book),
+                  title: const Text(
+                    'レシピブック',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pageController.animateToPage(
+                      4,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    5,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text(
-                  '設定',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text(
+                    '設定',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pageController.animateToPage(
+                      7,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pageController.animateToPage(
-                    6,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

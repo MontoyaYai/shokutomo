@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/config/Auth/Auth_service.dart';
 import 'package:shokutomo/config/Login/login.dart';
-import 'package:shokutomo/config/background.dart';
-import 'package:shokutomo/firebase/firebase_services.dart';
+import 'package:shokutomo/config/background_with_logo.dart';
 
 class RegisterScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -17,7 +16,7 @@ class RegisterScreen extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Background(
+      body: BackgroundWithLogo(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

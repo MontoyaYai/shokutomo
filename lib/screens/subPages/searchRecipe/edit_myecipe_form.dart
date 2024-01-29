@@ -17,6 +17,7 @@ class EditMyRecipeForm extends StatefulWidget {
 class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
+  Key circleAvatarKey = GlobalKey();
 
   MyRecipe currentRecipe = MyRecipe(
     recipeName: '',
@@ -71,9 +72,9 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   @override
   void initState() {
     super.initState();
+
     currentRecipe = widget.recipe;
     recipeNo = currentRecipe.recipeNo;
-    // _loadRecipeNo();
     recipeName = currentRecipe.recipeName;
     cookTime = currentRecipe.cookTime;
     selectedCategory = recipeCategory.indexOf(currentRecipe.recipeCategory);
@@ -91,13 +92,34 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
     imagePath = currentRecipe.image;
   }
 
+  ImageProvider<Object> _getImageProvider() {
+    if (imagePath.isNotEmpty) {
+      // Si hay una imagen seleccionada, mostrarla
+      return FileImage(File(imagePath));
+    } else {
+      // Si no hay imagen seleccionada, mostrar la imagen predeterminada
+      return AssetImage(selectedIcon);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'レシピを追加',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/img/logo_sushi.png',
+              width: 30, // ajusta el ancho según sea necesario
+              height: 30, // ajusta la altura según sea necesario
+            ),
+            const SizedBox(width: 8), // Espacio entre la imagen y el texto
+            const Text(
+              'レシピを編集',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -106,173 +128,159 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/img/fondo_up_down.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+        
+        child: Padding(
+        
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+            
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                const SizedBox(height: 16),
+                  _buildTextFormField(
                     labelText: 'レシピ名',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'レシピ名を入力してください';
-                    }
-                    return null;
-                  },
-                  initialValue: recipeName,
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.recipeName = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: '出来上がり時間'),
-                  validator: (value) {
-                    if (value == null || int.tryParse(value) == null) {
-                      return '正しい数字を入力し下さい';
-                    }
-                    return null;
-                  },
-                  initialValue: cookTime.toString(),
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.cookTime = int.tryParse(value) ?? 0;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildCategoryDropdown(selectedCategory),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildLevelDropdown(selectedLevel),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildPersonsDropdown(selectedPersons),
-                    ),
-                  ],
-                ),
-                _buildIngredientsList(),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
+                    initialValue: recipeName,
+                    onChanged: (value) {
                       setState(() {
-                        final newIngredient =
-                            Ingredient(ingredientName: '', quantityGram: '');
-                        ingredients.add(newIngredient);
-                        currentRecipe.ingredients.add(newIngredient);
+                        currentRecipe.recipeName = value;
                       });
                     },
-                    child: const Text('材料追加'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  title: const Text('アイコン'),
-                  trailing: GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: imagePath.isNotEmpty
-                          ? Image.file(File(imagePath)).image
-                          : Image.asset(selectedIcon).image,
-                    ),
+                  const SizedBox(height: 16),
+                  _buildTextFormField(
+                    labelText: '出来上がり時間',
+                    keyboardType: TextInputType.number,
+                    initialValue: cookTime.toString(),
+                    onChanged: (value) {
+                      setState(() {
+                        currentRecipe.cookTime = int.tryParse(value) ?? 0;
+                      });
+                    },
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  maxLines: 6,
-                  minLines: 6,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    labelText: '作り方',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9),
-                      borderSide: const BorderSide(
-                        width: 2,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9),
-                      borderSide: const BorderSide(
-                        width: 2,
-                      ),
-                    ),
+                  const SizedBox(height: 16),
+                  _buildDropdownRow(
+                    _buildCategoryDropdown(selectedCategory),
+                    _buildLevelDropdown(selectedLevel),
+                    _buildPersonsDropdown(selectedPersons),
                   ),
-                  initialValue: howTo,
-                  onChanged: (value) {
-                    setState(() {
-                      currentRecipe.howTo = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
+                  const SizedBox(height: 16),
+                  _buildIngredientsList(),
+                  Center(
+                    child: ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          favoriteStatus = !favoriteStatus;
-                          currentRecipe.favoriteStatus = favoriteStatus;
-                          _formKey.currentState!.save();
+                          final newIngredient =
+                              Ingredient(ingredientName: '', quantityGram: '');
+                          ingredients.add(newIngredient);
+                          currentRecipe.ingredients.add(newIngredient);
                         });
                       },
-                      icon: Icon(
-                        Icons.favorite,
-                        color: favoriteStatus
-                            ? Theme.of(context).primaryColor
-                            : null,
+                      child: const Text('材料追加'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text('アイコン'),
+                    trailing: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        key: circleAvatarKey,
+                        radius: 20,
+                        backgroundImage: _getImageProvider(),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          // print(currentRecipe.toMap());
-                          await firebaseServices
-                              .addOrUpdateMyRecipe(currentRecipe);
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context); // Cierra la pantalla actual
-                          // ignore: use_build_context_synchronously
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RecipeDetailPage(
-                                  recipe:
-                                      currentRecipe), 
-                            ),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.save),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMultilineTextFormField(
+                  labelText: '作り方',
+                    initialValue: widget.recipe.howTo,
+                    onChanged: (value) {
+                      setState(() {
+                        currentRecipe.howTo = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            favoriteStatus = !favoriteStatus;
+                            currentRecipe.favoriteStatus = favoriteStatus;
+                            _formKey.currentState!.save();
+                          });
+                        },
+                        icon: Icon(
+                          Icons.favorite,
+                          color: favoriteStatus
+                              ? Theme.of(context).primaryColor
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            // print(currentRecipe.toMap());
+                            await firebaseServices
+                                .addOrUpdateMyRecipe(currentRecipe);
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context); // Cierra la pantalla actual
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeDetailPage(recipe: currentRecipe),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.save),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+    Widget _buildDropdownRow(
+    Widget categoryDropdown,
+    Widget levelDropdown,
+    Widget personsDropdown,
+  ) {
+    return Row(
+      children: [
+        Expanded(child: categoryDropdown),
+        const SizedBox(width: 8),
+        Expanded(child: levelDropdown),
+        const SizedBox(width: 8),
+        Expanded(child: personsDropdown),
+      ],
     );
   }
 
@@ -292,6 +300,8 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
           });
         },
       ),
+
+
     );
   }
 
@@ -334,66 +344,75 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       shrinkWrap: true,
       itemCount: ingredients.length,
       itemBuilder: (context, index) {
-        final ingredientNameController = TextEditingController(
-          text: ingredients[index].ingredientName,
-        );
+        // final ingredientNameController = TextEditingController(
+        //   text: ingredients[index].ingredientName,
+        // );
         final quantityGramController = TextEditingController(
           text: ingredients[index].quantityGram,
         );
 
-        return Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: ingredientNameController,
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index] = Ingredient(
-                      ingredientName: value,
-                      quantityGram: ingredients[index].quantityGram,
-                    );
-                    currentRecipe.ingredients = List.from(ingredients);
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: '食材名',
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildTextFormField(
+                labelText: '食材名',
+                  // controller: ingredientNameController,
+                  initialValue:ingredients[index].ingredientName,
+                  onChanged: (value) {
+                    setState(() {
+                      ingredients[index] = Ingredient(
+                        ingredientName: value,
+                        quantityGram: ingredients[index].quantityGram,
+                      );
+                      currentRecipe.ingredients = List.from(ingredients);
+                    });
+                  },
+                  // decoration: const InputDecoration(
+                  //   labelText: '食材名',
+                  // ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: quantityGramController,
-                onChanged: (value) {
-                  setState(() {
-                    ingredients[index] = Ingredient(
-                      ingredientName: ingredients[index].ingredientName,
-                      quantityGram: value,
-                    );
-                    currentRecipe.ingredients = List.from(ingredients);
-                  });
-                },
-                decoration: const InputDecoration(
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildTextFormField(
+                  // controller: quantityGramController,
                   labelText: '個数・グラム',
+                  initialValue: ingredients[index].quantityGram,
+                  onChanged: (value) {
+                    setState(() {
+                      ingredients[index] = Ingredient(
+                        ingredientName: ingredients[index].ingredientName,
+                        quantityGram: value,
+                      );
+                      currentRecipe.ingredients = List.from(ingredients);
+                    });
+                  },
+                  // decoration: const InputDecoration(
+                  //   labelText: '個数・グラム',
+                  // ),
                 ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: () {
-                setState(() {
-                  if (ingredients.length > index) {
-                    ingredients.removeAt(index);
-                    currentRecipe.ingredients = List.from(ingredients);
-                  }
-                });
-              },
-            ),
-          ],
+                    const SizedBox(height: 16),
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  setState(() {
+                    if (ingredients.length > index) {
+                      ingredients.removeAt(index);
+                      currentRecipe.ingredients = List.from(ingredients);
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
         );
       },
     );
   }
+
 
   List<DropdownMenuItem<int>> _buildCategoryDropdownItems() {
     return recipeCategory.map((category) {
@@ -479,8 +498,37 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       );
     }).toList();
   }
+  Widget _buildMultilineTextFormField({
+    required String labelText,
+    required void Function(String) onChanged, required String initialValue,
+  }) {
+    return TextFormField(
+    initialValue: howTo,
+      maxLines: 6,
+      minLines: 6,
+      keyboardType: TextInputType.multiline,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: const BorderSide(
+            width: 2,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: const BorderSide(
+            width: 2,
+          ),
+        ),
+        filled: true,
+        fillColor: Colors.white70,
+      ),
+      onChanged: onChanged,
+    );
+  }
 
-  Future<String?> _pickImage() async {
+  Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
@@ -489,14 +537,48 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       final appDir = await getApplicationDocumentsDirectory();
       final newImage =
           await File(pickedFile.path).copy('${appDir.path}/$imageName');
-      final imagePath = newImage.path;
-      // print('Imagen path: $imagePath');
+      final newImagePath = newImage.path;
+
       setState(() {
-        currentRecipe.image =
-            imagePath; 
+        currentRecipe.image = newImagePath;
+        imagePath = newImagePath; // Actualiza la variable imagePath
       });
-      return imagePath;
+
+      circleAvatarKey = GlobalKey(); // Reconstruye el CircleAvatar
     }
-    return null;
+  }
+   Widget _buildTextFormField({
+    required String labelText,
+    TextInputType keyboardType = TextInputType.text,
+    required void Function(String) onChanged, required String initialValue,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: labelText,
+        
+        filled: true,
+        fillColor: Colors.white70,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      keyboardType: keyboardType,
+      initialValue: initialValue,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '$labelTextを入力してください';
+        }
+        return null;
+      },
+      onChanged: onChanged,
+    );
   }
 }

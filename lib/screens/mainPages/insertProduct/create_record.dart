@@ -10,14 +10,13 @@ import 'package:shokutomo/firebase/product_json_map.dart';
 class CreateRecordDialog extends StatefulWidget {
   final String productName;
 
-  const CreateRecordDialog({Key? key, required this.productName})
-      : super(key: key);
+  const CreateRecordDialog({super.key, required this.productName});
 
   @override
-  _CreateRecordDialogState createState() => _CreateRecordDialogState();
+  CreateRecordDialogState createState() => CreateRecordDialogState();
 }
 
-class _CreateRecordDialogState extends State<CreateRecordDialog> {
+class CreateRecordDialogState extends State<CreateRecordDialog> {
   DateTime selectedDate = DateTime.now(); // Initialize with the current date
   late DateTime useByDate; // Initialize the variable
   late DateTime selectedUseByDate; // Initialize the variable
@@ -62,280 +61,303 @@ class _CreateRecordDialogState extends State<CreateRecordDialog> {
               DateTime.now().add(Duration(days: selectedProduct.categoryUseBy));
 
           return AlertDialog(
-            title: Text(selectedProduct.productName),
+             title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              Text(
+                selectedProduct.productName,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+            ],
+          ),
             content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: SizedBox(
-                      height: 200,
-                      width: 200,
-                      child: Image.asset(
-                        "assets/img/${selectedProduct.image}",
-                        fit: BoxFit.contain,
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/img/fondo_up.png'),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: SizedBox(
+                        height: 200,
+                        width: 200,
+                        child: Image.asset(
+                          "assets/img/${selectedProduct.image}",
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  const Text(
-                    '購入日',
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedDate.year,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  newValue,
-                                  selectedDate.month,
-                                  selectedDate.day,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (changedValue.isAfter(selectedUseByDate)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            10,
-                            (int index) {
-                              final int year = DateTime.now().year + index;
-                              return DropdownMenuItem<int>(
-                                value: year,
-                                child: Text(year.toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedDate.month,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  selectedDate.year,
-                                  newValue,
-                                  selectedDate.day,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (changedValue.isAfter(selectedUseByDate)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            12,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Text((index + 1).toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedDate.day,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  selectedDate.year,
-                                  selectedDate.month,
-                                  newValue,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (changedValue.isAfter(selectedUseByDate)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            31,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Text((index + 1).toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8.0),
-                  const Text(
-                    '消費・賞味期限日',
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedUseByDate.year,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  newValue,
-                                  selectedUseByDate.month,
-                                  selectedUseByDate.day,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (selectedDate.isAfter(changedValue)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedUseByDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            10,
-                            (int index) {
-                              final int year = DateTime.now().year - 1 + index;
-                              return DropdownMenuItem<int>(
-                                value: year,
-                                child: Text(year.toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedUseByDate.month,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  selectedUseByDate.year,
-                                  newValue,
-                                  selectedUseByDate.day,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (selectedDate.isAfter(changedValue)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedUseByDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            12,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Text((index + 1).toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: DropdownButton<int>(
-                          value: selectedUseByDate.day,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              if (newValue != null) {
-                                DateTime changedValue = DateTime(
-                                  selectedUseByDate.year,
-                                  selectedUseByDate.month,
-                                  newValue,
-                                );
-                                // もし賞味期限日は購入日より前だったら、注意メッセージが出る
-                                if (selectedDate.isAfter(changedValue)) {
-                                  isChangeableExpiredDate = false;
-                                } else {
-                                  isChangeableExpiredDate = true;
-                                  selectedUseByDate = changedValue;
-                                }
-                              }
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            31,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Text((index + 1).toString()),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (!isChangeableExpiredDate)
+                    const SizedBox(height: 8.0),
                     const Text(
-                      "購入日より前の賞味期限を設定することが出来ません！",
-                      style: TextStyle(color: Colors.red, fontSize: 10),
+                      '購入日',
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 10,
+                      ),
                     ),
-                  const SizedBox(height: 8.0),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: '個数',
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedDate.year,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    newValue,
+                                    selectedDate.month,
+                                    selectedDate.day,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (changedValue.isAfter(selectedUseByDate)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              10,
+                              (int index) {
+                                final int year = DateTime.now().year + index;
+                                return DropdownMenuItem<int>(
+                                  value: year,
+                                  child: Text(year.toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedDate.month,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    selectedDate.year,
+                                    newValue,
+                                    selectedDate.day,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (changedValue.isAfter(selectedUseByDate)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              12,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text((index + 1).toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedDate.day,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    selectedDate.year,
+                                    selectedDate.month,
+                                    newValue,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (changedValue.isAfter(selectedUseByDate)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              31,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text((index + 1).toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        quantity = int.tryParse(value) ?? 0;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'グラム',
+                    const SizedBox(height: 8.0),
+                    const Text(
+                      '消費・賞味期限日',
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 10,
+                      ),
                     ),
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        grams = int.tryParse(value) ?? 0;
-                      });
-                    },
-                  ),
-                ],
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedUseByDate.year,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    newValue,
+                                    selectedUseByDate.month,
+                                    selectedUseByDate.day,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (selectedDate.isAfter(changedValue)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedUseByDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              10,
+                              (int index) {
+                                final int year =
+                                    DateTime.now().year - 1 + index;
+                                return DropdownMenuItem<int>(
+                                  value: year,
+                                  child: Text(year.toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedUseByDate.month,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    selectedUseByDate.year,
+                                    newValue,
+                                    selectedUseByDate.day,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (selectedDate.isAfter(changedValue)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedUseByDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              12,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text((index + 1).toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: DropdownButton<int>(
+                            value: selectedUseByDate.day,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                if (newValue != null) {
+                                  DateTime changedValue = DateTime(
+                                    selectedUseByDate.year,
+                                    selectedUseByDate.month,
+                                    newValue,
+                                  );
+                                  // もし賞味期限日は購入日より前だったら、注意メッセージが出る
+                                  if (selectedDate.isAfter(changedValue)) {
+                                    isChangeableExpiredDate = false;
+                                  } else {
+                                    isChangeableExpiredDate = true;
+                                    selectedUseByDate = changedValue;
+                                  }
+                                }
+                              });
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              31,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text((index + 1).toString()),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!isChangeableExpiredDate)
+                      const Text(
+                        "購入日より前の賞味期限を設定することが出来ません！",
+                        style: TextStyle(color: Colors.red, fontSize: 10),
+                      ),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: '個数',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          quantity = int.tryParse(value) ?? 0;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'グラム',
+                      ),
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          grams = int.tryParse(value) ?? 0;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [

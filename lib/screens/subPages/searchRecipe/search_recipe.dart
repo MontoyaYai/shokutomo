@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
-import 'package:shokutomo/firebase/product_json_map.dart';
+
 import 'package:shokutomo/firebase/recipe_json_map.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/my_recipe_tab.dart';
 import 'package:shokutomo/screens/subPages/searchRecipe/recomended_recipe_detail_page.dart';
@@ -18,7 +18,7 @@ class SearchRecipe extends StatefulWidget {
 class SearchRecipeState extends State<SearchRecipe> {
   late Future<List<Recipe>> recipesFuture;
   late Future<List<MyProducts>> productsFuture;
- 
+
   @override
   void initState() {
     super.initState();
@@ -41,18 +41,46 @@ class SearchRecipeState extends State<SearchRecipe> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          title: const Text(
-            'レシピブック',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                'レシピブック',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'レシピ検索'),
-              Tab(text: 'マイレシピ'),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search),
+                    Text('レシピ検索'),
+                  ],
+                ),
+              ),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.book),
+                    Text('マイレシピ'),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
         body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildRecipeSearchTab(),
             const Center(
@@ -65,106 +93,92 @@ class SearchRecipeState extends State<SearchRecipe> {
   }
 
   Widget _buildRecipeSearchTab() {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            child: _buildButtonGrid(),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/img/fondo_down.png'),
+          fit: BoxFit.fill,
         ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.only(
-              left: 16.0), // Agregado espacio desde la izquierda
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'おすすめ！',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              child: _buildButtonGrid(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 16.0), // Agregado espacio desde la izquierda
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'おすすめ！',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: FutureBuilder<List<Recipe>>(
-            future: recipesFuture,
-            builder: (context, recipeSnapshot) {
-              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (recipeSnapshot.hasError) {
-                return Text('Error: ${recipeSnapshot.error}');
-              } else {
-                return _buildRecommendedRecipesList(recipeSnapshot.data!);
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildButtonGrid() {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
-        mainAxisSpacing: 20.0,
-        crossAxisSpacing: 20.0,
-        children: [
-          _buildElevatedButton(
-            Icons.kitchen,
-            '手持ち在庫からレシピを選びましょう',
-            Colors.green,
-            () => _showDialogBox(context, productsFuture),
-          ),
-          _buildElevatedButton(
-            Icons.chat,
-            'チャットボットと会話する',
-            Colors.purple,
-            () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ChatPage())),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildElevatedButton(
-      IconData icon, String label, Color color, VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-      ),
-      onPressed: onPressed,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 75,
-            color: color,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: FutureBuilder<List<Recipe>>(
+              future: recipesFuture,
+              builder: (context, recipeSnapshot) {
+                if (recipeSnapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (recipeSnapshot.hasError) {
+                  return Text('Error: ${recipeSnapshot.error}');
+                } else {
+                  return _buildRecommendedRecipesList(recipeSnapshot.data!);
+                }
+              },
             ),
           ),
         ],
       ),
     );
   }
+
+ Widget _buildButtonGrid() {
+  return SizedBox(
+    width: double.infinity,
+    height: double.infinity,
+    child: GridView.count(
+      crossAxisCount: 2,
+      childAspectRatio: 0.7,
+      padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
+      mainAxisSpacing: 20.0,
+      crossAxisSpacing: 20.0,
+      children: [
+        InkWell(
+          onTap: () {
+            _showDialogBox(context, productsFuture);
+          },
+          child: Ink.image(
+            image: const AssetImage('assets/img/select_search.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatPage()),
+            );
+          },
+          child: Ink.image(
+            image: const AssetImage('assets/img/chatbot.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildRecommendedRecipesList(List<Recipe> recipes) {
     return ListView.builder(
@@ -176,7 +190,7 @@ class SearchRecipeState extends State<SearchRecipe> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      RecomendatedRecipeDetailPage(recipe: recipes[index] )),
+                      RecomendatedRecipeDetailPage(recipe: recipes[index])),
             );
           },
           child: Container(

@@ -21,59 +21,67 @@ class ShopListEditDialog extends StatelessWidget {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: Image.asset('assets/img/$productImage'),
-                ),
-                Text(
-                  productName,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ]),
+        child: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_up.png'),
+              fit: BoxFit.fill,
             ),
-            //quantity
-            const SizedBox(
-              height: 8,
-            ),
-            //Quantity
-            TextFormField(
-              initialValue: selectedProduct.quantity.toString(),
-              decoration: const InputDecoration(labelText: "個"),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              onChanged: (value) {
-                selectedProduct.quantity =
-                    int.tryParse(value) ?? selectedProduct.quantity;
-              },
-            ), //Quantity
-            //gram
-            const SizedBox(
-              height: 8.0,
-            ),
-            //Gram
-            TextFormField(
-              initialValue: selectedProduct.gram.toString(),
-              decoration: const InputDecoration(labelText: "グラム"),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              onChanged: (value) {
-                selectedProduct.gram =
-                    int.tryParse(value) ?? selectedProduct.gram;
-              },
-            ), //gram
-          ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: Image.asset('assets/img/$productImage'),
+                  ),
+                  Text(
+                    productName,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ]),
+              ),
+              //quantity
+              const SizedBox(
+                height: 8,
+              ),
+              //Quantity
+              TextFormField(
+                initialValue: selectedProduct.quantity.toString(),
+                decoration: const InputDecoration(labelText: "個"),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                onChanged: (value) {
+                  selectedProduct.quantity =
+                      int.tryParse(value) ?? selectedProduct.quantity;
+                },
+              ), //Quantity
+              //gram
+              const SizedBox(
+                height: 8.0,
+              ),
+              //Gram
+              TextFormField(
+                initialValue: selectedProduct.gram.toString(),
+                decoration: const InputDecoration(labelText: "グラム"),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                onChanged: (value) {
+                  selectedProduct.gram =
+                      int.tryParse(value) ?? selectedProduct.gram;
+                },
+              ), //gram
+            ],
+          ),
         ),
       ),
       actions: [

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shokutomo/config/background.dart';
+import 'package:shokutomo/config/background_with_logo.dart';
 import 'package:shokutomo/config/register/register.dart';
-import 'package:shokutomo/config/settings_page.dart';
 
 class LoginScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  LoginScreen({Key? key}) : super(key: key);
+  LoginScreen({super.key});
 
   Future<void> _showLoginErrorDialog(
       BuildContext context, String errorMessage) async {
@@ -38,8 +37,32 @@ class LoginScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("ログイン成功しました"),
-          content: Text("ようこそ, $email!"),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                'ログイン成功しました',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text("ようこそ, $email!"),
+                const SizedBox(height: 10),
+                Image.asset(
+                  'assets/img/welcome.png',
+                ),
+              ],
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -59,7 +82,7 @@ class LoginScreen extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: Background(
+      body: BackgroundWithLogo(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -170,7 +193,7 @@ class LoginScreen extends StatelessWidget {
                               } else if (e.code == 'invalid-credential') {
                                 errorMessage = 'メールアドレスかパスワードが間違っています。';
                               }
-
+                              // ignore: use_build_context_synchronously
                               _showLoginErrorDialog(context, errorMessage);
                             }
                           }
