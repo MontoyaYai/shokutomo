@@ -131,7 +131,7 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/img/fondo_up_down.png'),
+            image: AssetImage('assets/img/fondo_up.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -240,19 +240,19 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
                       IconButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            // print(currentRecipe.toMap());
                             await firebaseServices
                                 .addOrUpdateMyRecipe(currentRecipe);
                             // ignore: use_build_context_synchronously
-                            Navigator.pop(context); // Cierra la pantalla actual
+                            Navigator.pop(context, true); // Cierra la pantalla actual
                             // ignore: use_build_context_synchronously
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    RecipeDetailPage(recipe: currentRecipe),
-                              ),
-                            );
+                            // Navigator.pushReplacement(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) =>
+                            //         RecipeDetailPage(recipe: currentRecipe),
+                                    
+                            //   ),
+                            // );
                           }
                         },
                         icon: const Icon(Icons.save),
@@ -340,78 +340,70 @@ class EditMyRecipeFormState extends State<EditMyRecipeForm> {
   }
 
   Widget _buildIngredientsList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: ingredients.length,
-      itemBuilder: (context, index) {
-        // final ingredientNameController = TextEditingController(
-        //   text: ingredients[index].ingredientName,
-        // );
-        final quantityGramController = TextEditingController(
-          text: ingredients[index].quantityGram,
-        );
+  return ingredients.isEmpty
+      ? Text('')
+      : ListView.builder(
+          shrinkWrap: true,
+          itemCount: ingredients.length,
+          itemBuilder: (context, index) {
+            final quantityGramController = TextEditingController(
+              text: ingredients[index].quantityGram,
+            );
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildTextFormField(
-                labelText: '食材名',
-                  // controller: ingredientNameController,
-                  initialValue:ingredients[index].ingredientName,
-                  onChanged: (value) {
-                    setState(() {
-                      ingredients[index] = Ingredient(
-                        ingredientName: value,
-                        quantityGram: ingredients[index].quantityGram,
-                      );
-                      currentRecipe.ingredients = List.from(ingredients);
-                    });
-                  },
-                  // decoration: const InputDecoration(
-                  //   labelText: '食材名',
-                  // ),
-                ),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildTextFormField(
+                      labelText: '食材名',
+                      initialValue: ingredients[index].ingredientName,
+                      onChanged: (value) {
+                        setState(() {
+                          ingredients[index] = Ingredient(
+                            ingredientName: value,
+                            quantityGram: ingredients[index].quantityGram,
+                          );
+                          currentRecipe.ingredients = List.from(ingredients);
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildTextFormField(
+                      labelText: '個数・グラム',
+                      initialValue: ingredients[index].quantityGram,
+                      onChanged: (value) {
+                        setState(() {
+                          ingredients[index] = Ingredient(
+                            ingredientName: ingredients[index].ingredientName,
+                            quantityGram: value,
+                          );
+                          currentRecipe.ingredients = List.from(ingredients);
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: () {
+                      setState(() {
+                        if (ingredients.length > index) {
+                          ingredients.removeAt(index);
+                          currentRecipe.ingredients = List.from(ingredients);
+                        }
+                      });
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextFormField(
-                  // controller: quantityGramController,
-                  labelText: '個数・グラム',
-                  initialValue: ingredients[index].quantityGram,
-                  onChanged: (value) {
-                    setState(() {
-                      ingredients[index] = Ingredient(
-                        ingredientName: ingredients[index].ingredientName,
-                        quantityGram: value,
-                      );
-                      currentRecipe.ingredients = List.from(ingredients);
-                    });
-                  },
-                  // decoration: const InputDecoration(
-                  //   labelText: '個数・グラム',
-                  // ),
-                ),
-              ),
-                    const SizedBox(height: 16),
-              IconButton(
-                icon: const Icon(Icons.remove),
-                onPressed: () {
-                  setState(() {
-                    if (ingredients.length > index) {
-                      ingredients.removeAt(index);
-                      currentRecipe.ingredients = List.from(ingredients);
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
+            );
+          },
         );
-      },
-    );
-  }
+}
+
 
 
   List<DropdownMenuItem<int>> _buildCategoryDropdownItems() {
