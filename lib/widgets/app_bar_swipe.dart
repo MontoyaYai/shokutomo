@@ -92,7 +92,12 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   onTap: () {
-                    //!!
+                   Navigator.pop(context);
+                    _pageController.animateToPage(
+                      3,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                 ),
                 ListTile(
@@ -104,7 +109,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   onTap: () {
                     Navigator.pop(context);
                     _pageController.animateToPage(
-                      3,
+                      4,
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                     );
@@ -119,7 +124,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   onTap: () {
                     Navigator.pop(context);
                     _pageController.animateToPage(
-                      4,
+                      5,
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                     );
@@ -134,7 +139,7 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
                   onTap: () {
                     Navigator.pop(context);
                     _pageController.animateToPage(
-                      7,
+                      6,
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                     );
@@ -151,13 +156,10 @@ class _AppBarSwipeState extends State<AppBarSwipe> {
           CalendarPage(),
           InventoryPage(),
           CategoryPage(),
+          TextRecognizerView(),
           ShoppingList(),
-          TextRecognizerView(), // camera insert products
-          // MyRecipe(),
           SearchRecipe(),
-          // MyFridge(),
           SettingsPage(),
-          // ProductPage(),
         ],
         onPageChanged: (index) {
           setState(() {

@@ -10,7 +10,7 @@ import 'detector_view.dart';
 import 'painters/text_detector_painter.dart';
 
 class TextRecognizerView extends StatefulWidget {
-  const TextRecognizerView({Key? key}) : super(key: key);
+  const TextRecognizerView({super.key});
   @override
   _TextRecognizerViewState createState() => _TextRecognizerViewState();
 }
@@ -53,12 +53,23 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     setState(() {});
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        title: const Text(
-          'レシート読み取り',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          elevation: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/img/logo_sushi.png',
+                width: 30, // ajusta el ancho según sea necesario
+                height: 30, // ajusta la altura según sea necesario
+              ),
+              const SizedBox(width: 8), // Espacio entre la imagen y el texto
+              const Text(
+                'レシート読み取り',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
-      ),
       body: Stack(children: [
         DetectorView(
           customPaint: _customPaint,

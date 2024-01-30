@@ -9,12 +9,12 @@ import '../../firebase/product_json_map.dart';
 import 'text_detector_view.dart';
 
 class GalleryView extends StatefulWidget {
-  GalleryView(
-      {Key? key,
-      this.text,
-      required this.onImage,
-      required this.onDetectorViewModeChanged})
-      : super(key: key);
+  const GalleryView({
+    super.key,
+    this.text,
+    required this.onImage,
+    required this.onDetectorViewModeChanged,
+  });
 
   final String? text;
   final Function(InputImage inputImage) onImage;
@@ -26,7 +26,6 @@ class GalleryView extends StatefulWidget {
 
 class _GalleryViewState extends State<GalleryView> {
   File? _image;
-  //String? _path;
   ImagePicker? _imagePicker;
 
   List<Product> product = [];
@@ -34,17 +33,11 @@ class _GalleryViewState extends State<GalleryView> {
   @override
   void initState() {
     super.initState();
-
     _imagePicker = ImagePicker();
   }
 
   Future<void> fetchTextList() async {
     setState(() {});
-  }
-
-  void update() {
-    setState(() {});
-    Widget.canUpdate;
   }
 
   String getList() {
@@ -53,88 +46,97 @@ class _GalleryViewState extends State<GalleryView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _galleryBody());
-  }
-
-  Widget _galleryBody() {
-    return ListView(shrinkWrap: true, children: [
-      _image != null
-          ? SizedBox(
-              height: 400,
-              width: 400,
-              child: Stack(
-                fit: StackFit.expand,
-                children: <Widget>[
-                  Image.file(_image!),
-                ],
-              ),
-            )
-          : const Icon(
-              Icons.image,
-              size: 200,
+    return Scaffold(
+      body: Container(
+       decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/fondo_up_down.png'),
+              fit: BoxFit.fill,
             ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ElevatedButton(
-            child: const Text('From Gallery'),
-            onPressed: () {
-              _getImage(ImageSource.gallery);
-              setState(() {});
-            }),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ElevatedButton(
-            child: const Text('Take a picture'),
-            onPressed: () {
-              _getImage(ImageSource.camera);
-              setState(() {});
-            }),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ElevatedButton(
-            child: const Text('在庫に追加'),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return InsertTextItemsConfirm(onUpdate: fetchTextList);
-                  });
-              setState(() {});
-            }),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: productsList.isNotEmpty
-            ? Text(
-                getList(),
-                style: TextStyle(fontSize: 18),
-              )
-            : Text(
-                'リストにまだアイテムがありません',
-                style: TextStyle(fontSize: 20),
+          ),
+        child: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: 0,
+              onDestinationSelected: (int index) {
+                if (index == 0) {
+                  _getImage(ImageSource.gallery);
+                } else if (index == 1) {
+                  _getImage(ImageSource.camera);
+                } else if (index == 2) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return InsertTextItemsConfirm(onUpdate: fetchTextList);
+                    },
+                  );
+                }
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.image_search_outlined),
+                  selectedIcon: Icon(Icons.image_search),
+                  label: Text('メディア'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.camera_alt),
+                  selectedIcon: Icon(Icons.camera),
+                  label: Text('カメラ'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.add),
+                  selectedIcon: Icon(Icons.add),
+                  label: Text('在庫追加'),
+                ),
+              ],
+            ),
+            const VerticalDivider(thickness: 1, width: 1),
+            // Contenido principal
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+           
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    _image != null
+                        ? SizedBox(
+                            height: 400,
+                            width: 400,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: <Widget>[
+                                Image.file(_image!),
+                              ],
+                            ),
+                          )
+                        :  Image.asset('assets/img/text_nolistentry.png',
+                          ),
+                    const SizedBox(height: 16),
+                    productsList.isNotEmpty
+                        ? Text(
+                            getList(),
+                            style: const TextStyle(fontSize: 18),
+                          )
+                        : Image.asset('assets/img/nolistentry.png'),
+                  ],
+                ),
               ),
-      ),
-      /*if (_image != null)
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-              '${_path == null ? '' : 'Image path: $_path'}\n\n${widget.text ?? ''}'),
+            ),
+          ],
         ),
-      */
-    ]);
+      ),
+    );
   }
 
   Future _getImage(ImageSource source) async {
     setState(() {
       _image = null;
-      //_path = null;
     });
     final pickedFile = await _imagePicker?.pickImage(source: source);
     if (pickedFile != null) {
       await _processFile(pickedFile.path);
-      setState(() {});
     }
   }
 
@@ -142,7 +144,6 @@ class _GalleryViewState extends State<GalleryView> {
     setState(() {
       _image = File(path);
     });
-    //_path = path;
     final inputImage = InputImage.fromFilePath(path);
     widget.onImage(inputImage);
   }
