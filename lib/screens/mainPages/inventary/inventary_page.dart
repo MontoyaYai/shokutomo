@@ -15,7 +15,8 @@ class InventoryPage extends StatefulWidget {
   InventoryPageState createState() => InventoryPageState();
 }
 
-class InventoryPageState extends State<InventoryPage> {
+class InventoryPageState extends State<InventoryPage>
+    with AutomaticKeepAliveClientMixin {
   List<MyProducts> myProducts = [];
   int? selectedEntryIndex;
 
@@ -24,6 +25,9 @@ class InventoryPageState extends State<InventoryPage> {
   int? selectedDay;
   // タイマーを設定
   late Timer _timer;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -79,6 +83,7 @@ class InventoryPageState extends State<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ThemeData theme = Theme.of(context);
     Color primaryColor = theme.primaryColor;
     return Scaffold(
