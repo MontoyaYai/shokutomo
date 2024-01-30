@@ -1,4 +1,5 @@
-import 'package:shokutomo/firebase/firebase_services.dart';
+
+import 'package:shokutomo/firebase/get_firebasedata_to_array.dart';
 import 'package:shokutomo/firebase/myproduct_json_map.dart';
 
 class FetchMyProductsFromDatabase {
@@ -10,7 +11,7 @@ class FetchMyProductsFromDatabase {
 
   Future<void> fetchDataFromDatabase() async {
     List<MyProducts> myProducts =
-        await FirebaseServices().getFirebaseMyProducts();
+        await GetFirebaseDataToArray().myProductsArray();
     //DateTimeごとに商品を分ける
     for (MyProducts product in myProducts) {
       DateTime expiredDate = product.expiredDate;
