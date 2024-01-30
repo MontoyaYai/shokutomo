@@ -36,6 +36,14 @@ class _GalleryViewState extends State<GalleryView> {
     _imagePicker = ImagePicker();
   }
 
+  
+   void removeProduct(int index) {
+    setState(() {
+      print('Removing product at index: $index');
+      productsList.removeAt(index);
+    });
+  }
+
   Future<void> fetchTextList() async {
     setState(() {});
   }
@@ -48,12 +56,12 @@ class _GalleryViewState extends State<GalleryView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-       decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/img/fondo_up_down.png'),
-              fit: BoxFit.fill,
-            ),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/img/fondo_up_down.png'),
+            fit: BoxFit.fill,
           ),
+        ),
         child: Row(
           children: [
             NavigationRail(
@@ -92,13 +100,12 @@ class _GalleryViewState extends State<GalleryView> {
               ],
             ),
             const VerticalDivider(thickness: 1, width: 1),
-            // Contenido principal
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
-           
-                child: ListView(
-                  shrinkWrap: true,
+                child: Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
                   children: [
                     _image != null
                         ? SizedBox(
@@ -111,15 +118,50 @@ class _GalleryViewState extends State<GalleryView> {
                               ],
                             ),
                           )
-                        :  Image.asset('assets/img/text_nolistentry.png',
-                          ),
+                        : Image.asset('assets/img/text_nolistentry.png'),
                     const SizedBox(height: 16),
-                    productsList.isNotEmpty
-                        ? Text(
-                            getList(),
-                            style: const TextStyle(fontSize: 18),
-                          )
-                        : Image.asset('assets/img/nolistentry.png'),
+                    if (productsList.isNotEmpty)
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: productsList.map((product) {
+                          return ElevatedButton(
+                            onPressed: null,
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Theme.of(context).primaryColor.withOpacity(
+                                      0.2)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  product.name,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.black),
+                                ),
+                                const SizedBox(
+                                    width:
+                                        8), 
+                                InkWell(
+                                  onTap: () {
+                                  int currentIndex = productsList.indexOf(product);
+                                      print('Clicked on button at index: $currentIndex');
+                                      removeProduct(currentIndex);
+                                    // Lógica al hacer clic en la "x"
+                                  },
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    else
+                      Image.asset('assets/img/nolistentry.png'),
                   ],
                 ),
               ),
